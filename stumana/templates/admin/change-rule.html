@@ -1,0 +1,22 @@
+{% extends 'admin/base.html' %}
+
+{% block body %}
+<h1 class="text-center text-info"> Thay Đổi Quy Định</h1>
+<div class="container" >
+    <div class="col-md-6">
+        <h3 class="text-center"> Thay đổi tuổi</h3>
+        <form method="POST" action="{{url_for('change_rule')}}">
+          <div class="form-group">
+            <label for="min-age">Tuổi tối thiểu</label>
+            <input type="number" class="form-control" name="min-age" id="min-age" value="{{min_age}}">
+          </div>
+          <div class="form-group">
+            <label for="max-age">Tuổi tối đa</label>
+            <input type="number" class="form-control" name="max-age" id="max-age" value="{{max_age}}">
+          </div>
+          <button type="submit" class="btn btn-primary">Xác nhận</button>
+        </form>
+    </div>
+    <div class="col-md-6"></div>
+</div>
+{% endblock %}
