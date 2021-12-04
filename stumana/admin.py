@@ -34,7 +34,8 @@ class ChangeRule(BaseView):
     def __index__(self):
         return self.render("admin/change-rule.html",
                            min_age=app.config['MIN_AGE'],
-                           max_age=app.config['MAX_AGE'])
+                           max_age=app.config['MAX_AGE'],
+                           max_size=app.config['MAX_SIZE'])
 
 
 admin.add_view(ModalModelView(Account, db.session, name='Tài khoản'))
