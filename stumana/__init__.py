@@ -8,6 +8,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:quoc2401@localhost
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['MIN_AGE'] = 15
 app.config['MAX_AGE'] = 20
+app.config['MAX_SIZE'] = 4
 
 
 db = SQLAlchemy(app=app)
