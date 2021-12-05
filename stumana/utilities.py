@@ -13,10 +13,10 @@ def change_chk_age(min_age=None, max_age=None):
     _min_age = str(app.config['MIN_AGE'] - 1)
     _max_age = str(app.config['MAX_AGE'] + 1)
 
+# tao cau lenh sql
     drop_min = "CALL PROC_DROP_CHECK_CONSTRAINT('student', 'chk_age1');"
     add_min = "CALL PROC_ADD_CHECK_CONSTRAINT('student', 'chk_age1'," \
               " '(YEAR(join_date) - YEAR(bday)) > " + _min_age + "');"
-
     drop_max = "CALL PROC_DROP_CHECK_CONSTRAINT('student', 'chk_age2');"
     add_max = "CALL PROC_ADD_CHECK_CONSTRAINT('student', 'chk_age2'," \
               " '(YEAR(join_date) - YEAR(bday)) < " + _max_age + "');"
@@ -34,7 +34,7 @@ def change_chk_age(min_age=None, max_age=None):
 
 
 # thay doi si so toi da
-def change_chk_max_size(max_size=None):
+def change_max_size(max_size=None):
     errmsg=''
 
     if max_size:
@@ -42,6 +42,7 @@ def change_chk_max_size(max_size=None):
 
     _max_size = str(app.config['MAX_SIZE'])
 
+# tao cau lenh sql
     drop_trigger = "drop trigger if exists before_enter_class;"
     create_trigger = " create trigger before_enter_class after update on class_room for each row"\
         " begin declare new_size int; set new_size = (select total from class_room"\

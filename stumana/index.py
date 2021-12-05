@@ -16,7 +16,7 @@ def change_rule():
         max_size = request.form.get('max-size')
 
         result1 = utilities.change_chk_age(min_age=min_age, max_age=max_age)
-        result2 = utilities.change_chk_max_size(max_size=max_size)
+        result2 = utilities.change_max_size(max_size=max_size)
         print(result1)
         print(result2)
 
