@@ -118,7 +118,7 @@ class XXXXVMark(BaseModel):
 
 
 # bang diem cua 1 hoc sinh trong mot hoc ky cua 1 nam
-class Mark(BaseModel):
+class Mark(db.Model):
     subject_id = Column(Integer, ForeignKey(Subject.id), primary_key=True)
     student_id = Column(Integer, ForeignKey(Student.id), primary_key=True)
     semester = Column(Integer, primary_key=True)

@@ -8,3 +8,7 @@
     left:13.85%;
     z-index:-1000;
 }
+
+body {
+    background-color: lightblue;
+}

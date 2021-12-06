@@ -47,8 +47,16 @@ class ChangeRule(BaseView):
                            max_size=app.config['MAX_SIZE'])
 
 
-admin.add_view(CustomAccountForm(Account, db.session, name='Tài khoản',
-                                 menu_icon_type='fa', menu_icon_value='fa-user-o'))
+class UserAllocation(BaseView):
+    @expose("/")
+    def __index__(self):
+        return self.render("admin/index.html")
+
+
+admin.add_view(CustomAccountForm(Account, db.session, name='Quản lý tài khoản', category="Tài khoản",
+                                 menu_icon_type='fa', menu_icon_value='fa-users'))
+admin.add_view(UserAllocation(name="Cấp tài khoản", category="Tài khoản",
+                              menu_icon_type='fa', menu_icon_value='fa-id-card'))
 admin.add_view(CustomPersonForm(Student, db.session, name='Học sinh', category="Cá nhân",
                                 menu_icon_type='fa', menu_icon_value='fa-graduation-cap'))
 admin.add_view(CustomPersonForm(Teacher, db.session, name='Giáo viên', category="Cá nhân",
