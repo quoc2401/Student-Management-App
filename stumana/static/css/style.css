@@ -1,0 +1,14 @@
+.overlay{
+    opacity:1;
+    background-color:#a3e3e2;
+    position:fixed;
+    width:72.3%;
+    height:100%;
+    top:0px;
+    left:13.85%;
+    z-index:-1000;
+}
+
+body {
+    background-color: lightblue;
+}

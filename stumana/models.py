@@ -23,6 +23,9 @@ class Account(BaseModel):
     password = Column(String(50), nullable=False)
     avatar = Column(String(100))
     user_role = Column(Enum(UserRole), nullable=False)
+    student = relationship('Student', backref='account', lazy=True)
+    teacher = relationship('Teacher', backref='account', lazy=True)
+    staff = relationship('Staff', backref='account', lazy=True)
 
     def __str__(self):
         return self.name
@@ -77,6 +80,11 @@ class Teacher(Person):
                            backref=backref('teacher', lazy=True))
 
 
+class Staff(Person):
+    ethnic_id = Column(Integer, ForeignKey(Ethnic.id))
+    account_id = Column(Integer, ForeignKey(Account.id), unique=True)
+
+
 # mon hoc
 class Subject(BaseModel):
     name = Column(String(20), nullable=False)
@@ -98,6 +106,7 @@ class XVMark(BaseModel):
     col3 = Column(Float)
     col4 = Column(Float)
     col5 = Column(Float)
+    mark = relationship('Mark', backref='xvmark', lazy=True)
 
 
 # diem 45p
@@ -105,10 +114,11 @@ class XXXXVMark(BaseModel):
     col1 = Column(Float)
     col2 = Column(Float)
     col3 = Column(Float)
+    mark = relationship('Mark', backref='xxxxvmark', lazy=True)
 
 
 # bang diem cua 1 hoc sinh trong mot hoc ky cua 1 nam
-class Mark(BaseModel):
+class Mark(db.Model):
     subject_id = Column(Integer, ForeignKey(Subject.id), primary_key=True)
     student_id = Column(Integer, ForeignKey(Student.id), primary_key=True)
     semester = Column(Integer, primary_key=True)
