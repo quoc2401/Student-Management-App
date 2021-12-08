@@ -14,6 +14,10 @@ def check_login(username, password):
     return User.query.filter(User.username.__eq__(username.strip()),
                              User.password.__eq__(password)).first()
 
+<<<<<<< HEAD
+# aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+=======
+>>>>>>> 1bc128d50d6bd12609498f0d78971c2dd4c58714
 
 # Thay doi tuoi quy dinh
 def change_chk_age(min=None, max=None):
