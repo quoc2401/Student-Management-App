@@ -1,5 +1,9 @@
 {% extends 'admin/base.html' %}
 
 {% block body %}
-    <h1 class="text-center text-info" >Xin chao</h1>
+{% if current_user.is_authenticated %}
+<h1 class="text-center text-info" >Xin chao {{ current_user.name }}</h1>
+{% else %}
+<a href="{{ url_for('user_login', next='/admin')}}">Đăng nhập</a>
+{% endif %}
 {% endblock %}

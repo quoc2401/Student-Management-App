@@ -3,6 +3,7 @@ from sqlalchemy import Column, String, Integer, DATETIME, ForeignKey, Enum, Bool
 from datetime import datetime
 from sqlalchemy.orm import relationship, backref
 from enum import Enum as UserEnum
+from flask_login import UserMixin
 
 
 class UserRole(UserEnum):
@@ -17,15 +18,15 @@ class BaseModel(db.Model):
     id = Column(Integer, autoincrement=True, primary_key=True)
 
 
-class Account(BaseModel):
+class User(BaseModel, UserMixin):
     name = Column(String(50), nullable=False)
     username = Column(String(50), nullable=False, unique=True)
     password = Column(String(50), nullable=False)
     avatar = Column(String(100))
     user_role = Column(Enum(UserRole), nullable=False)
-    student = relationship('Student', backref='account', lazy=True)
-    teacher = relationship('Teacher', backref='account', lazy=True)
-    staff = relationship('Staff', backref='account', lazy=True)
+    student = relationship('Student', backref='user', lazy=True)
+    teacher = relationship('Teacher', backref='user', lazy=True)
+    staff = relationship('Staff', backref='user', lazy=True)
 
     def __str__(self):
         return self.name
@@ -57,6 +58,8 @@ class ClassRoom(BaseModel):
     name = Column(String(10), nullable=False)
     total = Column(Integer, default=0)
     students = relationship('Student', backref='classroom', lazy=False)
+    # teachers = relationship('Teacher', secondary='teacher_subject_class', lazy='subquery',
+    #                         backref=backref('classroom', lazy=True))
 
     def __str__(self):
         return self.name
@@ -69,20 +72,20 @@ class Student(Person):
     )
 
     ethnic_id = Column(Integer, ForeignKey(Ethnic.id))
-    account_id = Column(Integer, ForeignKey(Account.id), unique=True)
+    user_id = Column(Integer, ForeignKey(User.id), unique=True)
     class_id = Column(Integer, ForeignKey(ClassRoom.id))
 
 
 class Teacher(Person):
     ethnic_id = Column(Integer, ForeignKey(Ethnic.id))
-    account_id = Column(Integer, ForeignKey(Account.id), unique=True)
+    user_id = Column(Integer, ForeignKey(User.id), unique=True)
     classes = relationship('ClassRoom', secondary='teacher_subject_class', lazy='subquery',
                            backref=backref('teacher', lazy=True))
 
 
 class Staff(Person):
     ethnic_id = Column(Integer, ForeignKey(Ethnic.id))
-    account_id = Column(Integer, ForeignKey(Account.id), unique=True)
+    user_id = Column(Integer, ForeignKey(User.id), unique=True)
 
 
 # mon hoc
@@ -130,4 +133,16 @@ class Mark(db.Model):
 
 if __name__ == '__main__':
     # db.drop_all()
+
     db.create_all()
+
+    # tao Trigger tu dong tinh toan si so lop hoc
+    db.engine.execute("drop trigger if exists change_class_size;")
+    db.engine.execute("create trigger change_class_size before update on student for each row begin"
+                      " declare old_size int; declare new_size int; set old_size = (select count(s.id)"
+                      " from student s, class_room c where s.class_id = c.id and c.id = old.class_id);"
+                      " set new_size = (select count(s.id) from student s, class_room c"
+                      " where s.class_id = c.id and c.id = new.class_id);"
+                      " update class_room set total = new_size + 1 where id = new.class_id;"
+                      " update class_room set total = old_size - 1 where id = old.class_id;"
+                      "end;")
