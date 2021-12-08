@@ -5,8 +5,8 @@ import config, numpy
 
 
 # Dang nhap
-def get_user_by_id(account_id):
-    return User.query.get(account_id)
+def get_user_by_id(user_id):
+    return User.query.get(user_id)
 
 
 def check_login(username, password):
