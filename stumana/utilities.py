@@ -7,6 +7,12 @@ import config, numpy
 # Dang nhap
 def get_user_by_id(account_id):
     return User.query.get(account_id)
+import config
+
+
+# Dang nhap
+def get_user_by_id(user_id):
+    return User.query.get(user_id)
 
 
 def check_login(username, password):
@@ -97,13 +103,24 @@ def average_ignore_none(numbers):
     return avg
 
 
+<<<<<<< HEAD
+=======
+# test 5
+# test 6
+# test 7
+# test 8
+>>>>>>> 91637a95b3ba28a4eb40583c354c155041c754cc
 # Tu day tro xuong la de test = console
 # change_chk_age(15, 20)
 # print(config.min_age)
 a = get_students_mark(1)
 print(a)
+<<<<<<< HEAD
 #
 # test 1
 # test 2
 # test 3
 # test 4
+=======
+# print("average =", ma.average(a))
+>>>>>>> 91637a95b3ba28a4eb40583c354c155041c754cc

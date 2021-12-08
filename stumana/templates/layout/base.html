@@ -18,11 +18,23 @@
 <body>
 
     {% block header%}
+<<<<<<< HEAD
     {% include 'layout/header.html' %}
     {% endblock %}
     {% block body %}{% endblock %}
     {% block footer%}
     {% include 'layout/footer.html' %}
+=======
+        {% include 'layout/header.html' %}
+    {% endblock %}
+
+    <div class="container">
+    {% block body %}{% endblock %}
+    </div>
+
+    {% block footer%}
+        {% include 'layout/footer.html' %}
+>>>>>>> 91637a95b3ba28a4eb40583c354c155041c754cc
     {% endblock %}
 </body>
 </html>
