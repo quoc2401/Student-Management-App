@@ -1,7 +1,7 @@
 from stumana import db
 from sqlalchemy import text, func
 from stumana.models import User, Student, Mark, Subject, XVMark, XXXXVMark, ClassRoom
-import config, numpy
+import config
 
 
 # Dang nhap
@@ -14,10 +14,6 @@ def check_login(username, password):
     return User.query.filter(User.username.__eq__(username.strip()),
                              User.password.__eq__(password)).first()
 
-<<<<<<< HEAD
-# aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-=======
->>>>>>> 1bc128d50d6bd12609498f0d78971c2dd4c58714
 
 # Thay doi tuoi quy dinh
 def change_chk_age(min=None, max=None):
@@ -101,12 +97,13 @@ def average_ignore_none(numbers):
     return avg
 
 
+# test 5
+# test 6
+# test 7
+# test 8
 # Tu day tro xuong la de test = console
 # change_chk_age(15, 20)
 # print(config.min_age)
 a = get_students_mark(1)
 print(a)
-#
-# import numpy.ma as ma
-# a = ma.array([7, None, None, None, None], mask=[0, 1, 1, 1, 1])
 # print("average =", ma.average(a))
