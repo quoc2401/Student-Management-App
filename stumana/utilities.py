@@ -26,7 +26,7 @@ def change_chk_age(min=None, max=None):
                   " '(YEAR(join_date) - YEAR(bday)) > " + _min_age + "');"
         db.engine.execute(text(drop_min))
         db.engine.execute(text(add_min))
-
+        config.min_age = min
         max = int(max)
         _max_age = str(max + 1)
         drop_max = "CALL PROC_DROP_CHECK_CONSTRAINT('student', 'chk_age2');"
@@ -34,7 +34,6 @@ def change_chk_age(min=None, max=None):
                   " '(YEAR(join_date) - YEAR(bday)) < " + _max_age + "');"
         db.engine.execute(text(drop_max))
         db.engine.execute(text(add_max))
-        config.min_age = min
         config.max_age = max
     except Exception as e:
         return str(e)
@@ -97,13 +96,20 @@ def average_ignore_none(numbers):
     return avg
 
 
+
 # test 5
 # test 6
 # test 7
 # test 8
+
 # Tu day tro xuong la de test = console
 # change_chk_age(15, 20)
 # print(config.min_age)
 a = get_students_mark(1)
 print(a)
-# print("average =", ma.average(a))
+
+#
+# test 1
+# test 2
+# test 3
+# test 4
