@@ -92,6 +92,8 @@ class Staff(Person):
 class Subject(BaseModel):
     name = Column(String(20), nullable=False)
 
+    def __str__(self):
+        return self.name
 
 # 1 giao vien day nhieu lop, 1 lop co nhieu giao vien
 class TeacherSubjectClass(db.Model):
@@ -122,8 +124,8 @@ class XXXXVMark(BaseModel):
 
 # bang diem cua 1 hoc sinh trong mot hoc ky cua 1 nam
 class Mark(db.Model):
-    subject_id = Column(Integer, ForeignKey(Subject.id), primary_key=True)
-    student_id = Column(Integer, ForeignKey(Student.id), primary_key=True)
+    subject_id = Column(Integer, ForeignKey(Subject.id), primary_key=True, nullable=False)
+    student_id = Column(Integer, ForeignKey(Student.id), primary_key=True, nullable=False)
     semester = Column(Integer, primary_key=True)
     year = Column(Integer, primary_key=True)
     XV_mark_id = Column(Integer, ForeignKey(XVMark.id))
@@ -134,7 +136,7 @@ class Mark(db.Model):
 if __name__ == '__main__':
     # db.drop_all()
 
-    db.create_all()
+    # db.create_all()
 
     # tao Trigger tu dong tinh toan si so lop hoc
     db.engine.execute("drop trigger if exists change_class_size;")

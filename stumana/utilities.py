@@ -1,7 +1,7 @@
 from stumana import db
-from sqlalchemy import text
-from stumana.models import User
-import config
+from sqlalchemy import text, func
+from stumana.models import User, Student, Mark, Subject, XVMark, XXXXVMark, ClassRoom
+import config, numpy
 
 
 # Dang nhap
@@ -61,5 +61,48 @@ def change_max_size(max=None):
         return str(e)
 
 
+def get_students_mark(class_id):
+    students = db.session.query(Subject, Student, Mark.semester, Mark.year, XVMark, XXXXVMark, Mark.FinalMark)\
+                                .join(Mark, Mark.subject_id.__eq__(Subject.id))\
+                                .join(Student, Student.id.__eq__(Mark.student_id))\
+                                .join(XVMark, XVMark.id.__eq__(Mark.XV_mark_id), isouter=True)\
+                                .join(XXXXVMark, XXXXVMark.id.__eq__(Mark.XXXXV_mark_id), isouter=True)
+
+    if class_id:
+        students = students.filter(Student.class_id.__eq__(class_id))
+
+    d = {}
+    for s in students:
+        d[str(s.Student.id)] = {
+            'subject_id': s.Subject.id,
+            'semester': s.semester,
+            'year': s.year,
+            'mark15': average_ignore_none([s.XVMark.col1, s.XVMark.col2, s.XVMark.col3, s.XVMark.col4, s.XVMark.col5])
+            if s.XVMark else 0,
+            'mark45': average_ignore_none([s.XXXXVMark.col1, s.XXXXVMark.col2, s.XXXXVMark.col3])
+            if s.XXXXVMark else 0,
+            'final_mark': s.FinalMark if s.FinalMark else 0
+        }
+
+    # return students.all()
+    return d
+
+
+def average_ignore_none(numbers):
+    total = []
+    for n in numbers:
+        if n:
+            total.append(n)
+    avg = sum(total) / len(total)
+    return avg
+
+
+# Tu day tro xuong la de test = console
 # change_chk_age(15, 20)
 # print(config.min_age)
+a = get_students_mark(1)
+print(a)
+#
+# import numpy.ma as ma
+# a = ma.array([7, None, None, None, None], mask=[0, 1, 1, 1, 1])
+# print("average =", ma.average(a))
