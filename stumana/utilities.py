@@ -103,6 +103,7 @@ def average_ignore_none(numbers):
 a = get_students_mark(1)
 print(a)
 #
-# import numpy.ma as ma
-# a = ma.array([7, None, None, None, None], mask=[0, 1, 1, 1, 1])
-# print("average =", ma.average(a))
+# test 1
+# test 2
+# test 3
+# test 4
