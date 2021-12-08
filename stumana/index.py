@@ -57,11 +57,7 @@ def change_rule():
 
 @login.user_loader
 def user_load(user_id):
-<<<<<<< HEAD
-    return utilities.get_user_by_id(user_id)
-=======
     return utilities.get_user_by_id(user_id=user_id)
->>>>>>> 91637a95b3ba28a4eb40583c354c155041c754cc
 
 
 @app.context_processor
