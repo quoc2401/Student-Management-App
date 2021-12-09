@@ -1,51 +1,61 @@
 from stumana import app, db, utilities
-from flask_admin import Admin, BaseView, expose, AdminIndexView
 from flask_admin.contrib.sqla import ModelView
-from stumana.models import Account, Student, ClassRoom, Subject, Mark, UserRole, XVMark
-from flask_login import logout_user, current_user
-from flask import redirect
+from stumana.models import User, Student, ClassRoom, Subject, Teacher, Staff, UserRole, XVMark
+from flask_admin import Admin, AdminIndexView, expose, BaseView
+from flask_login import current_user, logout_user
+from flask import redirect, request
+import config
 
 
+admin = Admin(app=app, name='Quản trị Trường THPT', template_mode='bootstrap4')
 
-# Quyen admin
-class AuthenticatedAminModelView(BaseView):
+
+class AuthenticatedBaseView(BaseView):
     def is_accessible(self):
-        return current_user.is_authenticated and current_user.user_rode == UserRole.ADMIN
+        return current_user.is_authenticated and current_user.user_role.__eq__(UserRole.ADMIN)
 
 
-class ModalModelView(ModelView):
-    column_display_pk = True
+class AuthenticatedModelView(ModelView):
+    def is_accessible(self):
+        return current_user.is_authenticated and current_user.user_role.__eq__(UserRole.ADMIN)
+
+
+class ModalModelView(AuthenticatedModelView):
     create_modal = True
     edit_modal = True
 
 
 class SubjectModelView(ModalModelView):
     column_searchable_list = ['name']
-    # column_filters = ['name']
+    column_filters = ['name']
     column_labels = {
         'id': 'Mã môn học',
         'name': 'Tên môn học'
     }
 
 
-class MarkModelView(ModalModelView):
-    column_labels = {
-        'semester': 'hoc ki',
-        'year': 'nam hoc',
-        'FinalMark': 'Diem tb nam'
-
-    }
+class CustomPersonForm(ModalModelView):
+    form_excluded_columns = ['user', 'classroom', 'classes']
 
 
-class LogoutView(BaseView):
-    @expose('/')
+class CustomUserForm(ModalModelView):
+    form_excluded_columns = ['student', 'teacher', 'staff']
+
+
+class MyAdminIndexView(AdminIndexView):
+    @expose("/")
+    def index(self):
+        return self.render("admin/index.html")
+
+
+class ChangeRule(AuthenticatedBaseView):
+    @expose("/")
     def __index__(self):
-        logout_user()
-
-        return redirect('/admin')
-
-    def is_accessible(self):
-        return current_user.is_authenticated
+        return self.render("admin/change-rule.html",
+                           min_age=config.min_age,
+                           max_age=config.max_age,
+                           max_size=config.max_size,
+                           err_msg=request.args.get('err_msg'))
 
 
 class StatsView(ModalModelView):
@@ -58,19 +68,38 @@ class StatsView(ModalModelView):
         return current_user.is_authenticated
 
 
-class MyAdminIndexView(AdminIndexView):
+class UserAllocation(AuthenticatedBaseView):
+    @expose("/")
+    def __index__(self):
+        return self.render("admin/index.html")
+
+
+class LogoutView(AuthenticatedBaseView):
     @expose('/')
     def __index__(self):
-        return self.render('admin/index.html', stats=utilities.student_count_by_class())
+        logout_user()
+
+        return redirect("/admin")
 
 
-admin = Admin(app=app, name='Quản trị Trường THPT', template_mode='bootstrap4', index_view=MyAdminIndexView())
+admin.add_view(CustomUserForm(User, db.session, name='Quản lý tài khoản', category="Tài khoản",
+                                 menu_icon_type='fa', menu_icon_value='fa-users'))
+admin.add_view(UserAllocation(name="Cấp tài khoản", category="Tài khoản",
+                              menu_icon_type='fa', menu_icon_value='fa-id-card'))
+admin.add_view(CustomPersonForm(Student, db.session, name='Học sinh', category="Cá nhân",
+                                menu_icon_type='fa', menu_icon_value='fa-graduation-cap'))
+admin.add_view(CustomPersonForm(Teacher, db.session, name='Giáo viên', category="Cá nhân",
+                                menu_icon_type='fa', menu_icon_value='fa-podcast'))
+admin.add_view(CustomPersonForm(Staff, db.session, name='Nhân viên', category="Cá nhân",
+                                menu_icon_type='fa', menu_icon_value='fa-briefcase'))
+# admin.add_sub_category(name="Nhân viên", parent_name="Cá nhân")
+admin.add_view(ModalModelView(ClassRoom, db.session, name='Lớp học',
+                              menu_icon_type='fa', menu_icon_value='fa-columns'))
+admin.add_view(SubjectModelView(Subject, db.session, name='Môn học',
+                                menu_icon_type='fa', menu_icon_value='fa-book'))
+admin.add_view(ChangeRule(name="Thay đổi quy định", menu_icon_type='fa', menu_icon_value='fa-gear'))
+admin.add_views(StatsView(XVMark, db.session, name='Thống kê báo cáo'))
 
+admin.add_view(LogoutView(name="Đăng xuất", menu_icon_type='fa', menu_icon_value='fa-sign-out'))
 
-admin.add_view(ModalModelView(Account, db.session, name='Tài khoản'))
-admin.add_view(ModalModelView(Student, db.session, name='Học sinh'))
-admin.add_view(ModalModelView(ClassRoom, db.session, name='Lớp học'))
-admin.add_view(SubjectModelView(Subject, db.session, name='Môn học'))
-admin.add_view(MarkModelView(Mark, db.session, name='Nhap diem'))
-admin.add_views(StatsView(XVMark, db.session, name='Thong ke bao cao'))
-admin.add_view(LogoutView(name='Dang Xuat'))
+# admin.add_link(MenuLink(name='Trang chủ', url='/', category='Links'))
