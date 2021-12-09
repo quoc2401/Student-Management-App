@@ -1,7 +1,7 @@
 from flask_admin.menu import MenuLink
-from stumana import app, db
+from stumana import app, db, utilities
 from flask_admin.contrib.sqla import ModelView
-from stumana.models import User, Student, ClassRoom, Subject, Teacher, Staff, UserRole
+from stumana.models import User, Student, ClassRoom, Subject, Teacher, Staff, UserRole, XVMark
 from flask_admin import Admin, AdminIndexView, expose, BaseView
 from flask_login import current_user, logout_user
 from flask import redirect, session, request
@@ -23,7 +23,6 @@ class AuthenticatedModelView(ModelView):
 
 class ModalModelView(AuthenticatedModelView):
     create_modal = True
-    edit_modal = True
     edit_modal = True
 
 
@@ -47,7 +46,7 @@ class CustomUserForm(ModalModelView):
 class MyAdminIndexView(AdminIndexView):
     @expose("/")
     def index(self):
-        return self.render("admin/index.html")
+        return self.render("admin/index.html", stats=utilities.student_count_by_class())
 
 
 class ChangeRule(AuthenticatedBaseView):
@@ -58,6 +57,16 @@ class ChangeRule(AuthenticatedBaseView):
                            max_age=config.max_age,
                            max_size=config.max_size,
                            err_msg=request.args.get('err_msg'))
+
+
+class StatsView(ModalModelView):
+    @expose('/')
+    def __index__(self):
+        stats = utilities.student_count_by_class()
+        return self.render('admin/stats.html', stats=stats)
+
+    def is_accessible(self):
+        return current_user.is_authenticated
 
 
 class UserAllocation(AuthenticatedBaseView):
@@ -90,6 +99,8 @@ admin.add_view(ModalModelView(ClassRoom, db.session, name='Lớp học',
 admin.add_view(SubjectModelView(Subject, db.session, name='Môn học',
                                 menu_icon_type='fa', menu_icon_value='fa-book'))
 admin.add_view(ChangeRule(name="Thay đổi quy định", menu_icon_type='fa', menu_icon_value='fa-gear'))
+admin.add_views(StatsView(XVMark, db.session, name='Thống kê báo cáo'))
+
 admin.add_view(LogoutView(name="Đăng xuất", menu_icon_type='fa', menu_icon_value='fa-sign-out'))
 
-admin.add_link(MenuLink(name='Trang chủ', url='/', category='Links'))
+# admin.add_link(MenuLink(name='Trang chủ', url='/', category='Links'))

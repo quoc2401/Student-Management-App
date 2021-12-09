@@ -1,0 +1,77 @@
+{% extends 'admin/base.html' %}
+
+{% block body %}
+
+<h1 CLASS="text-center text-danger">THONG KE BAO CAO</h1>
+
+
+<div class="row">
+  <div class="col-md-5">
+    <table class="table">
+      <tr>
+        <th>Id</th>
+        <th>Ten lop</th>
+        <th>so luong hoc sinh</th>
+      </tr>
+      {% for s in stats %}
+      <tr>
+        <td>{{s[0].id}}</td>
+        <td>{{s[0].name}}</td>
+        <td>{{s[1]}}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+  <div class="col-md-6">
+    <canvas id="myChart" width="400" height="400"></canvas>
+  </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+
+<!--  lay du lieu bo vao chart js-->
+  let labels = [], counter = [], colors = [], borderColors = []
+  let r, g, b
+  {% for s in stats %}
+    labels.push('{{ s[0].name }}')
+    counter.push({{ s[1] }})
+
+<!--    Random mau-->
+    r = parseInt(Math.random()*255)
+    g = parseInt(Math.random()*255)
+    b = parseInt(Math.random()*255)
+    colors.push(`rgba(${r}, ${g}, ${b}, 0.2)`)
+    borderColors.push(`rgba(${r}, ${g}, ${b}, 1)`)
+  {% endfor %}
+
+
+<!--  ve chartjs-->
+  window.onload = function() {
+      const ctx = document.getElementById('myChart').getContext('2d')
+      const myChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+          labels: labels,
+          datasets: [{
+              label: 'Thong ke ti le len lop',
+              data: counter,
+              backgroundColor: colors,
+              borderColor: borderColors,
+              borderWidth: 1
+          }]
+      },
+      options: {
+          scales: {
+              y: {
+                  beginAtZero: true
+              }
+          }
+      }
+    });
+  }
+</script>
+
+
+{% endblock %}

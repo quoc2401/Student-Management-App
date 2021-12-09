@@ -61,6 +61,11 @@ def change_max_size(max=None):
         return str(e)
 
 
+def student_count_by_class():
+    return ClassRoom.query.join(Student, Student.class_id.__eq__(ClassRoom.id), isouter=True)\
+        .add_columns(func.count(Student.id)).group_by(ClassRoom.id).all()
+
+
 def get_students_mark(class_id):
     students = db.session.query(Subject, Student, Mark.semester, Mark.year, XVMark, XXXXVMark, Mark.FinalMark)\
                                 .join(Mark, Mark.subject_id.__eq__(Subject.id))\
@@ -97,10 +102,6 @@ def average_ignore_none(numbers):
     return avg
 
 
-# test 5
-# test 6
-# test 7
-# test 8
 # Tu day tro xuong la de test = console
 # change_chk_age(15, 20)
 # print(config.min_age)
