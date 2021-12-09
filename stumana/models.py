@@ -95,6 +95,7 @@ class Subject(BaseModel):
     def __str__(self):
         return self.name
 
+
 # 1 giao vien day nhieu lop, 1 lop co nhieu giao vien
 class TeacherSubjectClass(db.Model):
     __tablename__ = 'teacher_subject_class'

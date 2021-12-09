@@ -1,10 +1,9 @@
-from flask_admin.menu import MenuLink
 from stumana import app, db, utilities
 from flask_admin.contrib.sqla import ModelView
 from stumana.models import User, Student, ClassRoom, Subject, Teacher, Staff, UserRole, XVMark
 from flask_admin import Admin, AdminIndexView, expose, BaseView
 from flask_login import current_user, logout_user
-from flask import redirect, session, request
+from flask import redirect, request
 import config
 
 
