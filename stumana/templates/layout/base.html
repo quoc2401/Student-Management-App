@@ -18,15 +18,11 @@
 <body>
 
     {% block header%}
-        {% include 'layout/header.html' %}
+    {% include 'layout/header.html' %}
     {% endblock %}
-
-    <div class="container">
     {% block body %}{% endblock %}
-    </div>
-
-    {% block footer%}
-        {% include 'layout/footer.html' %}
+    {% block footer %}
+    {% include 'layout/footer.html' %}
     {% endblock %}
 </body>
 </html>

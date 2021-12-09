@@ -46,7 +46,7 @@ class CustomUserForm(ModalModelView):
 class MyAdminIndexView(AdminIndexView):
     @expose("/")
     def index(self):
-        return self.render("admin/index.html", stats=utilities.student_count_by_class())
+        return self.render("admin/index.html")
 
 
 class ChangeRule(AuthenticatedBaseView):
