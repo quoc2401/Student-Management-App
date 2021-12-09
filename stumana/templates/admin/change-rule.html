@@ -1,39 +1,25 @@
 {% extends 'admin/base.html' %}
 
+
 {% block body %}
-<h1 class="text-center"> Thay Đổi Quy Định</h1>
+<script src="{{ url_for('static', filename='js/script.js') }}" ></script>
+<h1 class="text-center text-info"> Thay Đổi Quy Định</h1>
 <hr>
 <br>
-<div class="container" >
-        {% if err_msg == '1' %}
-        <div class="alert alert-danger">
-            <h5> Thay đổi tuổi thất bại </h5>
-        </div>
-        {% elif err_msg == '2' %}
-        <div class="alert alert-danger">
-            <h5> Thay đổi sĩ số tối đa thất bại </h5>
-        </div>
-        {% elif err_msg == '0' %}
-        <div class="alert alert-success">
-            <h5> Thay đổi thành công </h5>
-        </div>
-        {% endif %}
-        <div class="col-md-4" style="margin:0 auto;">
-            <form method="POST" action="{{ url_for('change_rule') }}">
-              <div class="form-group">
-                <label for="min_age">Tuổi tối thiểu</label>
-                <input type="number" class="form-control" name="min_age" id="min_age" value="{{min_age}}" required>
-              </div>
-              <div class="form-group">
-                <label for="max_age">Tuổi tối đa</label>
-                <input type="number" class="form-control" name="max_age" id="max_age" value="{{max_age}}" required>
-              </div>
-              <div class="form-group">
-                <label for="max_size">Sĩ số tối đa</label>
-                <input type="number" class="form-control" name="max_size" id="max_size" value="{{max_size}}" required>
-              </div>
-              <button type="submit" class="btn btn-primary">Lưu</button>
-            </form>
-        </div>
+<div id="alert" style="display:none" > Thay đổi thành công </div>
+<div class="col-md-4" style="margin:0 auto;">
+    <div class="form-group">
+        <label for="min_age">Tuổi tối thiểu</label>
+        <input type="number" class="form-control" name="min_age" id="min_age" value="{{min_age}}" required>
+    </div>
+    <div class="form-group">
+        <label for="max_age">Tuổi tối đa</label>
+        <input type="number" class="form-control" name="max_age" id="max_age" value="{{max_age}}" required>
+    </div>
+    <div class="form-group">
+        <label for="max_size">Sĩ số tối đa</label>
+        <input type="number" class="form-control" name="max_size" id="max_size" value="{{max_size}}" required>
+    </div>
+    <button type="submit" class="btn btn-primary" onclick="changeRule()">Lưu</button>
 </div>
 {% endblock %}

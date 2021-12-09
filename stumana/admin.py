@@ -11,13 +11,25 @@ admin = Admin(app=app, name='Quản trị Trường THPT', template_mode='bootst
 
 
 class AuthenticatedBaseView(BaseView):
-    def is_accessible(self):
-        return current_user.is_authenticated and current_user.user_role.__eq__(UserRole.ADMIN)
+    def __index__(self):
+        return current_user.is_authenticated
 
 
 class AuthenticatedModelView(ModelView):
     def is_accessible(self):
-        return current_user.is_authenticated and current_user.user_role.__eq__(UserRole.ADMIN)
+        return current_user.is_authenticated and current_user.user_role == UserRole.ADMIN
+
+
+class StaffBaseView(AuthenticatedBaseView):
+    def is_accessible(self):
+        if current_user.is_authenticated:
+            return current_user.user_role == UserRole.STAFF or current_user.user_role == UserRole.ADMIN
+
+
+class AdminBaseView(AuthenticatedBaseView):
+    def is_accessible(self):
+        if current_user.is_authenticated:
+            return current_user.user_role == UserRole.ADMIN
 
 
 class ModalModelView(AuthenticatedModelView):
@@ -48,7 +60,7 @@ class MyAdminIndexView(AdminIndexView):
         return self.render("admin/index.html")
 
 
-class ChangeRule(AuthenticatedBaseView):
+class ChangeRule(AdminBaseView):
     @expose("/")
     def __index__(self):
         return self.render("admin/change-rule.html",
@@ -58,32 +70,34 @@ class ChangeRule(AuthenticatedBaseView):
                            err_msg=request.args.get('err_msg'))
 
 
-class StatsView(ModalModelView):
-    @expose('/')
-    def __index__(self):
-        stats = utilities.student_count_by_class()
-        return self.render('admin/stats.html', stats=stats)
-
-    def is_accessible(self):
-        return current_user.is_authenticated
-
-
-class UserAllocation(AuthenticatedBaseView):
+class UserAllocation(AdminBaseView):    # de lam sau
     @expose("/")
     def __index__(self):
         return self.render("admin/index.html")
 
 
-class LogoutView(AuthenticatedBaseView):
+class SetUpClass(StaffBaseView):    # de lam sau
+    @expose("/")
+    def __index__(self):
+        return self.render("admin/index.html")
+
+
+class StatsView(StaffBaseView):
+    @expose('/')
+    def __index__(self):
+        stats = utilities.student_count_by_class()
+        return self.render('admin/stats.html', stats=stats)
+
+
+class LogoutView(BaseView):
     @expose('/')
     def __index__(self):
         logout_user()
-
         return redirect("/admin")
 
 
 admin.add_view(CustomUserForm(User, db.session, name='Quản lý tài khoản', category="Tài khoản",
-                                 menu_icon_type='fa', menu_icon_value='fa-users'))
+                              menu_icon_type='fa', menu_icon_value='fa-users'))
 admin.add_view(UserAllocation(name="Cấp tài khoản", category="Tài khoản",
                               menu_icon_type='fa', menu_icon_value='fa-id-card'))
 admin.add_view(CustomPersonForm(Student, db.session, name='Học sinh', category="Cá nhân",
@@ -92,14 +106,15 @@ admin.add_view(CustomPersonForm(Teacher, db.session, name='Giáo viên', categor
                                 menu_icon_type='fa', menu_icon_value='fa-podcast'))
 admin.add_view(CustomPersonForm(Staff, db.session, name='Nhân viên', category="Cá nhân",
                                 menu_icon_type='fa', menu_icon_value='fa-briefcase'))
-# admin.add_sub_category(name="Nhân viên", parent_name="Cá nhân")
-admin.add_view(ModalModelView(ClassRoom, db.session, name='Lớp học',
-                              menu_icon_type='fa', menu_icon_value='fa-columns'))
+
+admin.add_view(ModalModelView(ClassRoom, db.session, name='Quản lý lớp học',
+                              menu_icon_type='fa', menu_icon_value='fa-columns', category="Lớp học"))
+admin.add_view(SetUpClass(name="Lập danh sách lớp", menu_icon_type='fa',
+                          menu_icon_value='fa-gear', category="Lớp học"))
 admin.add_view(SubjectModelView(Subject, db.session, name='Môn học',
                                 menu_icon_type='fa', menu_icon_value='fa-book'))
 admin.add_view(ChangeRule(name="Thay đổi quy định", menu_icon_type='fa', menu_icon_value='fa-gear'))
-admin.add_views(StatsView(XVMark, db.session, name='Thống kê báo cáo'))
+admin.add_view(StatsView(name='Thống kê báo cáo', menu_icon_type='fa', menu_icon_value='fa-line-chart'))
 
 admin.add_view(LogoutView(name="Đăng xuất", menu_icon_type='fa', menu_icon_value='fa-sign-out'))
 
-# admin.add_link(MenuLink(name='Trang chủ', url='/', category='Links'))
