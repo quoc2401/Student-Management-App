@@ -13,20 +13,21 @@ class UserRole(UserEnum):
     STUDENT = 3
 
 
-class BaseModel(db.Model, UserMixin):
+class BaseModel(db.Model):
     __abstract__ = True
     id = Column(Integer, autoincrement=True, primary_key=True)
 
 
-class Account(BaseModel):
+class User(BaseModel, UserMixin):
     name = Column(String(50), nullable=False)
     username = Column(String(50), nullable=False, unique=True)
     password = Column(String(50), nullable=False)
     avatar = Column(String(100))
     user_role = Column(Enum(UserRole), nullable=False)
+    student = relationship('Student', backref='user', lazy=True)
+    teacher = relationship('Teacher', backref='user', lazy=True)
+    staff = relationship('Staff', backref='user', lazy=True)
 
-
-    #toString
     def __str__(self):
         return self.name
 
@@ -53,10 +54,12 @@ class Person(BaseModel):
 
 
 class ClassRoom(BaseModel):
-    grade = Column(String(5), nullable=False, unique=True)
+    grade = Column(String(5), nullable=False)
     name = Column(String(10), nullable=False)
     total = Column(Integer, default=0)
     students = relationship('Student', backref='classroom', lazy=False)
+    # teachers = relationship('Teacher', secondary='teacher_subject_class', lazy='subquery',
+    #                         backref=backref('classroom', lazy=True))
 
     def __str__(self):
         return self.name
@@ -69,27 +72,34 @@ class Student(Person):
     )
 
     ethnic_id = Column(Integer, ForeignKey(Ethnic.id))
-    account_id = Column(Integer, ForeignKey(Account.id), unique=True)
-    class_id = Column(Integer, ForeignKey(ClassRoom.id), nullable=False)
+    user_id = Column(Integer, ForeignKey(User.id), unique=True)
+    class_id = Column(Integer, ForeignKey(ClassRoom.id))
 
 
 class Teacher(Person):
     ethnic_id = Column(Integer, ForeignKey(Ethnic.id))
-    account_id = Column(Integer, ForeignKey(Account.id), unique=True)
+    user_id = Column(Integer, ForeignKey(User.id), unique=True)
     classes = relationship('ClassRoom', secondary='teacher_subject_class', lazy='subquery',
                            backref=backref('teacher', lazy=True))
+
+
+class Staff(Person):
+    ethnic_id = Column(Integer, ForeignKey(Ethnic.id))
+    user_id = Column(Integer, ForeignKey(User.id), unique=True)
 
 
 # mon hoc
 class Subject(BaseModel):
     name = Column(String(20), nullable=False)
 
+    def __str__(self):
+        return self.name
 
 # 1 giao vien day nhieu lop, 1 lop co nhieu giao vien
 class TeacherSubjectClass(db.Model):
     __tablename__ = 'teacher_subject_class'
 
-    teacher_id = Column(Integer, ForeignKey(Teacher.id), nullable=False, primary_key=True)
+    teacher_id = Column(Integer, ForeignKey(Teacher.id), nullable= False, primary_key=True)
     class_id = Column(Integer, ForeignKey(ClassRoom.id), nullable=False, primary_key=True)
     subject_id = Column(Integer, ForeignKey(Subject.id), nullable=False)
 
@@ -101,6 +111,7 @@ class XVMark(BaseModel):
     col3 = Column(Float)
     col4 = Column(Float)
     col5 = Column(Float)
+    mark = relationship('Mark', backref='xvmark', lazy=True)
 
 
 # diem 45p
@@ -108,21 +119,32 @@ class XXXXVMark(BaseModel):
     col1 = Column(Float)
     col2 = Column(Float)
     col3 = Column(Float)
+    mark = relationship('Mark', backref='xxxxvmark', lazy=True)
 
 
 # bang diem cua 1 hoc sinh trong mot hoc ky cua 1 nam
 class Mark(db.Model):
-    subject_id = Column(Integer, ForeignKey(Subject.id), nullable=False, primary_key=True)
-    student_id = Column(Integer, ForeignKey(Student.id), nullable=False, primary_key=True)
+    subject_id = Column(Integer, ForeignKey(Subject.id), primary_key=True, nullable=False)
+    student_id = Column(Integer, ForeignKey(Student.id), primary_key=True, nullable=False)
     semester = Column(Integer, primary_key=True)
     year = Column(Integer, primary_key=True)
     XV_mark_id = Column(Integer, ForeignKey(XVMark.id))
     XXXXV_mark_id = Column(Integer, ForeignKey(XXXXVMark.id))
-    FinalMark = Column(Float, default=True)
-
-# class FinalMark
+    FinalMark = Column(Float)
 
 
 if __name__ == '__main__':
     # db.drop_all()
-    db.create_all()
+
+    # db.create_all()
+
+    # tao Trigger tu dong tinh toan si so lop hoc
+    db.engine.execute("drop trigger if exists change_class_size;")
+    db.engine.execute("create trigger change_class_size before update on student for each row begin"
+                      " declare old_size int; declare new_size int; set old_size = (select count(s.id)"
+                      " from student s, class_room c where s.class_id = c.id and c.id = old.class_id);"
+                      " set new_size = (select count(s.id) from student s, class_room c"
+                      " where s.class_id = c.id and c.id = new.class_id);"
+                      " update class_room set total = new_size + 1 where id = new.class_id;"
+                      " update class_room set total = old_size - 1 where id = old.class_id;"
+                      "end;")
