@@ -1,7 +1,7 @@
-from stumana import app, utilities, login
-from flask import render_template, redirect, url_for, request, session
+from stumana import login
+from flask import render_template, url_for, jsonify
 from admin import *
-from flask_login import current_user, login_user, logout_user
+from flask_login import login_user, logout_user
 
 
 @app.route("/")
@@ -38,21 +38,19 @@ def user_logout():
     return redirect(url_for("index"))
 
 
-@app.route("/admin/changerule", methods=['POST'])
+@app.route("/api/change-rule", methods=['POST'])
 def change_rule():
-    err_msg = 0
-    if request.method.__eq__('POST'):
-        min_age = request.form.get('min_age')
-        max_age = request.form.get('max_age')
-        max_size = request.form.get('max_size')
-        result1 = utilities.change_chk_age(min=min_age, max=max_age)
-        result2 = utilities.change_max_size(max=max_size)
-        # print(config.min_age)
-        if result1:
-            err_msg = 1
-        if result2:
-            err_msg = 2
-    return redirect(url_for('change_rule', err_msg=err_msg))
+    data = request.json
+    min_age = data.get('min_age')
+    max_age = data.get('max_age')
+    max_size = data.get('max_size')
+
+    result1 = utilities.change_chk_age(min=min_age, max=max_age)
+    result2 = utilities.change_max_size(max=max_size)
+    if result1 or result2:
+        return jsonify({'status': 404})
+
+    return jsonify({'status': 200})
 
 
 @login.user_loader
