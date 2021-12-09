@@ -1,115 +1,41 @@
 from stumana import db
-from sqlalchemy import text, func
-from stumana.models import User, Student, Mark, Subject, XVMark, XXXXVMark, ClassRoom
-import config
+from stumana.models import Account, ClassRoom, Student
+from sqlalchemy import func
+
+#import hashlib
 
 
-# Dang nhap
 def get_user_by_id(user_id):
-    return User.query.get(user_id)
+    return Account.query.get(user_id)
 
 
 def check_login(username, password):
-    # password = str(hashlib.md5(password.strip().encode('utf-8')).hexdigest())
-    return User.query.filter(User.username.__eq__(username.strip()),
-                             User.password.__eq__(password)).first()
+    if username and password:
+       # password = str(hashlib.mb5(password.strip().encode('utf8')).hexdigest()) #(ma bam pass)
+        return Account.query.filter(Account.username.__eq__(username.strip()),
+                                    Account.password.__eq__(password)).first()
+
+
+# join bang
+def student_count_by_class():
+    return ClassRoom.query.join(Student, Student.class_id.__eq__(ClassRoom.id), isouter=True)\
+        .add_columns(func.count(Student.id)).group_by(ClassRoom.id).all()
 
 
 # Thay doi tuoi quy dinh
-def change_chk_age(min=None, max=None):
-    try:
+def change_chk_age(min_age=15, max_age=20):
+    change_min = 'ALTER TABLE student DROP CONSTRAINT chk_age1;' \
+                 ' ALTER TABLE student ADD CONSTRAINT chk_age1' \
+                 ' CHECK((YEAR(join_date) - YEAR(bday)) > ' + str(min_age - 1) + ')'
+    change_max = 'ALTER TABLE student DROP CONSTRAINT chk_age2;' \
+                 ' ALTER TABLE student ADD CONSTRAINT chk_age2' \
+                 ' CHECK((YEAR(join_date) - YEAR(bday)) < ' + str(max_age + 1) + ')'
+    result1 = db.engine.execute(change_min)
+    result2 = db.engine.execute(change_max)
 
-        min = int(min)
-        _min_age = str(min - 1)
-        drop_min = "CALL PROC_DROP_CHECK_CONSTRAINT('student', 'chk_age1');"
-        add_min = "CALL PROC_ADD_CHECK_CONSTRAINT('student', 'chk_age1'," \
-                  " '(YEAR(join_date) - YEAR(bday)) > " + _min_age + "');"
-        db.engine.execute(text(drop_min))
-        db.engine.execute(text(add_min))
-        config.min_age = min
-        max = int(max)
-        _max_age = str(max + 1)
-        drop_max = "CALL PROC_DROP_CHECK_CONSTRAINT('student', 'chk_age2');"
-        add_max = "CALL PROC_ADD_CHECK_CONSTRAINT('student', 'chk_age2'," \
-                  " '(YEAR(join_date) - YEAR(bday)) < " + _max_age + "');"
-        db.engine.execute(text(drop_max))
-        db.engine.execute(text(add_max))
-        config.max_age = max
-    except Exception as e:
-        return str(e)
+    return result1 + ' ' + result2
 
 
-# thay doi si so toi da
-def change_max_size(max=None):
-    try:
-        if max:
-            max = int(max)
-            _max_size = str(max)
-
-            # tao cau lenh sql
-            drop_trigger = "drop trigger if exists before_enter_class;"
-            create_trigger = " create trigger before_enter_class after update on class_room for each row"\
-                " begin declare new_size int; set new_size = (select total from class_room"\
-                " where new.id = id); if new_size >= (" + _max_size + " + 1) then"\
-                " signal sqlstate '45001' set message_text = 'Vuot qua so luong toi da'; end if; end;"
-
-            db.engine.execute(text(drop_trigger))
-            db.engine.execute(text(create_trigger))
-            config.max_size = max
-    except Exception as e:
-        return str(e)
-
-
-def get_students_mark(class_id):
-    students = db.session.query(Subject, Student, Mark.semester, Mark.year, XVMark, XXXXVMark, Mark.FinalMark)\
-                                .join(Mark, Mark.subject_id.__eq__(Subject.id))\
-                                .join(Student, Student.id.__eq__(Mark.student_id))\
-                                .join(XVMark, XVMark.id.__eq__(Mark.XV_mark_id), isouter=True)\
-                                .join(XXXXVMark, XXXXVMark.id.__eq__(Mark.XXXXV_mark_id), isouter=True)
-
-    if class_id:
-        students = students.filter(Student.class_id.__eq__(class_id))
-
-    d = {}
-    for s in students:
-        d[str(s.Student.id)] = {
-            'subject_id': s.Subject.id,
-            'semester': s.semester,
-            'year': s.year,
-            'mark15': average_ignore_none([s.XVMark.col1, s.XVMark.col2, s.XVMark.col3, s.XVMark.col4, s.XVMark.col5])
-            if s.XVMark else 0,
-            'mark45': average_ignore_none([s.XXXXVMark.col1, s.XXXXVMark.col2, s.XXXXVMark.col3])
-            if s.XXXXVMark else 0,
-            'final_mark': s.FinalMark if s.FinalMark else 0
-        }
-
-    # return students.all()
-    return d
-
-
-def average_ignore_none(numbers):
-    total = []
-    for n in numbers:
-        if n:
-            total.append(n)
-    avg = sum(total) / len(total)
-    return avg
-
-
-
-# test 5
-# test 6
-# test 7
-# test 8
-
-# Tu day tro xuong la de test = console
-# change_chk_age(15, 20)
-# print(config.min_age)
-a = get_students_mark(1)
-print(a)
-
-#
-# test 1
-# test 2
-# test 3
-# test 4
+# test
+# result = change_chk_age(min_age=10, max_age=30)
+# print(result)
