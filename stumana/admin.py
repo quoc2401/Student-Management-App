@@ -1,6 +1,6 @@
 from stumana import app, db, utilities
 from flask_admin.contrib.sqla import ModelView
-from stumana.models import User, Student, ClassRoom, Subject, Teacher, Staff, UserRole, XVMark
+from stumana.models import User, Student, ClassRoom, Subject, Teacher, Staff, UserRole
 from flask_admin import Admin, AdminIndexView, expose, BaseView
 from flask_login import current_user, logout_user
 from flask import redirect, request
@@ -95,6 +95,9 @@ class LogoutView(BaseView):
         logout_user()
         return redirect("/admin")
 
+    def is_accessible(self):
+        return current_user.is_authenticated
+
 
 admin.add_view(CustomUserForm(User, db.session, name='Quản lý tài khoản', category="Tài khoản",
                               menu_icon_type='fa', menu_icon_value='fa-users'))
@@ -110,11 +113,10 @@ admin.add_view(CustomPersonForm(Staff, db.session, name='Nhân viên', category=
 admin.add_view(ModalModelView(ClassRoom, db.session, name='Quản lý lớp học',
                               menu_icon_type='fa', menu_icon_value='fa-columns', category="Lớp học"))
 admin.add_view(SetUpClass(name="Lập danh sách lớp", menu_icon_type='fa',
-                          menu_icon_value='fa-gear', category="Lớp học"))
+                          menu_icon_value='fa-reorder', category="Lớp học"))
 admin.add_view(SubjectModelView(Subject, db.session, name='Môn học',
                                 menu_icon_type='fa', menu_icon_value='fa-book'))
 admin.add_view(ChangeRule(name="Thay đổi quy định", menu_icon_type='fa', menu_icon_value='fa-gear'))
 admin.add_view(StatsView(name='Thống kê báo cáo', menu_icon_type='fa', menu_icon_value='fa-line-chart'))
 
 admin.add_view(LogoutView(name="Đăng xuất", menu_icon_type='fa', menu_icon_value='fa-sign-out'))
-
