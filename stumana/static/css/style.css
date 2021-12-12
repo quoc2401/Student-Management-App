@@ -1,3 +1,11 @@
+body {
+    background-image: url('https://bootstrapmade.com/content/templatefiles/Techie/Techie-bootstrap-website-template.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+    width: 100%;
+    min-height:100%;
+}
+
 .overlay{
     opacity:1;
     background-color:#a3e3e2;
@@ -9,6 +17,14 @@
     z-index:-1000;
 }
 
-body {
-    background-color: lightblue;
+.flex {
+    display:flex;
+    flex-wrap: nowrap;
+}
+
+.footer {
+    clear: both;
+    position: relative;
+
+    margin-bottom: 0!important;
 }
