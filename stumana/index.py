@@ -74,7 +74,8 @@ def user_load(user_id):
 @app.context_processor
 def common_response():
     return {
-        'ADMIN': UserRole.ADMIN
+        'ADMIN': UserRole.ADMIN,
+        'year': datetime.now().year
     }
 
 

@@ -3,24 +3,46 @@
 {% block body %}
 <h1 class="text-center text-info">DANH SÁCH CÁC LỚP</h1>
 <br>
-<form>
-    <input type="text" name="subject" placeholder="Nhập môn học...">
-    <input type="number" min="1" max="2" name="semester" placeholder="Nhập học kì...">
-    <input type="number" min="2000" name="year" placeholder="Nhập năm học...">
-    <input type="submit" value="Thống kê" class="btn btn-info">
-</form>
-<br>
 <div class="container row">
   <div  class="col-md-6">
+        <form >
+      <div class="form-group">
+        <label for="subject">Môn học:</label>
+          <input type="text"
+                name="subject"
+                class="form-control"
+                id="subject"
+                placeholder="Nhập tên môn học..."
+                value="{{request.args.get('subject', 'Toán 11')}}" required />
+      </div>
+      <div class="form-group">
+        <label for="semester">Học kỳ:</label>
+          <input type="number"
+                name="semester"
+                class="form-control"
+                id="semester"
+                value="{{request.args.get('semester', '1')}}" required />
+      </div>
+      <div class="form-group">
+        <label for="year">Năm học:</label>
+          <input type="number"
+                name="year"
+                class="form-control"
+                id="year"
+                value="{{ year }}" required />
+      </div>
+        <input type="submit" value="Thống kê" class="btn btn-info">
+    </form>
+    <br>
     <table class="table table-striped table-hover table-responsive">
       <thead>
       <tr>
         <td colspan="5"><h4>Báo cáo tổng kết môn học</h4></td>
       </tr>
       <tr>
-        <td colspan="3">Môn: {{request.args.get('subject')}}</td>
-        <td >Học kỳ: {{request.args.get('semester')}}</td>
-        <td>Năm học: {{request.args.get('year')}}</td>
+        <td colspan="3">Môn: {{request.args.get('subject', 'Toán 11')}}</td>
+        <td >Học kỳ: {{request.args.get('semester', '1')}}</td>
+        <td>Năm học: {{ year }}</td>
       </tr>
         <tr>
           <th>Mã lớp</th>

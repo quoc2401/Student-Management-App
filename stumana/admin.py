@@ -79,7 +79,7 @@ class UserAllocation(AdminBaseView):    # de lam sau
 class StatsView(StaffBaseView):
     @expose('/')
     def index(self):
-        subject_name = request.args.get("subject", "Toán 10")
+        subject_name = request.args.get("subject", "Toán 11")
         semester = request.args.get("semester", "1")
         year = request.args.get("year", datetime.now().year)
         stats = utilities.get_stats(subject_name=subject_name,
