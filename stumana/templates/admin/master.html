@@ -20,6 +20,7 @@
         <link href="{{ admin_static.url(filename='admin/css/bootstrap4/admin.css', v='1.1.1') }}" rel="stylesheet">
         <link href="{{ admin_static.url(filename='bootstrap/bootstrap4/css/font-awesome.min.css', v='4.7.0') }}" rel="stylesheet">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+        <script src="{{ url_for('static', filename='js/script.js') }}" ></script>
         {% if admin_view.extra_css %}
           {% for css_url in admin_view.extra_css %}
             <link href="{{ css_url }}" rel="stylesheet">

@@ -1,44 +1,90 @@
 {% extends 'admin/master.html' %}
 
 {% block body %}
-
-<h1 CLASS="text-center text-danger">THONG KE BAO CAO</h1>
-
-
-<div class="row">
-  <div class="col-md-5">
-    <table class="table">
+<h1 class="text-center text-info">DANH SÁCH CÁC LỚP</h1>
+<br>
+<div class="container row">
+  <div  class="col-md-6">
+        <form >
+      <div class="form-group">
+        <label for="subject">Môn học:</label>
+          <input type="text"
+                name="subject"
+                class="form-control"
+                id="subject"
+                placeholder="Nhập tên môn học..."
+                value="{{request.args.get('subject', 'Toán 11')}}" required />
+      </div>
+      <div class="form-group">
+        <label for="semester">Học kỳ:</label>
+          <input type="number"
+                name="semester"
+                class="form-control"
+                id="semester"
+                value="{{request.args.get('semester', '1')}}" required />
+      </div>
+      <div class="form-group">
+        <label for="year">Năm học:</label>
+          <input type="number"
+                name="year"
+                class="form-control"
+                id="year"
+                value="{{ year }}" required />
+      </div>
+        <input type="submit" value="Thống kê" class="btn btn-info">
+    </form>
+    <br>
+    <table class="table table-striped table-hover table-responsive">
+      <thead>
       <tr>
-        <th>Id</th>
-        <th>Ten lop</th>
-        <th>so luong hoc sinh</th>
+        <td colspan="5"><h4>Báo cáo tổng kết môn học</h4></td>
       </tr>
-      {% for s in stats %}
       <tr>
-        <td>{{s[0].id}}</td>
-        <td>{{s[0].name}}</td>
-        <td>{{s[1]}}</td>
+        <td colspan="3">Môn: {{request.args.get('subject', 'Toán 11')}}</td>
+        <td >Học kỳ: {{request.args.get('semester', '1')}}</td>
+        <td>Năm học: {{ year }}</td>
       </tr>
-      {% endfor %}
+        <tr>
+          <th>Mã lớp</th>
+          <th>Lớp</th>
+          <th>Sỉ số</th>
+          <th>Số lượng đạt</th>
+          <th>Tỉ lệ</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in stats %}
+        <tr>
+          <td>{{ s.class_id }}</td>
+          <td>{{ s.class_name }}</td>
+          <td>{{ s.total }}</td>
+          <td>{{ s.total_qualified }}</td>
+          <td>{{ s.ratio }}</td>
+
+        </tr>
+        {% endfor %}
+      </tbody>
     </table>
   </div>
-  <div class="col-md-6">
-    <canvas id="myChart" width="400" height="400"></canvas>
+
+  <div class="col-md-5">
+    <canvas id="myChart" width="100" height="100"></canvas>
   </div>
 </div>
 
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-
 <!--  lay du lieu bo vao chart js-->
-  let labels = [], counter = [], colors = [], borderColors = []
+  let labels = [], total = 0, total_qualified = 0, data = [] , colors = [], borderColors = []
   let r, g, b
   {% for s in stats %}
-    labels.push('{{ s[0].name }}')
-    counter.push({{ s[1] }})
+    total += {{s.total}};
+    total_qualified += {{s.total_qualified}}
+  {% endfor %}
 
-<!--    Random mau-->
+  {% for i in range(2) %}
+  <!--    Random mau-->
     r = parseInt(Math.random()*255)
     g = parseInt(Math.random()*255)
     b = parseInt(Math.random()*255)
@@ -46,30 +92,16 @@
     borderColors.push(`rgba(${r}, ${g}, ${b}, 1)`)
   {% endfor %}
 
+  labels.push('Rớt')
+  labels.push('Đậu')
+  data.push(total - total_qualified)
+  data.push(total_qualified)
 
 <!--  ve chartjs-->
   window.onload = function() {
       const ctx = document.getElementById('myChart').getContext('2d')
-      const myChart = new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-          labels: labels,
-          datasets: [{
-              label: 'Thong ke ti le len lop',
-              data: counter,
-              backgroundColor: colors,
-              borderColor: borderColors,
-              borderWidth: 1
-          }]
-      },
-      options: {
-          scales: {
-              y: {
-                  beginAtZero: true
-              }
-          }
-      }
-    });
+
+      loadChart(ctx, labels, data, 'doughnut', colors, borderColors, 'Thống kê đậu rớt môn học')
   }
 </script>
 {% endblock %}

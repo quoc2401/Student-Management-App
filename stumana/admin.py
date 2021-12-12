@@ -5,6 +5,7 @@ from flask_admin import Admin, AdminIndexView, expose, BaseView
 from flask_login import current_user, logout_user
 from flask import redirect, request
 import config
+from datetime import datetime
 
 
 admin = Admin(app=app, name='Quản trị Trường THPT', template_mode='bootstrap4')
@@ -66,8 +67,7 @@ class ChangeRule(AdminBaseView):
         return self.render("admin/change-rule.html",
                            min_age=config.min_age,
                            max_age=config.max_age,
-                           max_size=config.max_size,
-                           err_msg=request.args.get('err_msg'))
+                           max_size=config.max_size,)
 
 
 class UserAllocation(AdminBaseView):    # de lam sau
@@ -76,17 +76,31 @@ class UserAllocation(AdminBaseView):    # de lam sau
         return self.render("admin/index.html")
 
 
+class StatsView(StaffBaseView):
+    @expose('/')
+    def index(self):
+        subject_name = request.args.get("subject", "Toán 11")
+        semester = request.args.get("semester", "1")
+        year = request.args.get("year", datetime.now().year)
+        stats = utilities.get_stats(subject_name=subject_name,
+                                    semester=semester,
+                                    year=year)
+
+        return self.render("admin/stats.html",
+                           stats=stats)
+
+
 class SetUpClass(StaffBaseView):    # de lam sau
     @expose("/")
     def __index__(self):
         return self.render("admin/index.html")
 
 
-class StatsView(StaffBaseView):
-    @expose('/')
-    def __index__(self):
-        stats = utilities.student_count_by_class()
-        return self.render('admin/stats.html', stats=stats)
+# class StatsView(StaffBaseView):
+#     @expose('/')
+#     def __index__(self):
+#         stats = utilities.student_count_by_class()
+#         return self.render('admin/stats.html', stats=stats)
 
 
 class LogoutView(BaseView):
