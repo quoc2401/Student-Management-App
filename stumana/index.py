@@ -53,6 +53,19 @@ def change_rule():
     return jsonify({'status': 200})
 
 
+@app.route('/report/<int:classroom_id>')
+def report_student(classroom_id):
+    subject = request.args.get("subject")
+    classroom = utilities.get_class_by_id(classroom_id=classroom_id)
+    students = utilities.get_student_by_class(class_id=classroom_id)
+    avg = utilities.get_student_avg(class_id=classroom_id, subject=subject)
+
+    return render_template('report-student.html',
+                           classroom=classroom,
+                           students=students,
+                           avg=avg)
+
+
 @login.user_loader
 def user_load(user_id):
     return utilities.get_user_by_id(user_id=user_id)
