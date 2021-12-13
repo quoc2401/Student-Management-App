@@ -95,6 +95,7 @@ class Subject(BaseModel):
     def __str__(self):
         return self.name
 
+
 # 1 giao vien day nhieu lop, 1 lop co nhieu giao vien
 class TeacherSubjectClass(db.Model):
     __tablename__ = 'teacher_subject_class'
@@ -131,6 +132,7 @@ class Mark(db.Model):
     XV_mark_id = Column(Integer, ForeignKey(XVMark.id))
     XXXXV_mark_id = Column(Integer, ForeignKey(XXXXVMark.id))
     FinalMark = Column(Float)
+    avg = Column(Float)
 
 
 if __name__ == '__main__':

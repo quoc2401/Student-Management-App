@@ -1,5 +1,5 @@
 from stumana import db
-from sqlalchemy import text, func
+from sqlalchemy import text, func, update
 from stumana.models import User, Student, Mark, Subject, XVMark, XXXXVMark, ClassRoom
 import config
 
@@ -18,7 +18,6 @@ def check_login(username, password):
 # Thay doi tuoi quy dinh
 def change_chk_age(min=None, max=None):
     try:
-
         min = int(min)
         _min_age = str(min - 1)
         drop_min = "CALL PROC_DROP_CHECK_CONSTRAINT('student', 'chk_age1');"
@@ -60,12 +59,19 @@ def change_max_size(max=None):
         return str(e)
 
 
-def student_count_by_class():
-    return ClassRoom.query.join(Student, Student.class_id.__eq__(ClassRoom.id), isouter=True)\
-        .add_columns(func.count(Student.id)).group_by(ClassRoom.id).all()
+def get_class_by_id(classroom_id):
+    return ClassRoom.query.get(classroom_id)
 
 
-def get_students_mark(class_id):
+def student_count_by_class(class_id):
+    return db.session.query(func.count(Student.id))\
+        .join(ClassRoom, ClassRoom.id.__eq__(Student.class_id))\
+        .filter(ClassRoom.id.__eq__(class_id)).all()
+    # return ClassRoom.query.join(Student, Student.class_id.__eq__(ClassRoom.id), isouter=True)\
+    #     .add_columns(func.count(Student.id)).group_by(ClassRoom.id).all()
+
+
+def get_students_mark(class_id=None, semester=None, year=None, subject_id=None):
     students = db.session.query(Subject, Student, Mark.semester, Mark.year, XVMark, XXXXVMark, Mark.FinalMark)\
                                 .join(Mark, Mark.subject_id.__eq__(Subject.id))\
                                 .join(Student, Student.id.__eq__(Mark.student_id))\
@@ -74,22 +80,27 @@ def get_students_mark(class_id):
 
     if class_id:
         students = students.filter(Student.class_id.__eq__(class_id))
+    if semester:
+        students = students.filter(Mark.semester.__eq__(semester))
+    if year:
+        students = students.filter(Mark.year.__eq__(year))
+    if subject_id:
+        students = students.filter(Mark.subject_id.__eq__(subject_id))
+    # d = {}
+    # for s in students:
+    #     d[str(s.Student.id)] = {
+    #         'subject_id': s.Subject.id,
+    #         'semester': s.semester,
+    #         'year': s.year,
+    #         'mark15': average_ignore_none([s.XVMark.col1, s.XVMark.col2, s.XVMark.col3, s.XVMark.col4, s.XVMark.col5])
+    #         if s.XVMark else 0,
+    #         'mark45': average_ignore_none([s.XXXXVMark.col1, s.XXXXVMark.col2, s.XXXXVMark.col3])
+    #         if s.XXXXVMark else 0,
+    #         'final_mark': s.FinalMark if s.FinalMark else 0
+    #     }
 
-    d = {}
-    for s in students:
-        d[str(s.Student.id)] = {
-            'subject_id': s.Subject.id,
-            'semester': s.semester,
-            'year': s.year,
-            'mark15': average_ignore_none([s.XVMark.col1, s.XVMark.col2, s.XVMark.col3, s.XVMark.col4, s.XVMark.col5])
-            if s.XVMark else 0,
-            'mark45': average_ignore_none([s.XXXXVMark.col1, s.XXXXVMark.col2, s.XXXXVMark.col3])
-            if s.XXXXVMark else 0,
-            'final_mark': s.FinalMark if s.FinalMark else 0
-        }
-
-    # return students.all()
-    return d
+    return students.all()
+    # return d
 
 
 def average_ignore_none(numbers):
@@ -101,8 +112,68 @@ def average_ignore_none(numbers):
     return avg
 
 
+def get_student_by_class(class_id):
+    return Student.query.filter(Student.class_id.__eq__(class_id)).all()
+
+
+def cal_avg_mark(subject_id, semester, year):
+    marks = get_students_mark(subject_id=subject_id, semester=semester, year=year)
+
+    for s in marks:
+        if s.XVMark:
+            mark15 = average_ignore_none([s.XVMark.col1, s.XVMark.col2, s.XVMark.col3, s.XVMark.col4, s.XVMark.col5])
+        else:
+            mark15 = 0
+        if s.XXXXVMark:
+            mark45 = average_ignore_none([s.XXXXVMark.col1, s.XXXXVMark.col2, s.XXXXVMark.col3])
+        else:
+            mark45 = 0
+        if s.FinalMark:
+            avg = (mark15 + mark45 * 2 + s.FinalMark * 3) / 6
+        else:
+            avg = (mark15 + mark45 * 2) / 6
+        result = db.session.query(Mark).filter(Mark.subject_id.__eq__(subject_id),
+                                            Mark.student_id.__eq__(s.Student.id),
+                                            Mark.semester.__eq__(semester),
+                                            Mark.year.__eq__(year)).\
+            update({Mark.avg: avg}, synchronize_session=False)
+        print(result)
+    db.session.commit()
+
+
+def get_classes():
+    return db.session.query(ClassRoom).all()
+
+
+def total_qualifed_by_class(class_id, semester, year, subject_id):
+    count = db.session.query(func.count(Mark.avg)).\
+        join(Student, Student.id.__eq__(Mark.student_id)).\
+        join(ClassRoom, ClassRoom.id.__eq__(Student.class_id)).\
+        filter(ClassRoom.id.__eq__(class_id),
+               Mark.subject_id.__eq__(subject_id),
+               Mark.subject_id.__eq__(semester),
+               Mark.semester.__eq__(semester),
+               Mark.year.__eq__(year),
+               Mark.avg.__ge__(5)).first()
+    return count[0]
+
+
+def get_stats(semester, year, subject_name):
+    classes = get_classes()
+    stats = []
+    subject_id = db.session.query(Subject.id).filter(Subject.name.__eq__(subject_name)).first()
+    for c in classes:
+        total_qualified = total_qualifed_by_class(c.id, semester=semester, year=year, subject_id=subject_id[0])
+        stats.append({
+            'class_id': c.id,
+            'class_name': c.grade + c.name,
+            'total': c.total,
+            'total_qualified': total_qualified,
+            'ratio': float(total_qualified) / c.total
+        })
+
+    return stats
+
 # Tu day tro xuong la de test = console
-# change_chk_age(15, 20)
-# print(config.min_age)
-# a = get_students_mark(1)
+# a = get_stats(semester=2, year=2020, subject_name='Toán 10')
 # print(a)

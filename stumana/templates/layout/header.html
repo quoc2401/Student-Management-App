@@ -9,32 +9,31 @@
             <li class="nav-item">
                 <a class="nav-link" href="/">Trang chủ</a>
             </li>
-
-            {% if current_user.is_authenticated %}
-            <li class="nav-item">
-                <a class="nav-link text-danger" href="{{ url_for('index') }}">
-                {% if current_user.avatar %}
-                <img src="{{ current_user.avatar }}" class="rounded-circle" width="30" alt="avatar" />
-                {% else %}
-                <img src="{{ url_for('static', filename='images/default.png') }}" class="rounded-circle" width="30" alt="avatar" />
-                {% endif %}
-
-                {{ current_user.name }}
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link text-info" href="{{ url_for('user_logout') }}">Đăng xuất</a>
-            </li>
-            {% else %}
-            <li class="nav-item">
-                <a class="nav-link text-success" href="{{ url_for('user_login') }}">Đăng nhập</a>
-            </li>
-            {% endif %}
             {% if current_user.user_role == ADMIN %}
             <li class="nav-item">
-                <a class="nav-link text-danger" href="/admin">ADMIN</a>
+                <a class="nav-link text-danger" href="/admin">Quản trị hệ thống</a>
             </li>
             {% endif %}
         </ul>
     </div>
+    {% if current_user.is_authenticated %}
+    <div class="collapse navbar-collapse justify-content-end">
+         <a class="nav-link text-danger" href="{{ url_for('index') }}">
+            {% if current_user.avatar %}
+            <img src="{{ current_user.avatar }}" class="rounded-circle" width="30" alt="avatar" />
+            {% else %}
+            <img src="{{ url_for('static', filename='images/default.png') }}" class="rounded-circle" width="30" alt="avatar" />
+            {% endif %}
+
+            {{ current_user.name }}
+         </a>
+    </div>
+    <div class="collapse navbar-collapse justify-content-end" style="min-width:50px!important;">
+        <a class="nav-link text-info" href="{{ url_for('user_logout') }}">Đăng xuất</a>
+    </div>
+    {% else %}
+    <div class="collapse navbar-collapse justify-content-end">
+         <a class="nav-link text-success" href="{{ url_for('user_login') }}">Đăng nhập</a>
+    </div>
+    {% endif %}
 </nav>

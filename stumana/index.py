@@ -1,5 +1,5 @@
 from stumana import login
-from flask import render_template, url_for
+from flask import render_template, url_for, jsonify
 from admin import *
 from flask_login import login_user, logout_user
 
@@ -38,21 +38,32 @@ def user_logout():
     return redirect(url_for("index"))
 
 
-@app.route("/admin/changerule", methods=['POST'])
+@app.route("/api/change-rule", methods=['POST'])
 def change_rule():
-    err_msg = 0
-    if request.method.__eq__('POST'):
-        min_age = request.form.get('min_age')
-        max_age = request.form.get('max_age')
-        max_size = request.form.get('max_size')
-        result1 = utilities.change_chk_age(min=min_age, max=max_age)
-        result2 = utilities.change_max_size(max=max_size)
-        # print(config.min_age)
-        if result1:
-            err_msg = 1
-        if result2:
-            err_msg = 2
-    return redirect(url_for('change_rule', err_msg=err_msg))
+    data = request.json
+    min_age = data.get('min_age')
+    max_age = data.get('max_age')
+    max_size = data.get('max_size')
+
+    result1 = utilities.change_chk_age(min=min_age, max=max_age)
+    result2 = utilities.change_max_size(max=max_size)
+    if result1 or result2:
+        return jsonify({'status': 404})
+
+    return jsonify({'status': 200})
+
+
+@app.route('/report/<int:classroom_id>')
+def report_student(classroom_id):
+    subject = request.args.get("subject")
+    classroom = utilities.get_class_by_id(classroom_id=classroom_id)
+    students = utilities.get_student_by_class(class_id=classroom_id)
+    avg = utilities.get_student_avg(class_id=classroom_id, subject=subject)
+
+    return render_template('report-student.html',
+                           classroom=classroom,
+                           students=students,
+                           avg=avg)
 
 
 @login.user_loader
@@ -63,7 +74,8 @@ def user_load(user_id):
 @app.context_processor
 def common_response():
     return {
-        'ADMIN': UserRole.ADMIN
+        'ADMIN': UserRole.ADMIN,
+        'year': datetime.now().year
     }
 
 

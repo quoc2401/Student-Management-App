@@ -5,6 +5,7 @@ from flask_admin import Admin, AdminIndexView, expose, BaseView
 from flask_login import current_user, logout_user
 from flask import redirect, request
 import config
+from datetime import datetime
 
 
 admin = Admin(app=app, name='Quản trị Trường THPT', template_mode='bootstrap4')
@@ -14,20 +15,22 @@ class AuthenticatedBaseView(BaseView):
     def __index__(self):
         return current_user.is_authenticated
 
+
+class AuthenticatedModelView(ModelView):
     def is_accessible(self):
-        return current_user.is_authenticated
+        return current_user.is_authenticated and current_user.user_role == UserRole.ADMIN
+
+
+class StaffBaseView(AuthenticatedBaseView):
+    def is_accessible(self):
+        if current_user.is_authenticated:
+            return current_user.user_role == UserRole.STAFF or current_user.user_role == UserRole.ADMIN
 
 
 class AdminBaseView(AuthenticatedBaseView):
     def is_accessible(self):
         if current_user.is_authenticated:
-            return current_user.user_role in (UserRole.ADMIN, UserRole.STAFF)
-
-
-class AuthenticatedModelView(ModelView):
-    def is_accessible(self):
-        return current_user.is_authenticated and\
-               current_user.user_role == UserRole.ADMIN
+            return current_user.user_role == UserRole.ADMIN
 
 
 class ModalModelView(AuthenticatedModelView):
@@ -64,22 +67,14 @@ class ChangeRule(AdminBaseView):
         return self.render("admin/change-rule.html",
                            min_age=config.min_age,
                            max_age=config.max_age,
-                           max_size=config.max_size,
-                           err_msg=request.args.get('err_msg'))
+                           max_size=config.max_size,)
 
     def is_accessible(self):
         if current_user.is_authenticated:
             return current_user.user_role == UserRole.ADMIN
 
 
-class StatsView(AdminBaseView):
-    @expose('/')
-    def __index__(self):
-        stats = utilities.student_count_by_class()
-        return self.render('admin/stats.html', stats=stats)
-
-
-class UserAllocation(AdminBaseView):
+class UserAllocation(AdminBaseView):    # de lam sau
     @expose("/")
     def __index__(self):
         return self.render("admin/index.html")
@@ -89,11 +84,41 @@ class UserAllocation(AdminBaseView):
             return current_user.user_role == UserRole.ADMIN
 
 
-class LogoutView(AuthenticatedBaseView):
+class StatsView(StaffBaseView):
+    @expose('/')
+    def index(self):
+        subject_name = request.args.get("subject", "Toán 11")
+        semester = request.args.get("semester", "1")
+        year = request.args.get("year", datetime.now().year)
+        stats = utilities.get_stats(subject_name=subject_name,
+                                    semester=semester,
+                                    year=year)
+
+        return self.render("admin/stats.html",
+                           stats=stats)
+
+
+class SetUpClass(StaffBaseView):    # de lam sau
+    @expose("/")
+    def __index__(self):
+        return self.render("admin/index.html")
+
+
+# class StatsView(StaffBaseView):
+#     @expose('/')
+#     def __index__(self):
+#         stats = utilities.student_count_by_class()
+#         return self.render('admin/stats.html', stats=stats)
+
+
+class LogoutView(BaseView):
     @expose('/')
     def __index__(self):
         logout_user()
         return redirect("/admin")
+
+    def is_accessible(self):
+        return current_user.is_authenticated
 
 
 admin.add_view(CustomUserForm(User, db.session, name='Quản lý tài khoản', category="Tài khoản",
@@ -106,12 +131,13 @@ admin.add_view(CustomPersonForm(Teacher, db.session, name='Giáo viên', categor
                                 menu_icon_type='fa', menu_icon_value='fa-podcast'))
 admin.add_view(CustomPersonForm(Staff, db.session, name='Nhân viên', category="Cá nhân",
                                 menu_icon_type='fa', menu_icon_value='fa-briefcase'))
-admin.add_view(ModalModelView(ClassRoom, db.session, name='Lớp học',
-                              menu_icon_type='fa', menu_icon_value='fa-columns'))
+admin.add_view(ModalModelView(ClassRoom, db.session, name='Quản lý lớp học',
+                              menu_icon_type='fa', menu_icon_value='fa-columns', category="Lớp học"))
+admin.add_view(SetUpClass(name="Lập danh sách lớp", menu_icon_type='fa',
+                          menu_icon_value='fa-reorder', category="Lớp học"))
 admin.add_view(SubjectModelView(Subject, db.session, name='Môn học',
                                 menu_icon_type='fa', menu_icon_value='fa-book'))
 admin.add_view(ChangeRule(name="Thay đổi quy định", menu_icon_type='fa', menu_icon_value='fa-gear'))
-admin.add_views(StatsView(name='Thống kê báo cáo', menu_icon_type='fa', menu_icon_value='fa-line-chart'))
-admin.add_view(LogoutView(name="Đăng xuất", menu_icon_type='fa', menu_icon_value='fa-sign-out'))
+admin.add_view(StatsView(name='Thống kê báo cáo', menu_icon_type='fa', menu_icon_value='fa-line-chart'))
 
-# admin.add_link(MenuLink(name='Trang chủ', url='/', category='Links'))
+admin.add_view(LogoutView(name="Đăng xuất", menu_icon_type='fa', menu_icon_value='fa-sign-out'))
