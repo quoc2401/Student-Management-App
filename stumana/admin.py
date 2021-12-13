@@ -57,7 +57,7 @@ class CustomUserForm(ModalModelView):
 
 class MyAdminIndexView(AdminIndexView):
     @expose("/")
-    def index(self):
+    def __index__(self):
         return self.render("admin/index.html")
 
 
@@ -69,11 +69,19 @@ class ChangeRule(AdminBaseView):
                            max_age=config.max_age,
                            max_size=config.max_size,)
 
+    def is_accessible(self):
+        if current_user.is_authenticated:
+            return current_user.user_role == UserRole.ADMIN
+
 
 class UserAllocation(AdminBaseView):    # de lam sau
     @expose("/")
     def __index__(self):
         return self.render("admin/index.html")
+
+    def is_accessible(self):
+        if current_user.is_authenticated:
+            return current_user.user_role == UserRole.ADMIN
 
 
 class StatsView(StaffBaseView):
@@ -123,7 +131,6 @@ admin.add_view(CustomPersonForm(Teacher, db.session, name='Giáo viên', categor
                                 menu_icon_type='fa', menu_icon_value='fa-podcast'))
 admin.add_view(CustomPersonForm(Staff, db.session, name='Nhân viên', category="Cá nhân",
                                 menu_icon_type='fa', menu_icon_value='fa-briefcase'))
-
 admin.add_view(ModalModelView(ClassRoom, db.session, name='Quản lý lớp học',
                               menu_icon_type='fa', menu_icon_value='fa-columns', category="Lớp học"))
 admin.add_view(SetUpClass(name="Lập danh sách lớp", menu_icon_type='fa',

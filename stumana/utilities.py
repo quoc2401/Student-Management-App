@@ -2,7 +2,6 @@ from stumana import db
 from sqlalchemy import text, func, update
 from stumana.models import User, Student, Mark, Subject, XVMark, XXXXVMark, ClassRoom
 import config
-import numpy
 
 
 # Dang nhap
@@ -176,10 +175,5 @@ def get_stats(semester, year, subject_name):
     return stats
 
 # Tu day tro xuong la de test = console
-# change_chk_age(15, 20)
-# print(config.min_age)
-# a = get_students_mark(1)
-# print(a)
 # a = get_stats(semester=2, year=2020, subject_name='Toán 10')
-#
 # print(a)
