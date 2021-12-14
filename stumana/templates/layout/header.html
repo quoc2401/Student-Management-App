@@ -17,23 +17,18 @@
         </ul>
     </div>
     {% if current_user.is_authenticated %}
-    <div class="collapse navbar-collapse justify-content-end">
-         <a class="nav-link text-danger" href="{{ url_for('index') }}">
+         <a class="nav-link text-danger mr-auto" href="{{ url_for('index') }}">
             {% if current_user.avatar %}
             <img src="{{ current_user.avatar }}" class="rounded-circle" width="30" alt="avatar" />
             {% else %}
-            <img src="{{ url_for('static', filename='images/default.png') }}" class="rounded-circle" width="30" alt="avatar" />
+            <img src="https://res.cloudinary.com/quoc2401/image/upload/v1639145479/ie2_bu2gak.png"
+                 class="rounded-circle" width="30" alt="avatar" />
             {% endif %}
 
             {{ current_user.name }}
          </a>
-    </div>
-    <div class="collapse navbar-collapse justify-content-end" style="min-width:50px!important;">
-        <a class="nav-link text-info" href="{{ url_for('user_logout') }}">Đăng xuất</a>
-    </div>
+        <a class="nav-link text-info mr-auto" href="{{ url_for('user_logout') }}">Đăng xuất</a>
     {% else %}
-    <div class="collapse navbar-collapse justify-content-end">
-         <a class="nav-link text-success" href="{{ url_for('user_login') }}">Đăng nhập</a>
-    </div>
+         <a class="nav-link text-success mr-auto" href="{{ url_for('user_login') }}">Đăng nhập</a>
     {% endif %}
 </nav>
