@@ -1,38 +1,55 @@
 {% extends 'admin/master.html' %}
 
 {% block body %}
-<h1 class="text-center text-info">DANH SÁCH CÁC LỚP</h1>
+<h1 class="text-center text-info">THỐNG KÊ KẾT QUẢ</h1>
 <br>
 <div class="container row">
-  <div  class="col-md-6">
-        <form >
-      <div class="form-group">
-        <label for="subject">Môn học:</label>
-          <input type="text"
-                name="subject"
-                class="form-control"
-                id="subject"
-                placeholder="Nhập tên môn học..."
-                value="{{request.args.get('subject', 'Toán 11')}}" required />
-      </div>
-      <div class="form-group">
-        <label for="semester">Học kỳ:</label>
-          <input type="number"
-                name="semester"
-                class="form-control"
-                id="semester"
-                value="{{request.args.get('semester', '1')}}" required />
-      </div>
-      <div class="form-group">
-        <label for="year">Năm học:</label>
-          <input type="number"
-                name="year"
-                class="form-control"
-                id="year"
-                value="{{ year }}" required />
-      </div>
-        <input type="submit" value="Thống kê" class="btn btn-info">
-    </form>
+  <div class="col-md-6">
+      <form>
+          <div class="form-group">
+            <select id="subject" class="form-control" name="subject">
+                <option>Môn học</option>
+                {% for s in subjects %}
+                    <option value="{{ s[0] }}">{{ s[0] }}</option>
+                {% endfor %}
+              </select>
+          </div>
+          <div class="form-group">
+              <select id="semester" class="form-control" name="semester">
+                <option>Học kỳ</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+              </select>
+          </div>
+          <div class="form-group">
+              <select id="year" class="form-control" name="year">
+                  <option>Năm</option>
+                  <option value="2000">2000</option>
+                  <option value="2001">2001</option>
+                  <option value="2002">2002</option>
+                  <option value="2003">2003</option>
+                  <option value="2004">2004</option>
+                  <option value="2005">2005</option>
+                  <option value="2006">2006</option>
+                  <option value="2007">2007</option>
+                  <option value="2008">2008</option>
+                  <option value="2009">2009</option>
+                  <option value="2010">2010</option>
+                  <option value="2011">2011</option>
+                  <option value="2012">2012</option>
+                  <option value="2013">2013</option>
+                  <option value="2014">2014</option>
+                  <option value="2015">2015</option>
+                  <option value="2016">2016</option>
+                  <option value="2017">2017</option>
+                  <option value="2018">2018</option>
+                  <option value="2019">2019</option>
+                  <option value="2020">2020</option>
+                  <option value="2021">2021</option>
+              </select>
+          </div>
+            <input type="submit" value="Thống kê" class="btn btn-info">
+      </form>
     <br>
     <table class="table table-striped table-hover table-responsive">
       <thead>
@@ -59,7 +76,7 @@
           <td>{{ s.class_name }}</td>
           <td>{{ s.total }}</td>
           <td>{{ s.total_qualified }}</td>
-          <td>{{ s.ratio }}</td>
+          <td>{{ s.ratio }} %</td>
 
         </tr>
         {% endfor %}
@@ -68,6 +85,9 @@
   </div>
 
   <div class="col-md-5">
+    <br>
+    <br>
+    <br>
     <canvas id="myChart" width="100" height="100"></canvas>
   </div>
 </div>

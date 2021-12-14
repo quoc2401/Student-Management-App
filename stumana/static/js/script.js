@@ -28,11 +28,11 @@ function changeRule() {
         else {
            a.style.display = "block"
            a.className = "alert alert-danger"
-           a.innerText = "Có lỗi xảy ra"
+           a.innerText = "Có dữ liệu vi phạm ràng buộc"
         }
     }).catch(function(err) {
         console.info(err)
-    });
+    })
 }
 
 function loadChart(ctx, labels, data, type, colors, borderColors, title) {
@@ -55,5 +55,5 @@ function loadChart(ctx, labels, data, type, colors, borderColors, title) {
                     }
                 }
             }
-        });
+        })
 }

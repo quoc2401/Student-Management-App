@@ -95,7 +95,8 @@ class StatsView(StaffBaseView):
                                     year=year)
 
         return self.render("admin/stats.html",
-                           stats=stats)
+                           stats=stats,
+                           subjects=utilities.get_subjects())
 
 
 class SetUpClass(StaffBaseView):    # de lam sau

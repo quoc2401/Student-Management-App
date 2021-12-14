@@ -158,6 +158,10 @@ def total_qualifed_by_class(class_id, semester, year, subject_id):
     return count[0]
 
 
+def get_subjects():
+    return db.session.query(Subject.name)
+
+
 def get_stats(semester, year, subject_name):
     classes = get_classes()
     stats = []
@@ -169,7 +173,7 @@ def get_stats(semester, year, subject_name):
             'class_name': c.grade + c.name,
             'total': c.total,
             'total_qualified': total_qualified,
-            'ratio': float(total_qualified) / c.total
+            'ratio': "{0:.2f}".format(float(total_qualified) / c.total * 100)
         })
 
     return stats

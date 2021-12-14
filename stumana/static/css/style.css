@@ -3,7 +3,7 @@ body {
     background-repeat: no-repeat;
     background-size: cover;
     width: 100%;
-    min-height:100%;
+    min-height:500px!important;
 }
 
 .overlay{
@@ -25,6 +25,11 @@ body {
 .footer {
     clear: both;
     position: relative;
-
+    margin-top: 5rem!important;
     margin-bottom: 0!important;
+}
+
+.container {
+    width: 100%;
+    min-height: 32rem;
 }
