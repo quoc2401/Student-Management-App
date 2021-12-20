@@ -12,12 +12,17 @@ def index():
 @app.route('/user_login', methods=['get', 'post'])
 def user_login():
     error_msg = ""
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
     if request.method.__eq__('POST'):
         try:
             username = request.form['username']
             password = request.form['password']
 
-            user = utilities.check_login(username=username, password=password)
+            user = utilities.check_login(username=username, password=password, role=UserRole.STUDENT)
+            user_admin = utilities.check_login(username=username, password=password, role=UserRole.ADMIN)
+            user_staff = utilities.check_login(username=username, password=password, role=UserRole.STAFF)
+            user_teacher = utilities.check_login(username=username, password=password, role=UserRole.TEACHER)
             if user:
                 login_user(user=user)
 
@@ -25,6 +30,18 @@ def user_login():
                 return redirect(next)
             else:
                 error_msg = "Sai tài khoản hoặc mật khẩu !!!"
+
+            if user_admin:
+                login_user(user=user_admin)
+                return redirect('/admin')
+
+            if user_staff:
+                login_user(user=user_staff)
+                return redirect('/admin')
+
+            if user_teacher:
+                login_user(user=user)
+                return redirect('/admin')
 
         except Exception as ex:
             error_msg = str(ex)
@@ -52,7 +69,7 @@ def change_rule():
 
     return jsonify({'status': 200})
 
-#
+
 # @app.route('/report/<int:classroom_id>')
 # def report_student(classroom_id):
 #     subject = request.args.get("subject")

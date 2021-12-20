@@ -3,7 +3,42 @@
 {% block title %} HOME {% endblock %}
 
 {% block body %}
-<div class="container">
-    <h1 class="text-center text-danger">HỆ THỐNG QUẢN LÝ HỌC SINH</h1>
+<div>
+    <h1 class="text-center text-info">HỆ THỐNG QUẢN LÝ HỌC SINH</h1>
+</div>
+
+<div id="demo" class="carousel slide" data-ride="carousel">
+
+  <!-- Indicators -->
+  <ul class="carousel-indicators">
+    <li data-target="#demo" data-slide-to="0" class="active"></li>
+    <li data-target="#demo" data-slide-to="1"></li>
+    <li data-target="#demo" data-slide-to="2"></li>
+  </ul>
+
+  <!-- The slideshow -->
+  <div class="carousel-inner">
+    <div class="carousel-item active">
+      <img src="{{ url_for('static', filename='images/cs5.jpg') }}" alt="Los Angeles"
+           style="height:500px; width:100%">
+    </div>
+    <div class="carousel-item">
+      <img src="{{ url_for('static', filename='images/cs4.jpg') }}" alt="Chicago"
+           style="height:500px; width:100%">
+    </div>
+    <div class="carousel-item">
+      <img src="{{ url_for('static', filename='images/cs3.jpg') }}" alt="Chicago"
+           style="height:500px; width:100%">
+    </div>
+  </div>
+
+  <!-- Left and right controls -->
+  <a class="carousel-control-prev" href="#demo" data-slide="prev">
+    <span class="carousel-control-prev-icon"></span>
+  </a>
+  <a class="carousel-control-next" href="#demo" data-slide="next">
+    <span class="carousel-control-next-icon"></span>
+  </a>
+
 </div>
 {% endblock %}
