@@ -168,12 +168,13 @@ def get_stats(semester, year, subject_name):
     subject_id = db.session.query(Subject.id).filter(Subject.name.__eq__(subject_name)).first()
     for c in classes:
         total_qualified = total_qualifed_by_class(c.id, semester=semester, year=year, subject_id=subject_id[0])
+        total = c.total if c.total else 0
         stats.append({
             'class_id': c.id,
             'class_name': c.grade + c.name,
-            'total': c.total,
+            'total': total,
             'total_qualified': total_qualified,
-            'ratio': "{0:.2f}".format(float(total_qualified) / c.total * 100)
+            'ratio': "{0:.2f}".format((float(total_qualified) / total) if total != 0 else 0 * 100)
         })
 
     return stats
