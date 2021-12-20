@@ -1,0 +1,75 @@
+{% extends 'admin/master.html' %}
+
+{% block body %}
+<h1 class="text-center text-info">DANH SÁCH LỚP</h1>
+<br>
+
+<div class="container-fluid">
+    <form>
+        <div class="row container-fluid">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <select id="grade" class="form-control" name="grade">
+                        <option selected>Khối</option>
+                        <option value="10">10</option>
+                        <option value="11">11</option>
+                        <option value="12">12</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <select id="class" class="form-control" name="class">
+                        <option selected>Lớp</option>
+                        {% for c in classes %}
+                        <option value="{{ c.class_name }}">{{ c.class_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <input type="submit" id="btn1" value="Tìm kiếm" class="btn btn-info">
+            </div>
+        </div>
+    </form>
+
+    {% if error_msg %}
+    <div class="alert alert-danger">
+        {{ error_msg }}
+    </div>
+    {% endif %}
+
+    <div class="container-fluid">
+        <table width="300" class="table table-striped table-hover table-responsive">
+          <thead>
+          <tr>
+            <td colspan="6">Lớp: {{ request.args.get('grade', '12') }}{{ request.args.get('class', 'A1') }}</td>
+            <td colspan="6">Sỉ số: {{ total[0] }}</td>
+          </tr>
+            <tr>
+              <th colspan="1">Mã học sinh</th>
+              <th width="300" colspan="3">Họ tên</th>
+              <th width="200" colspan="2">Giới tính</th>
+              <th width="200" colspan="2">Năm sinh</th>
+              <th width="300" colspan="4">Địa chỉ</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in students %}
+            <tr>
+              <td colspan="1">{{ s.id }}</td>
+              <td colspan="3">{{ s.first_name }} {{ s.last_name }}</td>
+              <td colspan="2">
+                  {% if s.sex == True %}
+                  Nam
+                  {% else %}
+                  Nữ
+                  {% endif %}
+              </td>
+              <td colspan="2">{{ s.bday.year }}</td>
+              <td colspan="4">{{ s.address }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

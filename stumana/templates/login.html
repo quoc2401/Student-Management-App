@@ -3,7 +3,8 @@
 {% block title %}Đăng nhập{% endblock %}
 
 {% block body %}
-<h1 class="text-center text-info">ĐĂNG NHẬP</h1>
+<br><br>
+<h2 class="text-center text-info">ĐĂNG NHẬP</h2>
 
 {% if error_msg %}
 <div class="alert alert-danger">
@@ -11,24 +12,27 @@
 </div>
 {% endif %}
 
-<form method="post">
-    <div class="form-group">
-       <label for="username">Tài khoản:</label>
-       <input type="text"
-              name="username"
-              class="form-control"
-              id="username"
-              placeholder="Nhập tài khoản..." required />
-   </div>
-    <div class="form-group">
-       <label for="password">Mật khẩu:</label>
-       <input type="password"
-              name="password"
-              class="form-control"
-              id="password"
-              placeholder="Nhập mật khẩu..." required />
-   </div>
-    <input type="submit" value="Đăng nhập" class="btn btn-danger" />
-</form>
+<div class="form-login container-fluid">
+    <form method="post">
+        <div class="form-group">
+           <label for="username">Tài khoản:</label>
+           <input type="text"
+                  name="username"
+                  class="form-control"
+                  id="username"
+                  placeholder="Nhập tài khoản..." required />
+       </div>
+        <div class="form-group">
+           <label for="password">Mật khẩu:</label>
+           <input type="password"
+                  name="password"
+                  class="form-control"
+                  id="password"
+                  placeholder="Nhập mật khẩu..." required />
+       </div>
+        <input type="submit" value="Đăng nhập" class="btn btn-danger" />
+    </form>
+</div>
+
 <br><br>
 {% endblock %}

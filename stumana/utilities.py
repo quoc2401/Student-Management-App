@@ -1,6 +1,6 @@
 from stumana import db
 from sqlalchemy import text, func, update
-from stumana.models import User, Student, Mark, Subject, XVMark, XXXXVMark, ClassRoom
+from stumana.models import User, Student, Mark, Subject, XVMark, XXXXVMark, ClassRoom,UserRole
 import config
 
 
@@ -9,10 +9,11 @@ def get_user_by_id(user_id):
     return User.query.get(user_id)
 
 
-def check_login(username, password):
+def check_login(username, password, role=UserRole.ADMIN):
     # password = str(hashlib.md5(password.strip().encode('utf-8')).hexdigest())
     return User.query.filter(User.username.__eq__(username.strip()),
-                             User.password.__eq__(password)).first()
+                             User.password.__eq__(password),
+                             User.user_role.__eq__(role)).first()
 
 
 # Thay doi tuoi quy dinh
@@ -63,12 +64,10 @@ def get_class_by_id(classroom_id):
     return ClassRoom.query.get(classroom_id)
 
 
-def student_count_by_class(class_id):
+def count_student_by_class(class_id):
     return db.session.query(func.count(Student.id))\
         .join(ClassRoom, ClassRoom.id.__eq__(Student.class_id))\
         .filter(ClassRoom.id.__eq__(class_id)).all()
-    # return ClassRoom.query.join(Student, Student.class_id.__eq__(ClassRoom.id), isouter=True)\
-    #     .add_columns(func.count(Student.id)).group_by(ClassRoom.id).all()
 
 
 def get_students_mark(class_id=None, semester=None, year=None, subject_id=None):
@@ -112,8 +111,17 @@ def average_ignore_none(numbers):
     return avg
 
 
-def get_student_by_class(class_id):
-    return Student.query.filter(Student.class_id.__eq__(class_id)).all()
+def get_student_by_class(grade, class_name):
+    return db.session.query(Student)\
+            .join(ClassRoom, ClassRoom.id.__eq__(Student.class_id))\
+            .filter(ClassRoom.class_name.__eq__(class_name))\
+            .filter(ClassRoom.grade.__eq__(grade)).all()
+
+
+def get_total(grade, class_name):
+    return db.session.query(ClassRoom.total) \
+        .filter(ClassRoom.class_name.__eq__(class_name)) \
+        .filter(ClassRoom.grade.__eq__(grade)).first()
 
 
 def cal_avg_mark(subject_id, semester, year):
@@ -133,9 +141,9 @@ def cal_avg_mark(subject_id, semester, year):
         else:
             avg = (mark15 + mark45 * 2) / 6
         result = db.session.query(Mark).filter(Mark.subject_id.__eq__(subject_id),
-                                            Mark.student_id.__eq__(s.Student.id),
-                                            Mark.semester.__eq__(semester),
-                                            Mark.year.__eq__(year)).\
+                                               Mark.student_id.__eq__(s.Student.id),
+                                               Mark.semester.__eq__(semester),
+                                               Mark.year.__eq__(year)).\
             update({Mark.avg: avg}, synchronize_session=False)
         print(result)
     db.session.commit()
@@ -145,13 +153,12 @@ def get_classes():
     return db.session.query(ClassRoom).all()
 
 
-def total_qualifed_by_class(class_id, semester, year, subject_id):
+def total_qualified_by_class(class_id, semester, year, subject_id):
     count = db.session.query(func.count(Mark.avg)).\
         join(Student, Student.id.__eq__(Mark.student_id)).\
         join(ClassRoom, ClassRoom.id.__eq__(Student.class_id)).\
         filter(ClassRoom.id.__eq__(class_id),
                Mark.subject_id.__eq__(subject_id),
-               Mark.subject_id.__eq__(semester),
                Mark.semester.__eq__(semester),
                Mark.year.__eq__(year),
                Mark.avg.__ge__(5)).first()
@@ -159,21 +166,26 @@ def total_qualifed_by_class(class_id, semester, year, subject_id):
 
 
 def get_subjects():
-    return db.session.query(Subject.name)
+    return db.session.query(Subject.subject_name)
 
 
 def get_stats(semester, year, subject_name):
     classes = get_classes()
     stats = []
-    subject_id = db.session.query(Subject.id).filter(Subject.name.__eq__(subject_name)).first()
+    subject_id = db.session.query(Subject.id).filter(Subject.subject_name.__eq__(subject_name)).first()
     for c in classes:
-        total_qualified = total_qualifed_by_class(c.id, semester=semester, year=year, subject_id=subject_id[0])
+        total_qualified = total_qualified_by_class(c.id, semester=semester,
+                                                   year=year, subject_id=subject_id[0])
+        if c.total != 0:
+            ratio = float(total_qualified) / c.total * 100
+        else:
+            ratio = 0
         stats.append({
             'class_id': c.id,
-            'class_name': c.grade + c.name,
+            'class_name': c.grade + c.class_name,
             'total': c.total,
             'total_qualified': total_qualified,
-            'ratio': "{0:.2f}".format(float(total_qualified) / c.total * 100)
+            'ratio': '{0:.2f}'.format(ratio)
         })
 
     return stats
