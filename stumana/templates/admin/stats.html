@@ -3,14 +3,14 @@
 {% block body %}
 <h1 class="text-center text-info">THỐNG KÊ KẾT QUẢ</h1>
 <br>
-<div class="container row">
+<div class="container-fluid row">
   <div class="col-md-6">
       <form>
           <div class="form-group">
             <select id="subject" class="form-control" name="subject">
                 <option>Môn học</option>
                 {% for s in subjects %}
-                    <option value="{{ s[0] }}">{{ s[0] }}</option>
+                <option value="{{ s[0] }}">{{ s[0] }}</option>
                 {% endfor %}
               </select>
           </div>
@@ -51,15 +51,16 @@
             <input type="submit" value="Thống kê" class="btn btn-info">
       </form>
     <br>
+
     <table class="table table-striped table-hover table-responsive">
       <thead>
       <tr>
-        <td colspan="5"><h4>Báo cáo tổng kết môn học</h4></td>
+        <td colspan="5"><h4 class="text-center text-danger">Báo cáo tổng kết môn học</h4></td>
       </tr>
       <tr>
-        <td colspan="3">Môn: {{request.args.get('subject', 'Toán 11')}}</td>
-        <td >Học kỳ: {{request.args.get('semester', '1')}}</td>
-        <td>Năm học: {{ year }}</td>
+        <td colspan="3">Môn: {{ request.args.get('subject', 'Toán') }}</td>
+        <td>Học kỳ: {{ request.args.get('semester', '1') }}</td>
+        <td >Năm học: {{ request.args.get('year', year) }}</td>
       </tr>
         <tr>
           <th>Mã lớp</th>
@@ -77,14 +78,13 @@
           <td>{{ s.total }}</td>
           <td>{{ s.total_qualified }}</td>
           <td>{{ s.ratio }} %</td>
-
         </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
 
-  <div class="col-md-5">
+  <div class="col-md-6">
     <br>
     <br>
     <br>

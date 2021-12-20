@@ -9,15 +9,15 @@
 <div class="col-md-4" style="margin:0 auto;">
     <div class="form-group">
         <label for="min_age">Tuổi tối thiểu</label>
-        <input type="number" class="form-control" name="min_age" id="min_age" value="{{min_age}}" required>
+        <input type="number" min="0" class="form-control" name="min_age" id="min_age" value="{{ min_age }}" required>
     </div>
     <div class="form-group">
         <label for="max_age">Tuổi tối đa</label>
-        <input type="number" class="form-control" name="max_age" id="max_age" value="{{max_age}}" required>
+        <input type="number" min="0" class="form-control" name="max_age" id="max_age" value="{{ max_age }}" required>
     </div>
     <div class="form-group">
         <label for="max_size">Sĩ số tối đa</label>
-        <input type="number" class="form-control" name="max_size" id="max_size" value="{{max_size}}" required>
+        <input type="number" class="form-control" name="max_size" id="max_size" value="{{ max_size }}" required>
     </div>
     <button type="submit" class="btn btn-primary" onclick="changeRule()">Lưu</button>
 </div>
