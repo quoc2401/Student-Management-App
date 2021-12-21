@@ -224,4 +224,4 @@ admin.add_view(StatsView(name='Thống kê báo cáo',
 
 admin.add_view(LogoutView(name="Đăng xuất",
                           menu_icon_type='fa',
-                          menu_icon_value='fa-sign-out-alt'))
+                          menu_icon_value='fa-sign-out'))
