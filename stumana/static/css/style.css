@@ -1,3 +1,11 @@
+* {
+    font-family: Arial, sans-serif;
+}
+
+.site-title {
+    font-weight: 700;
+}
+
 body {
     /*background-image: url('https://bootstrapmade.com/content/templatefiles/Techie/Techie-bootstrap-website-template.png');*/
     background-repeat: no-repeat;
@@ -32,4 +40,9 @@ body {
 .container {
     width: 100%;
     min-height: 32rem;
+}
+
+.form-login {
+    width: 60%;
+    margin: 80px auto;
 }

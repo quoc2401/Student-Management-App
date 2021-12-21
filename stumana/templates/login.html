@@ -3,7 +3,7 @@
 {% block title %}Đăng nhập{% endblock %}
 
 {% block body %}
-<br><br>
+<div class="form-login container-fluid">
 <h2 class="text-center text-info">ĐĂNG NHẬP</h2>
 
 {% if error_msg %}
@@ -12,7 +12,6 @@
 </div>
 {% endif %}
 
-<div class="form-login container-fluid">
     <form method="post">
         <div class="form-group">
            <label for="username">Tài khoản:</label>
@@ -34,5 +33,5 @@
     </form>
 </div>
 
-<br><br>
+<br>
 {% endblock %}

@@ -55,7 +55,7 @@ class Person(BaseModel):
 
 class ClassRoom(BaseModel):
     grade = Column(String(5), nullable=False)
-    name = Column(String(10), nullable=False)
+    class_name = Column(String(10), nullable=False)
     total = Column(Integer, default=0)
     students = relationship('Student', backref='classroom', lazy=False)
     # teachers = relationship('Teacher', secondary='teacher_subject_class', lazy='subquery',
@@ -90,7 +90,7 @@ class Staff(Person):
 
 # mon hoc
 class Subject(BaseModel):
-    name = Column(String(20), nullable=False)
+    subject_name = Column(String(20), nullable=False)
 
     def __str__(self):
         return self.name

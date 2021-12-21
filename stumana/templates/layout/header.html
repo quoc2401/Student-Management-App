@@ -11,7 +11,7 @@
                 <a class="nav-link active" href="/" >Trang chủ</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">Giới thiệu</a>
+                <a class="nav-link" href="/#gioithieu">Giới thiệu</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="/#lienhe">Liên hệ</a>
@@ -31,6 +31,7 @@
          </a>
         <a class="nav-link text-info mr-auto" href="{{ url_for('user_logout') }}">Đăng xuất</a>
     {% else %}
-        <a class="nav-link text-success mr-auto" href="{{ url_for('user_login') }}">Đăng nhập</a>
+        <a class="nav-link text-success mr-auto" href="{{ url_for('user_login') }}">
+            <i class="fas fa-sign-in-alt"></i> Đăng nhập</a>
     {% endif %}
 </nav>
