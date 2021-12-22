@@ -31,5 +31,94 @@ body {
 
 .container {
     width: 100%;
-    min-height: 32rem;
+    min-height: 33rem;
+}
+
+/*table.student tr {
+    counter-increment: rowNumber;
+}
+
+table.student tr td:first-child::before {
+    content: counter(rowNumber);
+    width: 1em;
+}*/
+.col60 {
+    width: 60%;
+}
+
+.align-center {
+    margin: 0 auto;
+}
+
+/************************************************************************/
+#sidebar-wrapper {
+    min-height: 500px;
+    margin-left: -15rem;
+    -webkit-transition: margin .25s ease-out;
+    -moz-transition: margin .25s ease-out;
+    -o-transition: margin .25s ease-out;
+    transition: margin .25s ease-out;
+}
+
+#sidebar-wrapper .sidebar-heading {
+    padding: 0.875rem 1.25rem;
+    font-size: 1.2rem;
+}
+
+#sidebar-wrapper .list-group {
+    width: 15rem;
+}
+
+#page-content-wrapper {
+    min-width: 500px;
+}
+
+#wrapper.toggled #sidebar-wrapper {
+    margin-left: 0;
+}
+
+@media (min-width: 768px) {
+    #sidebar-wrapper {
+        margin-left: 0;
+    }
+
+    #page-content-wrapper {
+        min-width: 0;
+        width: 100%;
+    }
+
+    #wrapper.toggled #sidebar-wrapper {
+        margin-left: -15rem;
+    }
+}
+/************************************************************************/
+
+.bg-lightgray {
+    background-color: #e8eded;
+}
+
+i {
+    padding-right: 5px;
+}
+
+td {
+    text-align: center;
+    min-width: 50px;
+}
+
+td.name {
+    min-width:397px;
+}
+
+.high-div {
+    min-height: 500px;
+}
+
+h3.bg-lightgray {
+    margin:10px 0;
+    padding: 5px;
+}
+
+.sidebar-item {
+    margin: 15px 5px;
 }

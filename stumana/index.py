@@ -1,7 +1,7 @@
 from stumana import login
 from flask import render_template, url_for, jsonify
 from admin import *
-from flask_login import login_user, logout_user
+from flask_login import login_user, logout_user, login_required
 
 
 @app.route("/")
@@ -19,29 +19,15 @@ def user_login():
             username = request.form['username']
             password = request.form['password']
 
-            user = utilities.check_login(username=username, password=password, role=UserRole.STUDENT)
-            user_admin = utilities.check_login(username=username, password=password, role=UserRole.ADMIN)
-            user_staff = utilities.check_login(username=username, password=password, role=UserRole.STAFF)
-            user_teacher = utilities.check_login(username=username, password=password, role=UserRole.TEACHER)
+            user = utilities.check_login(username=username, password=password)
             if user:
                 login_user(user=user)
-
+                if current_user.user_role == UserRole.ADMIN:
+                    return redirect('/admin')
                 next = request.args.get('next', '/')
                 return redirect(next)
             else:
                 error_msg = "Sai tài khoản hoặc mật khẩu !!!"
-
-            if user_admin:
-                login_user(user=user_admin)
-                return redirect('/admin')
-
-            if user_staff:
-                login_user(user=user_staff)
-                return redirect('/admin')
-
-            if user_teacher:
-                login_user(user=user)
-                return redirect('/admin')
 
         except Exception as ex:
             error_msg = str(ex)
@@ -83,6 +69,70 @@ def change_rule():
 #                            avg=avg)
 
 
+@app.route("/students-marks")
+@login_required
+def students_marks():
+    classes = utilities.get_class_by_teacher_id(utilities.get_teacher_id(current_user.id))
+
+    if current_user.user_role == UserRole.TEACHER:
+        course_id = request.args.get('course_id')
+
+        if course_id:
+            course = utilities.get_course_info(course_id)
+            marks = utilities.get_mark_by_course_id(course_id=course_id)
+            return render_template("students-marks.html",
+                                   marks=marks,
+                                   course=course,
+                                   classes=classes)
+        return render_template("students-marks.html", classes=classes)
+    else:
+        return redirect("/")
+
+
+@app.route("/students-marks/edit/<int:student_id>")
+@login_required
+def edit_marks(student_id):
+    year = request.args.get('year')
+    subject_id = request.args.get('subject_id')
+    classes = utilities.get_class_by_teacher_id(utilities.get_teacher_id(current_user.id))
+
+    marks = utilities.get_marks_of_student(student_id=student_id,
+                                           subject_id=subject_id,
+                                           year=year)
+    return render_template("student_marks.html", marks=marks, classes=classes)
+
+
+@app.route("/api/update-mark", methods=['POST'])
+@login_required
+def update_marks():
+    data = request.json
+    subject_id = data.get('subject_id')
+    student_id = data.get('student_id')
+    year = data.get('year')
+    mark15 = {
+        '1': data.get('mark15_1'),
+        '2': data.get('mark15_2')
+    }
+    mark45 = {
+        '1': data.get('mark45_1'),
+        '2': data.get('mark45_2')
+    }
+    final_mark = data.get('final_mark')
+
+    try:
+        result = utilities.update_marks(subject_id=subject_id,
+                               student_id=student_id,
+                               year=year,
+                               mark15=mark15,
+                               mark45=mark45,
+                               final_mark=final_mark)
+    except Exception as e:
+        print(e)
+        return jsonify({'status': 404})
+
+    return jsonify({'status': 200})
+
+
 @login.user_loader
 def user_load(user_id):
     return utilities.get_user_by_id(user_id=user_id)
@@ -91,7 +141,7 @@ def user_load(user_id):
 @app.context_processor
 def common_response():
     return {
-        'ADMIN': UserRole.ADMIN,
+        'UserRole': UserRole,
         'year': datetime.now().year
     }
 

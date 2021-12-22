@@ -14,6 +14,9 @@ class AuthenticatedBaseView(BaseView):
 
 
 class AuthenticatedModelView(ModelView):
+    create_modal = True
+    edit_modal = True
+
     def is_accessible(self):
         return current_user.is_authenticated and current_user.user_role == UserRole.ADMIN
 
@@ -30,9 +33,7 @@ class AdminBaseView(AuthenticatedBaseView):
             return current_user.user_role == UserRole.ADMIN
 
 
-class ModalModelView(AuthenticatedModelView):
-    create_modal = True
-    edit_modal = True
+class StudentModalView(AuthenticatedModelView):
     column_labels = {
         'first_name': 'Họ',
         'last_name': 'Tên',
@@ -45,8 +46,6 @@ class ModalModelView(AuthenticatedModelView):
         'active': 'Active',
         'user': 'Tên tài khoản',
         'classroom': 'Lớp',
-        'grade': 'Khối',
-        'total': 'Sỉ số',
         'class_name': 'Tên lớp',
         'name': 'Tên người dùng',
         'username': 'Tài khoản',
@@ -56,20 +55,28 @@ class ModalModelView(AuthenticatedModelView):
     }
 
 
-class SubjectModelView(ModalModelView):
-    column_searchable_list = ['subject_name']
-    column_filters = ['subject_name']
+class ClassModalView(AuthenticatedModelView):
     column_labels = {
-        'id': 'Mã môn học',
-        'subject_name': 'Tên môn học'
+        'grade': 'Khối',
+        'name': 'Tên lớp',
+        'total': 'Sỉ số',
     }
 
 
-class CustomPersonForm(ModalModelView):
+class SubjectModelView(StudentModalView):
+    column_searchable_list = ['name']
+    column_filters = ['name']
+    column_labels = {
+        'id': 'Mã môn học',
+        'name': 'Tên môn học'
+    }
+
+
+class CustomPersonForm(StudentModalView):
     form_excluded_columns = ['user', 'classroom', 'classes']
 
 
-class CustomUserForm(ModalModelView):
+class CustomUserForm(StudentModalView):
     form_excluded_columns = ['student', 'teacher', 'staff']
 
 
@@ -102,16 +109,16 @@ class UserAllocation(AdminBaseView):    # de lam sau
             return current_user.user_role == UserRole.ADMIN
 
 
-class Accept_student(ModalModelView):
-    def is_accessible(self):
-        if current_user.is_authenticated:
-            return current_user.user_role == UserRole.STAFF
+# class Student(ModalModelView):
+#     def is_accessible(self):
+#         if current_user.is_authenticated:
+#             return current_user.user_role == UserRole.STAFF
 
 
 class StatsView(AdminBaseView):
     @expose('/')
     def index(self):
-        subject_name = request.args.get("subject", "Toán")
+        subject_name = request.args.get("subject", "Toán 11")
         semester = request.args.get("semester", "1")
         year = request.args.get("year", datetime.now().year)
         stats = utilities.get_stats(subject_name=subject_name,
@@ -172,10 +179,10 @@ admin.add_view(UserAllocation(name="Cấp tài khoản",
                               menu_icon_type='fa',
                               menu_icon_value='fa-id-card'))
 # Staff
-admin.add_view(Accept_student(Student, db.session,
-                              name='Tiếp nhận học sinh',
-                              menu_icon_type='fa',
-                              menu_icon_value='fa-graduation-cap'))
+admin.add_view(CustomPersonForm(Student, db.session,
+                                name='Tiếp nhận học sinh',
+                                menu_icon_type='fa',
+                                menu_icon_value='fa-graduation-cap'))
 # Staff
 # admin.add_view(Change_class(Student, db.session,
 #                             name='Điều chỉnh lớp học',
@@ -193,11 +200,11 @@ admin.add_view(CustomPersonForm(Staff, db.session,
                                 menu_icon_type='fa',
                                 menu_icon_value='fa-briefcase'))
 # Admin
-admin.add_view(ModalModelView(ClassRoom, db.session,
-                              name='Quản lý lớp học',
-                              menu_icon_type='fa',
-                              menu_icon_value='fa-columns',
-                              category="Lớp học"))
+admin.add_view(ClassModalView(ClassRoom, db.session,
+                                name='Quản lý lớp học',
+                                menu_icon_type='fa',
+                                menu_icon_value='fa-columns',
+                                category="Lớp học"))
 # Staff
 # admin.add_view(Change_class(Student, db.session,
 #                             menu_icon_type='fa',

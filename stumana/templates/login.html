@@ -12,7 +12,7 @@
 </div>
 {% endif %}
 
-<div class="form-login container-fluid">
+<div class="form-login" style="margin:0 auto; width:500px; height:400px;">
     <form method="post">
         <div class="form-group">
            <label for="username">Tài khoản:</label>
@@ -30,7 +30,10 @@
                   id="password"
                   placeholder="Nhập mật khẩu..." required />
        </div>
-        <input type="submit" value="Đăng nhập" class="btn btn-danger" />
+        <div class="flex">
+            <input type="submit" value="Đăng nhập" class="btn btn-danger" />
+            <a href="#" class="text text-info ml-auto">Quên mật khẩu</a>
+        </div>
     </form>
 </div>
 
