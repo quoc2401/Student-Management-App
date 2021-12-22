@@ -45,7 +45,7 @@
             <td colspan="6">Sỉ số: {{ total[0] }}</td>
           </tr>
             <tr>
-              <th colspan="1">Mã học sinh</th>
+              <th colspan="1">STT</th>
               <th width="300" colspan="3">Họ tên</th>
               <th width="200" colspan="2">Giới tính</th>
               <th width="200" colspan="2">Năm sinh</th>
@@ -55,7 +55,7 @@
           <tbody>
             {% for s in students %}
             <tr>
-              <td colspan="1">{{ s.id }}</td>
+              <td colspan="1">{{ students.index(s) + 1 }}</td>
               <td colspan="3">{{ s.first_name }} {{ s.last_name }}</td>
               <td colspan="2">
                   {% if s.sex == True %}
