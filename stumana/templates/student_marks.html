@@ -4,19 +4,20 @@
 
 {% block content %}
 <h2 class="text text-center text-primary">Chỉnh sửa điểm</h2>
-    <table class="table table-striped table-hover table-responsive table-bordered">
+    <table class="marks table table-striped table-hover table-responsive table-bordered">
         <thead>
             <tr>
                 <th colspan="3">Học sinh: {{ marks[0].student.name}}</th>
                 <th colspan="3">Lớp: {{ request.args.get('class_name') }}</th>
                 <th colspan="3">Môn: {{ marks[0].subject.name}}</th>
-                <th colspan="3">Năm: {{ request.args.get('year') }}</th>
+                <th colspan="2">Năm: {{ request.args.get('year') }}</th>
             </tr>
             <tr>
                 <td>Học kỳ</td>
                 <td colspan="5">Điểm 15 phút</td>
                 <td colspan="3">Điểm 1 tiết</td>
                 <td>Điểm cuối kỳ</td>
+                <td></td>
             </tr>
         </thead>
         <tbody>
@@ -38,10 +39,11 @@
                     {% endif %}
                 {% endfor %}
                 {% if m.final_mark %}
-                <td><input type="number" id="final_mark" value="{{ m.final_mark }}" min="0" max="10"></td>
+                <td><input type="number" id="final_mark{{ m.semester }}" value="{{ m.final_mark }}" min="0" max="10"></td>
                 {% else %}
-                <td><input type="number" id="final_mark" value="" min="0" max="10"></td>
+                <td><input type="number" id="final_mark{{ m.semester }}" value="" min="0" max="10"></td>
                 {% endif %}
+                <td></td>
             </tr>
             {% endfor %}
         </tbody>

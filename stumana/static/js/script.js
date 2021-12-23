@@ -66,7 +66,8 @@ function updateMarks(subject_id, student_id, year) {
     mark45_1_obj = document.getElementsByClassName('mark45_1')
     mark15_2_obj = document.getElementsByClassName('mark15_2')
     mark45_2_obj = document.getElementsByClassName('mark45_2')
-    final_mark = document.getElementById('final_mark').value
+    final_mark1 = document.getElementById('final_mark1').value
+    final_mark2 = document.getElementById('final_mark2').value
     mark15_1 = []
     mark45_1 = []
     mark15_2 = []
@@ -92,7 +93,8 @@ function updateMarks(subject_id, student_id, year) {
             'mark45_1': mark45_1,
             'mark15_2': mark15_2,
             'mark45_2': mark45_2,
-            'final_mark': final_mark
+            'final_mark1': final_mark1,
+            'final_mark2': final_mark2
         }),
         headers: {
             'Content-Type': 'application/json'
@@ -122,7 +124,11 @@ function updateMarks(subject_id, student_id, year) {
 
 
 $(document).ready(function() {
-    $(document).on('click', '.nav-item a', function (e) {
-        $(this).parent().addClass('active').siblings().removeClass('active');
+    var main_route = (window.location.pathname.split("/")[1]);
+    $('.nav-item').removeClass('active');
+    $('#nav_' + main_route).addClass('active');
+    $(document).on('click', '.nav-item', function (e) {
+        $('.nav-item').removeClass('active');
+        $('#nav_' + main_route).addClass('active');
     })
 })

@@ -44,7 +44,7 @@
   </head>
 <body>
 {% block page_body %}
-    <div class="container-fluid" style="padding:0">
+    <div class="container-fluid main-body" style="padding:0">
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-2 sticky-top" role="navigation">
             <!-- Brand and toggle get grouped for better mobile display -->
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#admin-navbar-collapse"
@@ -81,8 +81,9 @@
 
         {# store the jinja2 context for form_rules rendering logic #}
         {% set render_ctx = h.resolve_ctx() %}
-
-        {% block body %}{% endblock %}
+        <div class="container">
+            {% block body %}{% endblock %}
+        </div>
     </div>
 {% endblock %}
 

@@ -31,7 +31,7 @@ body {
 
 .container {
     width: 100%;
-    min-height: 33rem;
+    min-height: 67vh;
 }
 
 /*table.student tr {
@@ -52,7 +52,7 @@ table.student tr td:first-child::before {
 
 /************************************************************************/
 #sidebar-wrapper {
-    min-height: 500px;
+    min-height: 67vh;
     margin-left: -15rem;
     -webkit-transition: margin .25s ease-out;
     -moz-transition: margin .25s ease-out;
@@ -70,7 +70,7 @@ table.student tr td:first-child::before {
 }
 
 #page-content-wrapper {
-    min-width: 500px;
+    min-width: 67vw;
 }
 
 #wrapper.toggled #sidebar-wrapper {
@@ -101,17 +101,22 @@ i {
     padding-right: 5px;
 }
 
+table.marks tr td:last-child {
+    width: 100%;
+}
+
 td {
+    white-space: nowrap;
     text-align: center;
-    min-width: 50px;
+    min-width: 4vw;
 }
 
 td.name {
-    min-width:397px;
+    min-width:18vw;
 }
 
 .high-div {
-    min-height: 500px;
+    min-height: 67vh;
 }
 
 h3.bg-lightgray {
@@ -119,6 +124,25 @@ h3.bg-lightgray {
     padding: 5px;
 }
 
+h4.bg-lightgray {
+    margin:10px 0;
+    padding: 5px;
+}
+
 .sidebar-item {
     margin: 15px 5px;
+}
+
+div.main-body {
+    min-height: 87vh!important;
+}
+
+/* hover effect cho cac dropdown-item trang chinh */
+div.dropdown-menu a:hover {
+    background-color: lightgray;
+}
+
+/* hover effect cho cac dropdown-item trang admin */
+a.dropdown-item:hover {
+    background-color: lightgray;
 }

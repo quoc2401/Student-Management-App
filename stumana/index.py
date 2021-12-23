@@ -72,7 +72,7 @@ def change_rule():
 @app.route("/students-marks")
 @login_required
 def students_marks():
-    classes = utilities.get_class_by_teacher_id(utilities.get_teacher_id(current_user.id))
+    classes = utilities.get_classes_of_teacher(current_user.id)
 
     if current_user.user_role == UserRole.TEACHER:
         course_id = request.args.get('course_id')
@@ -94,7 +94,7 @@ def students_marks():
 def edit_marks(student_id):
     year = request.args.get('year')
     subject_id = request.args.get('subject_id')
-    classes = utilities.get_class_by_teacher_id(utilities.get_teacher_id(current_user.id))
+    classes = utilities.get_classes_of_teacher(current_user.id)
 
     marks = utilities.get_marks_of_student(student_id=student_id,
                                            subject_id=subject_id,
@@ -117,15 +117,19 @@ def update_marks():
         '1': data.get('mark45_1'),
         '2': data.get('mark45_2')
     }
-    final_mark = data.get('final_mark')
+    final_mark = {
+        '1': data.get('final_mark1'),
+        '2': data.get('final_mark2')
+    }
+
 
     try:
         result = utilities.update_marks(subject_id=subject_id,
-                               student_id=student_id,
-                               year=year,
-                               mark15=mark15,
-                               mark45=mark45,
-                               final_mark=final_mark)
+                                        student_id=student_id,
+                                        year=year,
+                                        mark15=mark15,
+                                        mark45=mark45,
+                                        final_mark=final_mark)
     except Exception as e:
         print(e)
         return jsonify({'status': 404})

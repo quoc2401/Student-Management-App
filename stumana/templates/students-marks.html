@@ -4,7 +4,7 @@
 
 {% block content %}
     {% if course %}
-    <table class="table table-striped table-hover table-responsive table-bordered">
+    <table class="marks table table-striped table-hover table-responsive table-bordered">
         <thead>
             <tr>
                 <th colspan="3">Lớp: {{ course[0] + course[1] }}</th>
@@ -65,7 +65,14 @@
     </table>
     {% else %}
     <div class="row">
-        <div class="col-md-7"></div>
+        <div class="col-md-7">
+            <h4 class="bg-lightgray text-info text-center">Thông báo</h4>
+            <hr>
+            <div class="border" style="height: 54vh">
+                {% block announce %}
+                {% endblock %}
+            </div>
+        </div>
         <div class="col-md-5 border high-div">
             <h3 class="bg-lightgray text text-center">Hướng dẫn sử dụng</h3>
         </div>

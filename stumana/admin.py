@@ -133,27 +133,35 @@ class StatsView(AdminBaseView):
 class SetUpClass(StaffBaseView):    # de lam sau
     @expose("/")
     def index(self):
-        err_msg = ""
-        grade = request.args.get('grade', '12')
-        class_name = request.args.get('class', 'A1')
-        students = utilities.get_student_by_class(grade=grade,
-                                                  class_name=class_name)
+        err_msg = None
+        students = None
+        grade = request.args.get('grade')
+        class_name = request.args.get('class')
+
+        if grade and class_name:
+            students = utilities.get_student_by_class(grade=grade,
+                                                      class_name=class_name)
+        else:
+            return self.render("admin/set-up.html",
+                               classes=utilities.get_classes(),
+                               total=utilities.get_total(grade=grade,
+                                                         class_name=class_name),
+                               err_msg=err_msg)
 
         if students:
-            return self.render("admin/class-list.html",
+            return self.render("admin/set-up.html",
                                classes=utilities.get_classes(),
                                students=students,
                                total=utilities.get_total(grade=grade,
                                                          class_name=class_name))
         else:
-            error_msg = "Lớp không tồn tại hoặc không có học sinh nào!!!"
+            err_msg = "Lớp không tồn tại hoặc không có học sinh nào!!!"
 
-        return self.render("admin/class-list.html",
+        return self.render("admin/set-up.html",
                            classes=utilities.get_classes(),
-                           students=students,
                            total=utilities.get_total(grade=grade,
                                                      class_name=class_name),
-                           error_msg=error_msg)
+                           err_msg=err_msg)
 
 
 class LogoutView(BaseView):
@@ -180,7 +188,8 @@ admin.add_view(UserAllocation(name="Cấp tài khoản",
                               menu_icon_value='fa-id-card'))
 # Staff
 admin.add_view(CustomPersonForm(Student, db.session,
-                                name='Tiếp nhận học sinh',
+                                name='Học sinh',
+                                category="Cá nhân",
                                 menu_icon_type='fa',
                                 menu_icon_value='fa-graduation-cap'))
 # Staff
