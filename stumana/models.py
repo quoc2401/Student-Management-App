@@ -55,10 +55,10 @@ class Person(BaseModel):
 
 class ClassRoom(BaseModel):
     grade = Column(String(5), nullable=False)
-    class_name = Column(String(10), nullable=False)
+    name = Column(String(10), nullable=False)
     total = Column(Integer, default=0)
     students = relationship('Student', backref='classroom', lazy=False)
-    # teachers = relationship('Teacher', secondary='teacher_subject_class', lazy='subquery',
+    # teachers = relationship('Teacher', secondary='course', lazy='subquery',
     #                         backref=backref('classroom', lazy=True))
 
     def __str__(self):
@@ -79,7 +79,7 @@ class Student(Person):
 class Teacher(Person):
     ethnic_id = Column(Integer, ForeignKey(Ethnic.id))
     user_id = Column(Integer, ForeignKey(User.id), unique=True)
-    classes = relationship('ClassRoom', secondary='teacher_subject_class', lazy='subquery',
+    classes = relationship('ClassRoom', secondary='course', lazy='subquery',
                            backref=backref('teacher', lazy=True))
 
 
@@ -90,19 +90,19 @@ class Staff(Person):
 
 # mon hoc
 class Subject(BaseModel):
-    subject_name = Column(String(20), nullable=False)
+    name = Column(String(20), nullable=False)
 
     def __str__(self):
         return self.name
 
 
 # 1 giao vien day nhieu lop, 1 lop co nhieu giao vien
-class TeacherSubjectClass(db.Model):
-    __tablename__ = 'teacher_subject_class'
+class Course(BaseModel):
 
-    teacher_id = Column(Integer, ForeignKey(Teacher.id), nullable= False, primary_key=True)
-    class_id = Column(Integer, ForeignKey(ClassRoom.id), nullable=False, primary_key=True)
+    teacher_id = Column(Integer, ForeignKey(Teacher.id), nullable=False)
+    class_id = Column(Integer, ForeignKey(ClassRoom.id), nullable=False)
     subject_id = Column(Integer, ForeignKey(Subject.id), nullable=False)
+    year = Column(Integer, default=datetime.now().year)
 
 
 # diem 15p
@@ -129,8 +129,8 @@ class Mark(db.Model):
     student_id = Column(Integer, ForeignKey(Student.id), primary_key=True, nullable=False)
     semester = Column(Integer, primary_key=True)
     year = Column(Integer, primary_key=True)
-    XV_mark_id = Column(Integer, ForeignKey(XVMark.id))
-    XXXXV_mark_id = Column(Integer, ForeignKey(XXXXVMark.id))
+    XV_mark_id = Column(Integer, ForeignKey(XVMark.id), unique=True)
+    XXXXV_mark_id = Column(Integer, ForeignKey(XXXXVMark.id), unique=True)
     FinalMark = Column(Float)
     avg = Column(Float)
 
@@ -138,7 +138,7 @@ class Mark(db.Model):
 if __name__ == '__main__':
     # db.drop_all()
 
-    # db.create_all()
+    db.create_all()
 
     # tao Trigger tu dong tinh toan si so lop hoc
     db.engine.execute("drop trigger if exists change_class_size;")
