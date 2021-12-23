@@ -322,5 +322,5 @@ def update_marks(subject_id, student_id, year, mark15=None, mark45=None, final_m
 # cal_avg_mark(subject_id=1, year=2021, semester=1)
 # a = get_students_mark(class_id=2, semester=1, year=2021, subject_id=1)
 # a = get_marks_of_student(subject_id=1, student_id=6, year=2021)
-a = get_teacher_id(4)
-print(a)
+# a = get_teacher_id(4)
+# print(a)

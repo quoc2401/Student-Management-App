@@ -237,4 +237,7 @@ admin.add_view(ChangeRule(name="Thay đổi quy định",
 admin.add_view(StatsView(name='Thống kê báo cáo',
                          menu_icon_type='fa',
                          menu_icon_value='fa-line-chart'))
-admin.add_view(LogoutView(name="Đăng xuất", menu_icon_type='fa', menu_icon_value='fa-sign-out'))
+
+admin.add_view(LogoutView(name="Đăng xuất",
+                          menu_icon_type='fa',
+                          menu_icon_value='fa-sign-out'))

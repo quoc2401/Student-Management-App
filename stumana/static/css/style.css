@@ -1,3 +1,17 @@
+* {
+    font-family: Arial, sans-serif;
+}
+
+h1 {
+    color: #10375C;
+    font-weight: 700;
+    margin-top: 0;
+}
+
+.site-title {
+    font-weight: 700;
+}
+
 body {
     /*background-image: url('https://bootstrapmade.com/content/templatefiles/Techie/Techie-bootstrap-website-template.png');*/
     background-repeat: no-repeat;
@@ -33,7 +47,6 @@ body {
     width: 100%;
     min-height: 67vh;
 }
-
 /*table.student tr {
     counter-increment: rowNumber;
 }
@@ -145,4 +158,102 @@ div.dropdown-menu a:hover {
 /* hover effect cho cac dropdown-item trang admin */
 a.dropdown-item:hover {
     background-color: lightgray;
+}
+.form-login {
+    width: 60%;
+    margin: 80px auto;
+}
+
+/********************************* Trang chu *******************************/
+
+div {
+  display: block;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.gioithieu {
+  padding: 80px 40px;
+}
+
+.content-home h1.heading {
+  color: #10375C;
+  font-weight: 700;
+  margin-top: 0;
+}
+
+.content-home .note {
+    font-size: 18px;
+    line-height: 1.2;
+    color: #626D78;
+    margin-bottom: 50px;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 900px;
+}
+
+.row {
+    margin-right: -10px;
+    margin-left: -10px;
+}
+
+.mb-20 {
+    margin-bottom: 20px !important;
+}
+
+.highlight-item {
+    box-shadow: 0px 2px 20px rgb(0 0 0 / 8%);
+    border-radius: 20px;
+    padding: 35px 24px;
+    cursor: pointer;
+    background: #FFFFFF;
+}
+
+.highlight-item:hover .highlight-detail{
+display: block;
+animation: showDetail ease 0.4s;
+}
+
+img {
+  max-width: 100%;
+  vertical-align: middle;
+  border: 0;
+}
+
+.title-highlight {
+    font-size: 20px;
+    font-weight: 700;
+    margin-top: 40px;
+    color: #10375C;
+}
+
+.highlight-detail {
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: 0;
+    border-radius: 20px;
+    padding: 35px 24px;
+    color: #fff;
+    display: none;
+    height: 100%;
+}
+
+.highlight-detail .title-highlight{
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #fff;
+}
+
+@keyframes showDetail {
+  from{
+  opacity: 0;
+  height: 0;
+  }
+  to{
+  opacity: 1;
+  height: 100%;
+  }
 }

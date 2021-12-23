@@ -3,14 +3,14 @@
 {% block title %}Đăng nhập{% endblock %}
 
 {% block body %}
-<br><br>
-<h2 class="text-center text-info">ĐĂNG NHẬP</h2>
+<h1 class="text-center heading" style="margin-top:50px;">Đăng nhập</h1>
 
 {% if error_msg %}
 <div class="alert alert-danger">
     {{ error_msg }}
 </div>
 {% endif %}
+
 
 <div class="form-login" style="margin:0 auto; width:500px; height:400px;">
     <form method="post">
@@ -36,6 +36,5 @@
         </div>
     </form>
 </div>
-
-<br><br>
+<br>
 {% endblock %}
