@@ -1,3 +1,8 @@
+{% extends 'layout/base.html' %}
+
+{% block title %}STAFF{% endblock %}
+
+{% block header %}
 <nav class="navbar navbar-expand-sm bg-dark navbar-dark sticky-top">
    <a class="navbar-brand" href="#">
     <img src="https://res.cloudinary.com/quoc2401/image/upload/v1639310528/logo_muibye.png"
@@ -8,13 +13,14 @@
     <div class="collapse navbar-collapse" id="collapsibleNavbar">
         <ul class="navbar-nav">
             <li class="nav-item">
-                <a class="nav-link active" href="/" >Trang chủ</a>
+                <a class="nav-link active" href="/">Trang chủ</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/#gioithieu">Giới thiệu</a>
+                <a class="nav-link" href="{{ url_for('arrange_class') }}">
+                    <i class="fa fa-sort"></i> Xếp lớp</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/#lienhe">Liên hệ</a>
+                <a class="nav-link" href="#"><i class="fa fa-reorder"></i> Lập danh sách lớp</a>
             </li>
         </ul>
     </div>
@@ -30,9 +36,18 @@
             {{ current_user.name }}
          </a>
         <a class="nav-link text-info mr-auto" href="{{ url_for('user_logout') }}">
-            <i class="fas fa-sign-out-alt"></i>Đăng xuất</a>
+            <i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
     {% else %}
-        <a class="nav-link text-info mr-auto" href="{{ url_for('user_login') }}">
+        <a class="nav-link text-success mr-auto" href="{{ url_for('user_login') }}">
             <i class="fas fa-sign-in-alt"></i> Đăng nhập</a>
     {% endif %}
 </nav>
+{% endblock %}
+
+{% block body %}
+
+{% if current_user.is_authenticated %}
+<h1 class="text-info">Nhân viên: <span class="text-danger">{{ current_user.name }}</span></h1>
+{% endif %}
+
+{% endblock %}

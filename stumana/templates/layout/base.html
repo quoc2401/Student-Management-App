@@ -17,16 +17,16 @@
     {% block js %}{% endblock %}
 </head>
 <body>
-    <div class="">
-        {% block header%}
-            {% include 'layout/header.html' %}
-        {% endblock %}
+    {% block header%}
+        {% include 'layout/header.html' %}
+    {% endblock %}
 
+    <div class="container">
         {% block body %}{% endblock %}
-
-        {% block footer %}
-            {% include 'layout/footer.html' %}
-        {% endblock %}
     </div>
+
+    {% block footer %}
+        {% include 'layout/footer.html' %}
+    {% endblock %}
 </body>
 </html>

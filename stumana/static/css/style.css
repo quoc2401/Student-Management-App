@@ -12,6 +12,7 @@ body {
     background-size: cover;
     width: 100%;
     min-height:500px!important;
+    background-color: #d5e6e8
 }
 
 .overlay{

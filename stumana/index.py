@@ -37,7 +37,7 @@ def user_login():
 
             if user_staff:
                 login_user(user=user_staff)
-                return redirect('/admin')
+                return render_template('staff.html')
 
             if user_teacher:
                 login_user(user=user)
@@ -70,17 +70,9 @@ def change_rule():
     return jsonify({'status': 200})
 
 
-# @app.route('/report/<int:classroom_id>')
-# def report_student(classroom_id):
-#     subject = request.args.get("subject")
-#     classroom = utilities.get_class_by_id(classroom_id=classroom_id)
-#     students = utilities.get_student_by_class(class_id=classroom_id)
-#     avg = utilities.get_student_avg(class_id=classroom_id, subject=subject)
-#
-#     return render_template('report-student.html',
-#                            classroom=classroom,
-#                            students=students,
-#                            avg=avg)
+@app.route("/staff/arrange-class")
+def arrange_class():
+    return render_template('arrange-class.html')
 
 
 @login.user_loader
