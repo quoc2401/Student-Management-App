@@ -96,9 +96,8 @@ class Subject(BaseModel):
         return self.name
 
 
-# 1 giao vien day nhieu lop, 1 lop co nhieu giao vien
+# Lop hoc theo bo mon
 class Course(BaseModel):
-
     teacher_id = Column(Integer, ForeignKey(Teacher.id), nullable=False)
     class_id = Column(Integer, ForeignKey(ClassRoom.id), nullable=False)
     subject_id = Column(Integer, ForeignKey(Subject.id), nullable=False)

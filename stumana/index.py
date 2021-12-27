@@ -41,7 +41,7 @@ def user_logout():
     return redirect(url_for("index"))
 
 
-@app.route("/api/change-rule", methods=['POST'])
+@app.route("/api/change-rule", methods=['PUT'])
 def change_rule():
     data = request.json
     min_age = data.get('min_age')
@@ -72,14 +72,15 @@ def change_rule():
 @app.route("/students-marks")
 @login_required
 def students_marks():
-    classes = utilities.get_classes_of_teacher(current_user.id)
-
     if current_user.user_role == UserRole.TEACHER:
+        classes = utilities.get_classes_of_teacher(current_user.id)
         course_id = request.args.get('course_id')
 
         if course_id:
             course = utilities.get_course_info(course_id)
+            utilities.create_all_mark_records(course_id=course_id)
             marks = utilities.get_mark_by_course_id(course_id=course_id)
+
             return render_template("students-marks.html",
                                    marks=marks,
                                    course=course,
@@ -92,17 +93,21 @@ def students_marks():
 @app.route("/students-marks/edit/<int:student_id>")
 @login_required
 def edit_marks(student_id):
-    year = request.args.get('year')
-    subject_id = request.args.get('subject_id')
-    classes = utilities.get_classes_of_teacher(current_user.id)
+    if current_user.user_role == UserRole.TEACHER:
+        year = request.args.get('year')
+        subject_id = request.args.get('subject_id')
+        classes = utilities.get_classes_of_teacher(current_user.id)
 
-    marks = utilities.get_marks_of_student(student_id=student_id,
-                                           subject_id=subject_id,
-                                           year=year)
-    return render_template("student_marks.html", marks=marks, classes=classes)
+        marks = utilities.get_marks_of_student(student_id=student_id,
+                                               subject_id=subject_id,
+                                               year=year)
+
+        return render_template("student_marks.html", marks=marks, classes=classes)
+    else:
+        return redirect("/")
 
 
-@app.route("/api/update-mark", methods=['POST'])
+@app.route("/api/update-mark", methods=['PUT'])
 @login_required
 def update_marks():
     data = request.json
@@ -122,7 +127,6 @@ def update_marks():
         '2': data.get('final_mark2')
     }
 
-
     try:
         result = utilities.update_marks(subject_id=subject_id,
                                         student_id=student_id,
@@ -131,10 +135,36 @@ def update_marks():
                                         mark45=mark45,
                                         final_mark=final_mark)
     except Exception as e:
-        print(e)
-        return jsonify({'status': 404})
+        return jsonify({'status': 404,
+                        'err_msg': e})
 
     return jsonify({'status': 200})
+
+
+@app.route("/api/load-marks", methods=['POST'])
+def load_marks():
+    data = request.json
+    try:
+        marks = utilities.get_mark_by_course_id(course_id=data.get('course_id'), semester=data.get('semester'))
+        return jsonify({'status': 200,
+                        'marks': marks})
+    except:
+        return jsonify({'status': 404})
+
+
+# @app.route("/api/cal-avg", methods=['POST'])
+# def cal_avg():
+#     data = request.json
+#
+#     try:
+#         utilities.cal_avg_mark(subject_id=data.get('subject_id'),
+#                                semester=data.get('semester'),
+#                                year=data.get('year'))
+#     except:
+#         return jsonify({'status': 404})
+#
+#     return jsonify({'status': 200,
+#                     'avg_mark': })
 
 
 @login.user_loader
