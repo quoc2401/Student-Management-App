@@ -77,7 +77,7 @@ def get_students_mark(class_id=None, semester=None, year=None, subject_id=None):
     if subject_id:
         marks = marks.filter(Mark.subject_id.__eq__(subject_id))
 
-    return marks.all()
+    return marks
 
 
 # Cho: tinh trung binh bo qua None.
@@ -86,10 +86,9 @@ def average_ignore_none(numbers):
     for n in numbers:
         if n:
             total.append(n)
-    if total:
-        avg = sum(total) / len(total)
-    else:
-        avg = 0
+    if len(total) == 0:
+        return 0
+    avg = sum(total) / len(total)
     return avg
 
 
@@ -139,7 +138,7 @@ def cal_avg_mark(subject_id, semester, year):
             avg = (mark15 + mark45 * 2 + s.FinalMark * 3) / 6
         else:
             avg = (mark15 + mark45 * 2) / 6
-        result = db.session.query(Mark).filter(Mark.subject_id.__eq__(subject_id),
+        db.session.query(Mark).filter(Mark.subject_id.__eq__(subject_id),
                                                Mark.student_id.__eq__(s.Student.id),
                                                Mark.semester.__eq__(semester),
                                                Mark.year.__eq__(year)).update({Mark.avg: avg},
@@ -221,17 +220,16 @@ def get_course_info(course_id):
 # Cho: lay bang diem cua cac hoc sinh trong 1 lop hoc duoc day boi 1 giao vien trong 1 hoc ky.
 def get_mark_by_course_id(course_id, semester=None):
     course = Course.query.get(course_id)
-    # course = db.session.query(Course).filter(Course.id.__eq__(course_id)).first()
-    if semester:
-        students = get_students_mark(subject_id=course.subject_id,
-                                     class_id=course.class_id,
-                                     year=course.year,
-                                     semester=semester)
-    else:
-        students = get_students_mark(subject_id=course.subject_id,
-                                     class_id=course.class_id,
-                                     year=course.year,
-                                     semester=1)
+    if not semester:
+        semester = 1
+    students = get_students_mark(subject_id=course.subject_id,
+                                 class_id=course.class_id,
+                                 year=course.year,
+                                 semester=semester).order_by(Student.last_name)
+
+    cal_avg_mark(subject_id=course.subject_id,
+                 semester=semester,
+                 year=course.year)
 
     marks = []
     for s in students:
@@ -357,3 +355,50 @@ def update_marks(subject_id, student_id, year, mark15=None, mark45=None, final_m
                     synchronize_session=False)  #Neu khong nhap diem thi diem = null
 
     db.session.commit()
+
+
+def create_all_mark_records(course_id=None):
+    course = Course.query.get(course_id)
+    students_already_have = db.session.query(Mark.student_id).filter(Mark.subject_id.__eq__(course.subject_id),
+                                                                     Mark.year.__eq__(course.year)).distinct()
+    students_have_no_record = db.session.query(Student.id)\
+                                .filter(Student.class_id.__eq__(course.class_id),
+                                        Student.id.not_in(students_already_have))
+
+    for s in students_have_no_record:
+        mark15_1 = XVMark()
+        mark15_2 = XVMark()
+        mark45_1 = XXXXVMark()
+        mark45_2 = XXXXVMark()
+
+        db.session.add(mark15_1)
+        db.session.add(mark15_2)
+        db.session.add(mark45_1)
+        db.session.add(mark45_2)
+
+        mark1 = Mark(subject_id=course.subject_id,
+                     student_id=s[0],
+                     semester=1,
+                     year=course.year,
+                     xvmark=mark15_1,
+                     xxxxvmark=mark45_1)
+        db.session.add(mark1)
+
+        mark2 = Mark(subject_id=course.subject_id,
+                     student_id=s[0],
+                     semester=2,
+                     year=course.year,
+                     xvmark=mark15_2,
+                     xxxxvmark=mark45_2)
+        db.session.add(mark2)
+
+    db.session.commit()
+
+
+# Tu day tro xuong la de test = console
+# a = get_mark_by_course_id(1)
+# cal_avg_mark(subject_id=1, year=2021, semester=1)
+# a = get_students_mark(class_id=2, semester=1, year=2021, subject_id=1)
+# a = get_students_mark(class_id=2, year=2021, subject_id=1)
+# a = create_all_mark_records(1)
+# print(a)

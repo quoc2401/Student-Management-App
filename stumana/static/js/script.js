@@ -5,7 +5,7 @@ function changeRule() {
     max_size = document.getElementById('max_size').value
 
     fetch("/api/change-rule", {
-        method: 'POST',
+        method: 'PUT',
         body: JSON.stringify({
             'min_age': min_age,
             'max_age': max_age,
@@ -84,7 +84,7 @@ function updateMarks(subject_id, student_id, year) {
     }
 
     fetch("/api/update-mark", {
-        method: 'POST',
+        method: 'PUT',
         body: JSON.stringify({
             'subject_id':subject_id,
             'student_id':student_id,
@@ -106,15 +106,14 @@ function updateMarks(subject_id, student_id, year) {
         a = document.getElementById('alert')
 
         if(data.status == 200) {
-            a.style.display = "block"
-            a.className = "alert alert-success"
-            a.innerText = "Lưu thành công"
+
             window.location.reload()
         }
         else {
            a.style.display = "block"
            a.className = "alert alert-danger"
            a.innerText = "Lưu thất bại"
+           console.info(data.err_msg)
         }
 
         $(a).fadeOut(3000)
@@ -134,7 +133,7 @@ function addClass(class_id) {
     });
 
     if (items.length < 1)
-        alert('Chưa có học sinh nào được chọn')
+        alert('Chưa có học sinh nào được chọn!')
     else
         fetch("/api/update-class", {
             method: 'POST',
@@ -168,6 +167,57 @@ function addClass(class_id) {
 
 }
 
+function loadMarks(course_id) {
+     clear_marks()
+     fetch("/api/load-marks", {
+        method: 'POST',
+        body: JSON.stringify({
+            'course_id': course_id,
+            'semester': document.getElementById('semester').value
+        }),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }).then(function(res) {
+        console.info(res)
+        return res.json()
+    }).then(function(data) {
+
+        if(data.status == 200) {
+            marks = data.marks
+            console.info(marks)
+
+            for(let i = 0; i < marks.length; i++) {
+                marks15 = document.getElementsByClassName('mark15_' + marks[i].student_id)
+                marks45 = document.getElementsByClassName('mark45_' + marks[i].student_id)
+
+                for(let j = 0; j < 5; j++) {
+                    marks15[j].innerText = marks[i].mark15[j]
+                }
+                for(let j = 0; j < 3; j++) {
+                    marks45[j].innerText = marks[i].mark45[j]
+                }
+                document.getElementById('final_mark_' + marks[i].student_id).innerText = marks[i].final_mark
+                document.getElementById('avg_mark_' + marks[i].student_id).innerText = marks[i].avg_mark
+            }
+
+
+        }
+        else {
+           console.info("that bai")
+        }
+
+    }).catch(function(err) {
+        console.info(err)
+    })
+}
+
+function clear_marks() {
+    marks = document.getElementsByClassName('marks')
+    for (let i = 0; i < marks.length; i++) {
+         marks[i].innerText = ''
+    }
+}
 
 $(document).ready(function() {
     var main_route = (window.location.pathname.split("/")[1]);

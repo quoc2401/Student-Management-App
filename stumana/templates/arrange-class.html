@@ -62,7 +62,15 @@
                 {% block content %}
                 <h2 class="text-center text-info">Danh sách học sinh chưa có lớp</h2>
                 <hr>
-                <div class="text-danger info">Lớp đang chọn: {{ request.args.get('class') }}</div>
+                <div class="flex">
+                <div class="text-primary info">Lớp đang chọn: {{ request.args.get('class') }}</div>
+                <div class="text-primary info">Sỉ số:
+                    {% if total %}
+                    {{ total[0] }}
+                    {% endif %}
+                </div>
+                </div>
+
                 <br>
                 <div class="container-fluid">
                     <form id="form-search" action="javascript:document.location.reload()">
@@ -151,6 +159,10 @@
 
 .site {
   padding: 1.25px 1.25px;
+}
+
+.text-primary {
+    padding: 0 18px;
 }
 
 input[type='submit'].form-control:hover {

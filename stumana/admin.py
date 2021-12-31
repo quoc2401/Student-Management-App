@@ -115,9 +115,9 @@ class UserAllocation(AdminBaseView):    # de lam sau
 #             return current_user.user_role == UserRole.STAFF
 
 
-class StatsView(AdminBaseView):
+class StatsView(StaffBaseView):
     @expose('/')
-    def index(self):
+    def __index__(self):
         subject_name = request.args.get("subject", "Toán")
         semester = request.args.get("semester", "1")
         year = request.args.get("year", datetime.now().year)
@@ -130,7 +130,7 @@ class StatsView(AdminBaseView):
                            subjects=utilities.get_subjects())
 
 
-class SetUpClass(StaffBaseView):    # de lam sau
+class SetUpClass(StaffBaseView):
     @expose('/')
     def __index__(self):
         return redirect("/setup-class")
