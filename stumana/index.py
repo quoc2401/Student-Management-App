@@ -1,7 +1,7 @@
 from stumana import login
 from flask import render_template, url_for, jsonify
 from admin import *
-from flask_login import login_user, logout_user
+from flask_login import login_user, logout_user, login_required
 
 
 @app.route("/")
@@ -19,29 +19,15 @@ def user_login():
             username = request.form['username']
             password = request.form['password']
 
-            user = utilities.check_login(username=username, password=password, role=UserRole.STUDENT)
-            user_admin = utilities.check_login(username=username, password=password, role=UserRole.ADMIN)
-            user_staff = utilities.check_login(username=username, password=password, role=UserRole.STAFF)
-            user_teacher = utilities.check_login(username=username, password=password, role=UserRole.TEACHER)
+            user = utilities.check_login(username=username, password=password)
             if user:
                 login_user(user=user)
-
+                if current_user.user_role == UserRole.ADMIN:
+                    return redirect('/admin')
                 next = request.args.get('next', '/')
                 return redirect(next)
             else:
                 error_msg = "Sai tài khoản hoặc mật khẩu !!!"
-
-            if user_admin:
-                login_user(user=user_admin)
-                return redirect('/admin')
-
-            if user_staff:
-                login_user(user=user_staff)
-                return render_template('staff.html')
-
-            if user_teacher:
-                login_user(user=user)
-                return redirect('/admin')
 
         except Exception as ex:
             error_msg = str(ex)
@@ -70,9 +56,141 @@ def change_rule():
     return jsonify({'status': 200})
 
 
-@app.route("/staff/arrange-class")
+@app.route("/arrange-class")
 def arrange_class():
-    return render_template('arrange-class.html')
+    grade12 = utilities.get_classes_by_grade(grade='12')
+    grade11 = utilities.get_classes_by_grade(grade='11')
+    grade10 = utilities.get_classes_by_grade(grade='10')
+    select_class = request.args.get('class')
+    id_this_class = ''
+    if select_class:
+        this_class = select_class.split('-')
+        id_this_class = utilities.get_class_id(grade=this_class[0], class_name=this_class[1])
+
+    students = utilities.get_all_student()
+
+    return render_template('arrange-class.html',
+                           grade12=grade12,
+                           grade11=grade11,
+                           grade10=grade10,
+                           class_id=id_this_class,
+                           students=students)
+
+
+@app.route("/api/update-class", methods=['POST'])
+@login_required
+def update_class():
+    data = request.json
+    student_id = data.get('student_id')
+    classid = data.get('class_id')
+
+    try:
+        result = utilities.update_classes(student_id=student_id, class_id=classid)
+    except Exception as e:
+        print(e)
+        return jsonify({'status': 404})
+
+    return jsonify({'status': 200})
+
+
+@app.route("/setup-class")
+def setup_class():
+    err_msg = ''
+    total = ''
+    grade12 = utilities.get_classes_by_grade(grade='12')
+    grade11 = utilities.get_classes_by_grade(grade='11')
+    grade10 = utilities.get_classes_by_grade(grade='10')
+    select_class = request.args.get('class')
+    if select_class:
+        select_grade = select_class.split('-')
+        select_class_name = select_class.split('-')
+        students = utilities.get_student_by_class(grade=select_grade[0],
+                                                  class_name=select_class_name[1])
+        total = utilities.get_total(grade=select_grade[0],
+                                    class_name=select_class_name[1])
+        if students:
+            return render_template('set-up.html',
+                                   grade12=grade12,
+                                   grade11=grade11,
+                                   grade10=grade10,
+                                   students=students,
+                                   total=total)
+        else:
+            err_msg = 'Không có học sinh nào !!!'
+
+    return render_template('set-up.html',
+                           grade12=grade12,
+                           grade11=grade11,
+                           grade10=grade10,
+                           total=total,
+                           err_msg=err_msg)
+
+
+@app.route("/students-marks")
+@login_required
+def students_marks():
+    classes = utilities.get_classes_of_teacher(current_user.id)
+
+    if current_user.user_role == UserRole.TEACHER:
+        course_id = request.args.get('course_id')
+
+        if course_id:
+            course = utilities.get_course_info(course_id)
+            marks = utilities.get_mark_by_course_id(course_id=course_id)
+            return render_template("students-marks.html",
+                                   marks=marks,
+                                   course=course,
+                                   classes=classes)
+        return render_template("students-marks.html", classes=classes)
+    else:
+        return redirect("/")
+
+
+@app.route("/students-marks/edit/<int:student_id>")
+@login_required
+def edit_marks(student_id):
+    year = request.args.get('year')
+    subject_id = request.args.get('subject_id')
+    classes = utilities.get_classes_of_teacher(current_user.id)
+
+    marks = utilities.get_marks_of_student(student_id=student_id,
+                                           subject_id=subject_id,
+                                           year=year)
+    return render_template("student_marks.html", marks=marks, classes=classes)
+
+
+@app.route("/api/update-mark", methods=['POST'])
+@login_required
+def update_marks():
+    data = request.json
+    subject_id = data.get('subject_id')
+    student_id = data.get('student_id')
+    year = data.get('year')
+    mark15 = {
+        '1': data.get('mark15_1'),
+        '2': data.get('mark15_2')
+    }
+    mark45 = {
+        '1': data.get('mark45_1'),
+        '2': data.get('mark45_2')
+    }
+    final_mark = {
+        '1': data.get('final_mark1'),
+        '2': data.get('final_mark2')
+    }
+
+    try:
+        result = utilities.update_marks(subject_id=subject_id,
+                                        student_id=student_id,
+                                        year=year,
+                                        mark15=mark15,
+                                        mark45=mark45,
+                                        final_mark=final_mark)
+    except Exception as e:
+        print(e)
+        return jsonify({'status': 404})
+
+    return jsonify({'status': 200})
 
 
 @login.user_loader
@@ -83,7 +201,7 @@ def user_load(user_id):
 @app.context_processor
 def common_response():
     return {
-        'ADMIN': UserRole.ADMIN,
+        'UserRole': UserRole,
         'year': datetime.now().year
     }
 

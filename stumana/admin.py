@@ -3,7 +3,7 @@ from flask_admin.contrib.sqla import ModelView
 from stumana.models import User, Student, ClassRoom, Subject, Teacher, Staff, UserRole
 from flask_admin import Admin, AdminIndexView, expose, BaseView
 from flask_login import current_user, logout_user
-from flask import redirect, request
+from flask import redirect, request, render_template
 import config
 from datetime import datetime
 
@@ -14,6 +14,9 @@ class AuthenticatedBaseView(BaseView):
 
 
 class AuthenticatedModelView(ModelView):
+    create_modal = True
+    edit_modal = True
+
     def is_accessible(self):
         return current_user.is_authenticated and current_user.user_role == UserRole.ADMIN
 
@@ -30,9 +33,7 @@ class AdminBaseView(AuthenticatedBaseView):
             return current_user.user_role == UserRole.ADMIN
 
 
-class ModalModelView(AuthenticatedModelView):
-    create_modal = True
-    edit_modal = True
+class StudentModalView(AuthenticatedModelView):
     column_labels = {
         'first_name': 'Họ',
         'last_name': 'Tên',
@@ -45,8 +46,6 @@ class ModalModelView(AuthenticatedModelView):
         'active': 'Active',
         'user': 'Tên tài khoản',
         'classroom': 'Lớp',
-        'grade': 'Khối',
-        'total': 'Sỉ số',
         'class_name': 'Tên lớp',
         'name': 'Tên người dùng',
         'username': 'Tài khoản',
@@ -56,20 +55,28 @@ class ModalModelView(AuthenticatedModelView):
     }
 
 
-class SubjectModelView(ModalModelView):
-    column_searchable_list = ['subject_name']
-    column_filters = ['subject_name']
+class ClassModalView(AuthenticatedModelView):
     column_labels = {
-        'id': 'Mã môn học',
-        'subject_name': 'Tên môn học'
+        'grade': 'Khối',
+        'name': 'Tên lớp',
+        'total': 'Sỉ số',
     }
 
 
-class CustomPersonForm(ModalModelView):
+class SubjectModelView(StudentModalView):
+    column_searchable_list = ['name']
+    column_filters = ['name']
+    column_labels = {
+        'id': 'Mã môn học',
+        'name': 'Tên môn học'
+    }
+
+
+class CustomPersonForm(StudentModalView):
     form_excluded_columns = ['user', 'classroom', 'classes']
 
 
-class CustomUserForm(ModalModelView):
+class CustomUserForm(StudentModalView):
     form_excluded_columns = ['student', 'teacher', 'staff']
 
 
@@ -102,10 +109,10 @@ class UserAllocation(AdminBaseView):    # de lam sau
             return current_user.user_role == UserRole.ADMIN
 
 
-class Accept_student(ModalModelView):
-    def is_accessible(self):
-        if current_user.is_authenticated:
-            return current_user.user_role == UserRole.STAFF
+# class Student(ModalModelView):
+#     def is_accessible(self):
+#         if current_user.is_authenticated:
+#             return current_user.user_role == UserRole.STAFF
 
 
 class StatsView(AdminBaseView):
@@ -124,29 +131,9 @@ class StatsView(AdminBaseView):
 
 
 class SetUpClass(StaffBaseView):    # de lam sau
-    @expose("/")
-    def index(self):
-        err_msg = ""
-        grade = request.args.get('grade', '12')
-        class_name = request.args.get('class', 'A1')
-        students = utilities.get_student_by_class(grade=grade,
-                                                  class_name=class_name)
-
-        if students:
-            return self.render("admin/class-list.html",
-                               classes=utilities.get_classes(),
-                               students=students,
-                               total=utilities.get_total(grade=grade,
-                                                         class_name=class_name))
-        else:
-            error_msg = "Lớp không tồn tại hoặc không có học sinh nào!!!"
-
-        return self.render("admin/class-list.html",
-                           classes=utilities.get_classes(),
-                           students=students,
-                           total=utilities.get_total(grade=grade,
-                                                     class_name=class_name),
-                           error_msg=error_msg)
+    @expose('/')
+    def __index__(self):
+        return redirect("/setup-class")
 
 
 class LogoutView(BaseView):
@@ -172,10 +159,11 @@ admin.add_view(UserAllocation(name="Cấp tài khoản",
                               menu_icon_type='fa',
                               menu_icon_value='fa-id-card'))
 # Staff
-admin.add_view(Accept_student(Student, db.session,
-                              name='Tiếp nhận học sinh',
-                              menu_icon_type='fa',
-                              menu_icon_value='fa-graduation-cap'))
+admin.add_view(CustomPersonForm(Student, db.session,
+                                name='Học sinh',
+                                category="Cá nhân",
+                                menu_icon_type='fa',
+                                menu_icon_value='fa-graduation-cap'))
 # Staff
 # admin.add_view(Change_class(Student, db.session,
 #                             name='Điều chỉnh lớp học',
@@ -193,7 +181,7 @@ admin.add_view(CustomPersonForm(Staff, db.session,
                                 menu_icon_type='fa',
                                 menu_icon_value='fa-briefcase'))
 # Admin
-admin.add_view(ModalModelView(ClassRoom, db.session,
+admin.add_view(ClassModalView(ClassRoom, db.session,
                               name='Quản lý lớp học',
                               menu_icon_type='fa',
                               menu_icon_value='fa-columns',
