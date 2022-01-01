@@ -107,14 +107,13 @@ function updateMarks(subject_id, student_id, year) {
 
         if(data.status == 200) {
             a.style.display = "block"
-            a.className = "alert alert-success"
+            a.className = "alert alert-success overlay-alert"
             a.innerText = "Lưu thành công"
         }
         else {
            a.style.display = "block"
-           a.className = "alert alert-danger"
-           a.innerText = "Lưu thất bại"
-           console.info(data.err_msg)
+           a.className = "alert alert-danger overlay-alert"
+           a.innerText = "Lưu thất bại!" + data.err_msg
         }
 
         $(a).fadeOut(3000)

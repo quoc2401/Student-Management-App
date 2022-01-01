@@ -317,6 +317,7 @@ def update_marks(subject_id, student_id, year, mark15=None, mark45=None, final_m
     db.session.commit()
 
 
+# Cho: Tao bang diem hoc ki 1 va 2 cho hoc sinh
 def create_all_mark_records(course_id=None):
     course = Course.query.get(course_id)
     students_already_have = db.session.query(Mark.student_id).filter(Mark.subject_id.__eq__(course.subject_id),

@@ -78,7 +78,7 @@ def students_marks():
 
         if course_id:
             course = utilities.get_course_info(course_id)
-            utilities.create_all_mark_records(course_id=course_id)
+            utilities.create_all_mark_records(course_id=course_id) # Tao bang diem khi vao nhap diem
             marks = utilities.get_mark_by_course_id(course_id=course_id)
 
             return render_template("students-marks.html",

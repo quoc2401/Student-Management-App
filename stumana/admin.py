@@ -64,6 +64,7 @@ class ClassModalView(AuthenticatedModelView):
 
 
 class SubjectModelView(StudentModalView):
+    page_size = 10
     column_searchable_list = ['name']
     column_filters = ['name']
     column_labels = {
