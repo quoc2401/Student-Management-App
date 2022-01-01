@@ -56,17 +56,76 @@ def change_rule():
     return jsonify({'status': 200})
 
 
-# @app.route('/report/<int:classroom_id>')
-# def report_student(classroom_id):
-#     subject = request.args.get("subject")
-#     classroom = utilities.get_class_by_id(classroom_id=classroom_id)
-#     students = utilities.get_student_by_class(class_id=classroom_id)
-#     avg = utilities.get_student_avg(class_id=classroom_id, subject=subject)
-#
-#     return render_template('report-student.html',
-#                            classroom=classroom,
-#                            students=students,
-#                            avg=avg)
+@app.route("/arrange-class")
+def arrange_class():
+    grade12 = utilities.get_classes_by_grade(grade='12')
+    grade11 = utilities.get_classes_by_grade(grade='11')
+    grade10 = utilities.get_classes_by_grade(grade='10')
+    select_class = request.args.get('class')
+    id_this_class = ''
+    total = ''
+    if select_class:
+        this_class = select_class.split('-')
+        id_this_class = utilities.get_class_id(grade=this_class[0], class_name=this_class[1])
+        total = utilities.get_total(grade=this_class[0], class_name=this_class[1])
+    students = utilities.get_all_student()
+
+    return render_template('arrange-class.html',
+                           grade12=grade12,
+                           grade11=grade11,
+                           grade10=grade10,
+                           class_id=id_this_class,
+                           students=students,
+                           total=total)
+
+
+@app.route("/api/update-class", methods=['POST'])
+@login_required
+def update_class():
+    data = request.json
+    student_id = data.get('student_id')
+    classid = data.get('class_id')
+
+    try:
+        result = utilities.update_classes(student_id=student_id, class_id=classid)
+    except Exception as e:
+        print(e)
+        return jsonify({'status': 404})
+
+    return jsonify({'status': 200})
+
+
+@app.route("/setup-class")
+def setup_class():
+    err_msg = ''
+    total = ''
+    grade12 = utilities.get_classes_by_grade(grade='12')
+    grade11 = utilities.get_classes_by_grade(grade='11')
+    grade10 = utilities.get_classes_by_grade(grade='10')
+    select_class = request.args.get('class')
+    if select_class:
+        select_grade = select_class.split('-')
+        select_class_name = select_class.split('-')
+        students = utilities.get_student_by_class(grade=select_grade[0],
+                                                  class_name=select_class_name[1])
+        total = utilities.get_total(grade=select_grade[0],
+                                    class_name=select_class_name[1])
+        if students:
+            return render_template('set-up.html',
+                                   grade12=grade12,
+                                   grade11=grade11,
+                                   grade10=grade10,
+                                   students=students,
+                                   total=total)
+        else:
+            err_msg = 'Không có học sinh nào !!!'
+
+    return render_template('set-up.html',
+                           grade12=grade12,
+                           grade11=grade11,
+                           grade10=grade10,
+                           total=total,
+                           err_msg=err_msg)
 
 
 @app.route("/students-marks")

@@ -3,7 +3,7 @@ from flask_admin.contrib.sqla import ModelView
 from stumana.models import User, Student, ClassRoom, Subject, Teacher, Staff, UserRole
 from flask_admin import Admin, AdminIndexView, expose, BaseView
 from flask_login import current_user, logout_user
-from flask import redirect, request
+from flask import redirect, request, render_template
 import config
 from datetime import datetime
 
@@ -118,7 +118,7 @@ class UserAllocation(AdminBaseView):    # de lam sau
 class StatsView(StaffBaseView):
     @expose('/')
     def __index__(self):
-        subject_name = request.args.get("subject", "Toán 11")
+        subject_name = request.args.get("subject", "Toán")
         semester = request.args.get("semester", "1")
         year = request.args.get("year", datetime.now().year)
         stats = utilities.get_stats(subject_name=subject_name,
@@ -130,38 +130,10 @@ class StatsView(StaffBaseView):
                            subjects=utilities.get_subjects())
 
 
-class SetUpClass(StaffBaseView):    # de lam sau
-    @expose("/")
+class SetUpClass(StaffBaseView):
+    @expose('/')
     def __index__(self):
-        err_msg = None
-        students = None
-        grade = request.args.get('grade')
-        class_name = request.args.get('class')
-
-        if grade and class_name:
-            students = utilities.get_student_by_class(grade=grade,
-                                                      class_name=class_name)
-        else:
-            return self.render("admin/set-up.html",
-                               classes=utilities.get_classes(),
-                               total=utilities.get_total(grade=grade,
-                                                         class_name=class_name),
-                               err_msg=err_msg)
-
-        if students:
-            return self.render("admin/set-up.html",
-                               classes=utilities.get_classes(),
-                               students=students,
-                               total=utilities.get_total(grade=grade,
-                                                         class_name=class_name))
-        else:
-            err_msg = "Lớp không tồn tại hoặc không có học sinh nào!!!"
-
-        return self.render("admin/set-up.html",
-                           classes=utilities.get_classes(),
-                           total=utilities.get_total(grade=grade,
-                                                     class_name=class_name),
-                           err_msg=err_msg)
+        return redirect("/setup-class")
 
 
 class LogoutView(BaseView):
@@ -210,10 +182,10 @@ admin.add_view(CustomPersonForm(Staff, db.session,
                                 menu_icon_value='fa-briefcase'))
 # Admin
 admin.add_view(ClassModalView(ClassRoom, db.session,
-                                name='Quản lý lớp học',
-                                menu_icon_type='fa',
-                                menu_icon_value='fa-columns',
-                                category="Lớp học"))
+                              name='Quản lý lớp học',
+                              menu_icon_type='fa',
+                              menu_icon_value='fa-columns',
+                              category="Lớp học"))
 # Staff
 # admin.add_view(Change_class(Student, db.session,
 #                             menu_icon_type='fa',

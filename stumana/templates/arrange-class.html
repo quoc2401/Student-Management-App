@@ -1,0 +1,264 @@
+{% extends 'layout/base.html' %}
+
+{% block title %}Xếp lớp{% endblock %}
+
+{% block body %}
+<div class="container-fluid" style="margin-top:25px;">
+      <div class="d-flex" id="wrapper" style="height:100%!important">
+        <!-- Sidebar -->
+        <div class="bg-lightgray border-right border-left vh-100" id="sidebar-wrapper"
+             style="height:80vh!important; padding:10px;">
+
+            <div class="list-group list-group-flush overflow-auto h-100">
+                <div class="sidebar-heading bg-light border text-info">
+                    <span class="info">Chọn lớp</span>
+                </div>
+
+                <form>
+                <div class="sidebar-heading bg-light border">
+                <i class="fa fa-list"></i>Khối 12
+                    <div class="flex grid-container">
+                        {% for t in grade12 %}
+                        <div class="site">
+                        <input type="submit" class="form-control" name="class"
+                               value="{{ t.grade }}-{{ t.name }}">
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="sidebar-heading bg-light border">
+                <i class="fa fa-list"></i>Khối 11
+                    <div class="flex grid-container">
+                        {% for t in grade11 %}
+                        <div class="site">
+                        <input type="submit" class="form-control" name="class"
+                               value="{{ t.grade }}-{{ t.name }}">
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="sidebar-heading bg-light border">
+                <i class="fa fa-list"></i>Khối 10
+                    <div class="flex grid-container">
+                        {% for t in grade10 %}
+                        <div class="site">
+                        <input type="submit" class="form-control" name="class"
+                               value="{{ t.grade }}-{{ t.name }}">
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                </form>
+            </div>
+        </div>
+        <!-- /#sidebar-wrapper -->
+
+        <!-- Page Content -->
+
+        <div id="page-content-wrapper">
+            <div class="container-fluid border" style="min-height:67vh">
+                {% block content %}
+                <h2 class="text-center text-info">Danh sách học sinh chưa có lớp</h2>
+                <hr>
+                <div class="flex">
+                <div class="text-primary info">Lớp đang chọn: {{ request.args.get('class') }}</div>
+                <div class="text-primary info">Sỉ số:
+                    {% if total %}
+                    {{ total[0] }}
+                    {% endif %}
+                </div>
+                </div>
+
+                <br>
+                <div class="container-fluid">
+                    <form id="form-search" action="javascript:document.location.reload()">
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" placeholder="Nhập từ khóa...">
+                            <div class="input-group-append">
+                                <button class="btn btn-success" type="submit">Tìm kiếm</button>
+                            </div>
+                        </div>
+                    </form>
+                    <table id="tab" style="table-layout: fixed" width="100%"
+                           class="table table-striped table-hover table-bordered table-responsive model-list bg-light">
+                      <thead>
+                        <tr>
+                          <th class="stt">STT</th>
+                          <th class="hoten">Họ tên</th>
+                          <th class="a">Giới tính</th>
+                          <th class="a">Năm sinh</th>
+                          <th class="a">Địa chỉ</th>
+                          <th class="a">Lớp hiện tại</th>
+                          <th class="list-checkbox-column">
+                              <input type="checkbox"
+                                     name="select-all"
+                                     class="select-all checkbox"
+                                     title="Chọn tất cả hồ sơ">
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for s in students %}
+                        <tr>
+                          <td>{{ students.index(s) + 1 }}</td>
+                          <td>{{ s[0].first_name }} {{ s[0].last_name }}</td>
+                          <td>
+                              {% if s[0].sex == True %}
+                              Nam
+                              {% else %}
+                              Nữ
+                              {% endif %}
+                          </td>
+                          <td>{{ s[0].bday.year }}</td>
+                          <td>{{ s[0].address }}</td>
+                          <td>
+                              <span class="text-primary info">
+                              {% if s[1] %}
+                              {{ s[1].grade }}{{ s[1].name }}
+                              {% else %}
+                              chưa có lớp
+                              {% endif %}
+                              </span>
+                          </td>
+                          <td>
+                             <input type="checkbox" name="select-item"
+                                    class="select-item checkbox" value="{{ s[0].id }}"
+                                    title="Chọn hồ sơ">
+                          </td>
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+<!--                    end form reload-->
+
+                    <div class="statusbar flex justify-content-end"></div>
+                    <br>
+                    <div id="alert" style="display:none" ></div>
+                    <div class="flex justify-content-end">
+                    <button id="select-all" class="btn btn-info">Chọn tất cả/Hủy tất cả</button>
+                    <button class="btn btn-info" type="submit"
+                            onclick="addClass({{ class_id }})">Thêm vào lớp</button>
+                    </div>
+                </div>
+                <div id="test"></div>
+                {% endblock %}
+            </div>
+        </div>
+      </div>
+        <!-- /#page-content-wrapper -->
+</div>
+
+<style>
+
+.grid-container {
+  display: grid;
+  grid-template-columns: auto auto;
+}
+
+.site {
+  padding: 1.25px 1.25px;
+}
+
+.text-primary {
+    padding: 0 18px;
+}
+
+input[type='submit'].form-control:hover {
+  background-color: lightblue;
+}
+
+h2 {
+  font-weight: bold;
+}
+
+.statusbar, .info {
+    font-weight: bold;
+}
+
+button {
+    margin: 0 0 0 10px;
+}
+
+table {
+   width: 100%;
+}
+
+.hoten {
+    width: 30%;
+}
+
+.a {
+   width: 18%;
+}
+
+th {
+   text-align: center;
+}
+
+</style>
+
+
+<script>
+    $(function(){
+        l = $("input.select-item").length
+        $('.statusbar').text(l+' items, items selected: 0');
+
+        //button select all or cancel
+        $("#select-all").click(function () {
+            var all = $("input.select-all")[0];
+            all.checked = !all.checked
+            var checked = all.checked;
+            $("input.select-item").each(function (index,item) {
+                item.checked = checked;
+            });
+        });
+
+         //column checkbox select all or cancel
+        $("input.select-all").click(function () {
+            var checked = this.checked;
+            $("input.select-item").each(function (index,item) {
+                item.checked = checked;
+            });
+        });
+
+        //count selected items
+        $(".select-all, .select-item, #select-all").click(function () {
+            var items=[];
+            var count = 0
+            var len = $("input.select-item").length
+            $("input.select-item:checked:checked").each(function (index,item) {
+                items[index] = item.value;
+            });
+            if (items.length < 1) {
+                $('.statusbar').text(len+' items, items selected: '+ count);
+            }else {
+                for(var i = 0; i < items.length; i++){
+                    if (items[i])
+                        count++;
+                }
+                $('.statusbar').text(len+' items, items selected: '+ count);
+            }
+        });
+
+        //check selected items
+        $("input.select-item").click(function () {
+            var checked = this.checked;
+            checkSelected();
+        });
+
+        //check is all selected
+        function checkSelected() {
+            var all = $("input.select-all")[0];
+            var total = $("input.select-item").length;
+            var len = $("input.select-item:checked:checked").length;
+            all.checked = len===total;
+        }
+    });
+
+
+</script>
+
+
+{% endblock %}

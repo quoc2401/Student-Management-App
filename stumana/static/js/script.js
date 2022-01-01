@@ -31,7 +31,7 @@ function changeRule() {
            a.innerText = "Có dữ liệu vi phạm ràng buộc"
         }
 
-        $(a).fadeOut(3000)
+        $(a).fadeOut(5000)
     }).catch(function(err) {
         console.info(err)
     })
@@ -106,9 +106,8 @@ function updateMarks(subject_id, student_id, year) {
         a = document.getElementById('alert')
 
         if(data.status == 200) {
-            a.style.display = "block"
-            a.className = "alert alert-success"
-            a.innerText = "Lưu thành công"
+
+            window.location.reload()
         }
         else {
            a.style.display = "block"
@@ -120,7 +119,52 @@ function updateMarks(subject_id, student_id, year) {
         $(a).fadeOut(3000)
     }).catch(function(err) {
         console.info(err)
-    })
+    });
+
+}
+
+
+//button get selected info and add_class
+function addClass(class_id) {
+    event.preventDefault()
+    var items=[];
+    $("input.select-item:checked:checked").each(function (index,item) {
+        items[index] = item.value;
+    });
+
+    if (items.length < 1)
+        alert('Chưa có học sinh nào được chọn!')
+    else
+        fetch("/api/update-class", {
+            method: 'POST',
+            body: JSON.stringify({
+                'student_id': items,
+                'class_id': class_id
+            }),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then(function(res) {
+            console.info(res)
+            return res.json()
+        }).then(function(data) {
+            a = document.getElementById('alert')
+
+            if(data.status == 200) {
+
+                window.location.reload()
+            }
+            else {
+                a.style.display = "block"
+                a.className = "alert alert-danger"
+                a.innerText = "Thêm thất bại"
+            }
+
+            $(a).fadeOut(5000)
+        }).catch(function(err) {
+            console.info(err)
+        });
+
 }
 
 function loadMarks(course_id) {
@@ -174,3 +218,13 @@ function clear_marks() {
          marks[i].innerText = ''
     }
 }
+
+$(document).ready(function() {
+    var main_route = (window.location.pathname.split("/")[1]);
+    $('.nav-item').removeClass('active');
+    $('#nav_' + main_route).addClass('active');
+    $(document).on('click', '.nav-item', function (e) {
+        $('.nav-item').removeClass('active');
+        $('#nav_' + main_route).addClass('active');
+    });
+})

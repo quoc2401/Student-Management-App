@@ -2,6 +2,7 @@ from stumana import db
 from sqlalchemy import text, func, update, null
 from stumana.models import User, Student, Mark, Subject, XVMark, XXXXVMark, ClassRoom, Course, Teacher
 import config
+from sqlalchemy.engine import cursor
 
 
 # Dang nhap
@@ -91,6 +92,20 @@ def average_ignore_none(numbers):
     return avg
 
 
+def get_all_student():
+    return db.session.query(Student, ClassRoom)\
+            .join(ClassRoom, ClassRoom.id.__eq__(Student.class_id), isouter=True).all()
+
+
+def get_student(keyword):
+    if keyword == '1':
+        s = db.session.query(Student, ClassRoom)\
+            .join(ClassRoom, ClassRoom.id.__eq__(Student.class_id), isouter=True).all()
+    else:
+        s = db.engine.execute("SELECT * FROM student, class_room WHERE class_id is null").fetchall()
+    return s
+
+
 # Cho: lay danh sach hoc sinh theo khoi, ten lop.
 def get_student_by_class(grade, class_name):
     return db.session.query(Student)\
@@ -136,6 +151,11 @@ def get_classes():
     return db.session.query(ClassRoom).all()
 
 
+def get_classes_by_grade(grade):
+    if grade:
+        return db.session.query(ClassRoom).filter(ClassRoom.grade.__eq__(grade))
+
+
 # Cho: lay ra danh sach hoc sinh qua mon theo lop.
 def total_qualified_by_class(class_id, semester, year, subject_id):
     cal_avg_mark(subject_id=subject_id, semester=semester, year=year)
@@ -161,14 +181,15 @@ def get_stats(semester=None, year=None, subject_name=None):
     stats = []
     subject_id = db.session.query(Subject.id).filter(Subject.name.__eq__(subject_name)).first()
     for c in classes:
-        total_qualified = total_qualified_by_class(c.id, semester=semester, year=year, subject_id=subject_id[0])
+        total_qualified = total_qualified_by_class(c.id, semester=semester,
+                                                   year=year, subject_id=subject_id[0])
         total = c.total if c.total else 0
         stats.append({
             'class_id': c.id,
             'class_name': c.grade + c.name,
             'total': total,
             'total_qualified': total_qualified,
-            'ratio': "{0:.2f}".format((float(total_qualified) / total * 100) if total != 0 else 0 )
+            'ratio': "{0:.2f}".format((float(total_qualified) / total * 100) if total != 0 else 0)
         })
 
     return stats
@@ -184,9 +205,9 @@ def get_classes_of_teacher(user_id):
     teacher_id = get_teacher_id(user_id=user_id)
 
     return db.session.query(Subject.name, ClassRoom.grade, ClassRoom.name, Course.id)\
-            .join(Course, Course.subject_id.__eq__(Subject.id))\
-            .join(ClassRoom, ClassRoom.id.__eq__(Course.class_id))\
-            .filter(Course.teacher_id.__eq__(teacher_id)).all()
+             .join(Course, Course.subject_id.__eq__(Subject.id))\
+             .join(ClassRoom, ClassRoom.id.__eq__(Course.class_id))\
+             .filter(Course.teacher_id.__eq__(teacher_id)).all()
 
 
 # Cho: lay ra thong tin cua 1 lop hoc duoc day boi 1 giao vien.
@@ -227,15 +248,16 @@ def get_mark_by_course_id(course_id, semester=None):
 
 # Cho: lay bang diem cua 1 hoc sinh hien thi ra view chinh sua diem.
 def get_marks_of_student(subject_id, student_id, year, semester=None):
+    cal_avg_mark(subject_id=subject_id, semester=semester, year=year)
     records = db.session.query(Subject, Student,
-                             Mark.semester, XVMark, XXXXVMark, Mark.FinalMark)\
-                            .join(Subject, Subject.id.__eq__(Mark.subject_id))\
-                            .join(Student, Student.id.__eq__(Mark.student_id))\
-                            .join(XVMark, XVMark.id.__eq__(Mark.XV_mark_id), isouter=True)\
-                            .join(XXXXVMark, XXXXVMark.id.__eq__(Mark.XXXXV_mark_id), isouter=True)\
-                            .filter(Mark.subject_id.__eq__(subject_id),
-                                    Mark.year.__eq__(year),
-                                    Mark.student_id.__eq__(student_id))
+                               Mark.semester, XVMark, XXXXVMark, Mark.FinalMark)\
+                               .join(Subject, Subject.id.__eq__(Mark.subject_id))\
+                               .join(Student, Student.id.__eq__(Mark.student_id))\
+                               .join(XVMark, XVMark.id.__eq__(Mark.XV_mark_id), isouter=True)\
+                               .join(XXXXVMark, XXXXVMark.id.__eq__(Mark.XXXXV_mark_id), isouter=True)\
+                               .filter(Mark.subject_id.__eq__(subject_id),
+                                       Mark.year.__eq__(year),
+                                       Mark.student_id.__eq__(student_id))
 
     if semester:
         records = records.filter(Mark.semester.__eq__(semester))
@@ -260,6 +282,24 @@ def get_marks_of_student(subject_id, student_id, year, semester=None):
     return marks
 
 
+# lay class_id cho update_classes
+def get_class_id(grade, class_name):
+    c = db.session.query(ClassRoom.id).filter(ClassRoom.grade.__eq__(grade),
+                                              ClassRoom.name.__eq__(class_name)).first()
+
+    return c[0]
+
+
+# chinh sua lop cho hoc sinh
+def update_classes(student_id, class_id):
+    if student_id:
+        for s in student_id:
+            db.session.query(Student).filter(Student.id.__eq__(s))\
+                                     .update({Student.class_id: class_id if class_id != '' else null()},
+                                             synchronize_session=False)
+    db.session.commit()
+
+
 # Cho: chinh sua diem cho 1 hoc sinh.
 def update_marks(subject_id, student_id, year, mark15=None, mark45=None, final_mark=None):
     record = db.session.query(Mark.XV_mark_id, Mark.XXXXV_mark_id)\
@@ -267,11 +307,11 @@ def update_marks(subject_id, student_id, year, mark15=None, mark45=None, final_m
                         Mark.student_id.__eq__(student_id),
                         Mark.year.__eq__(year))     #Query lay ra 2 khoa ngoai xvmark, xxxxvmark
     final_marks = db.session.query(Mark).filter(Mark.subject_id.__eq__(subject_id),
-                                          Mark.student_id.__eq__(student_id),
-                                          Mark.year.__eq__(year))   #Query lay ra diem de cap nhat
+                                                Mark.student_id.__eq__(student_id),
+                                                Mark.year.__eq__(year))   #Query lay ra diem de cap nhat
 
     if mark15['1'] or mark45['1'] or final_mark['1']:
-        record_put = record.filter(Mark.semester.__eq__(1)).first()     # xvmark_id, xxxxvmark_id cuar hoc ky 1
+        record_put = record.filter(Mark.semester.__eq__(1)).first()     # xvmark_id, xxxxvmark_id cua hoc ky 1
         # Lay ra 2 id cua xvmark voi xxxxvmark trong Mark vi tri [0] la id cua xvmark, [1] la id cua xxxxvmark
 
         db.session.query(XVMark).filter(XVMark.id.__eq__(record_put[0]))\
@@ -293,7 +333,7 @@ def update_marks(subject_id, student_id, year, mark15=None, mark45=None, final_m
                     synchronize_session=False)  #Neu khong nhap diem thi diem = null
 
     if mark15['2'] or mark45['2'] or final_mark['2']:
-        record_put = record.filter(Mark.semester.__eq__(2)).first() # xvmark_id, xxxxvmark_id cuar hoc ky 2
+        record_put = record.filter(Mark.semester.__eq__(2)).first() # xvmark_id, xxxxvmark_id cua hoc ky 2
         # Lay ra 2 id cua xvmark voi xxxxvmark trong Mark vi tri [0] la id cua xvmark, [1] la id cua xxxxvmark
 
         db.session.query(XVMark).filter(XVMark.id.__eq__(record_put[0])) \

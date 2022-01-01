@@ -18,6 +18,7 @@ body {
     background-size: cover;
     width: 100%;
     min-height:500px!important;
+    background-color: #d5e6e8
 }
 
 .overlay{
@@ -47,6 +48,10 @@ body {
     width: 100%;
     min-height: 67vh;
 }
+
+.info {
+    font-weight: bold;
+}
 /*table.student tr {
     counter-increment: rowNumber;
 }
@@ -61,6 +66,20 @@ table.student tr td:first-child::before {
 
 .align-center {
     margin: 0 auto;
+}
+
+.navbar-collapse .navbar-nav>li>a {
+    text-transform: uppercase;
+    font-size: 15px;
+    padding: 15px 0;
+}
+
+.navbar-collapse .navbar-nav>li.main>a {
+    margin: 0 8px;
+}
+
+.navbar-collapse .navbar-nav>li.active>a {
+    font-weight: bold;
 }
 
 /************************************************************************/
@@ -79,7 +98,7 @@ table.student tr td:first-child::before {
 }
 
 #sidebar-wrapper .list-group {
-    width: 15rem;
+    width: 17rem;
 }
 
 #page-content-wrapper {
@@ -118,12 +137,6 @@ table.student_marks tr td:last-child {
     width: 100%;
 }
 
-td {
-    white-space: nowrap;
-    text-align: center;
-    min-width: 4vw;
-}
-
 td.name {
     min-width:18vw;
 }
@@ -155,12 +168,17 @@ div.dropdown-menu a:hover {
     background-color: lightgray;
 }
 
+.dropdown-menu.show {
+    width: max-content
+}
+
 /* hover effect cho cac dropdown-item trang admin */
 a.dropdown-item:hover {
     background-color: lightgray;
 }
+
 .form-login {
-    width: 60%;
+    width: 80%;
     margin: 80px auto;
 }
 
