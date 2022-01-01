@@ -1,0 +1,63 @@
+{% extends 'arrange-class.html' %}
+
+{% block title %}Lập danh sách lớp{% endblock %}
+
+{% block content %}
+<h2 class="text-center text-info">DANH SÁCH LỚP</h2>
+<br>
+<div class="container-fluid">
+    <table style="table-layout: fixed" width="100%"
+           class="table table-striped table-hover table-bordered table-responsive model-list bg-light">
+        <thead>
+        <tr class="bg-warning info">
+            <th colspan="3">Lớp: {{ request.args.get('class', 'Chưa chọn') }}</th>
+            <th colspan="2">Sỉ số:
+                {% if total[0] %}
+                {{ total[0] }}
+                {% else %}
+                0
+                {% endif %}
+            </th>
+        </tr>
+        <tr>
+            <th>STT</th>
+            <th class="hoten">Họ tên</th>
+            <th class="b">Giới tính</th>
+            <th class="b">Năm sinh</th>
+            <th class="b">Địa chỉ</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for s in students %}
+        <tr>
+            <td>{{ students.index(s) + 1 }}</td>
+            <td>{{ s.first_name }} {{ s.last_name }}</td>
+            <td>
+                {% if s.sex == True %}
+                Nam
+                {% else %}
+                Nữ
+                {% endif %}
+            </td>
+            <td >{{ s.bday.year }}</td>
+            <td >{{ s.address }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% if err_msg %}
+    <div class="alert alert-danger">
+        {{ err_msg }}
+    </div>
+    {% endif %}
+</div>
+
+<style>
+
+.b {
+    width: 25%
+}
+
+</style>
+
+{% endblock %}

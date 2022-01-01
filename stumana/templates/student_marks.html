@@ -71,12 +71,12 @@
             {% endif %}
         </tbody>
     </table>
+    <div id="alert"></div>
     <div class="d-flex justify-content-end">
         <button class="btn btn-info " type="submit"
-            onclick="updateMarks({{ marks[0].subject.id}},
-                                {{ marks[0].student.id}},
-                                {{ request.args.get('year') }})">Lưu</button>
+            onclick="updateMarks({{ marks[0].subject.id }},
+                                 {{ marks[0].student.id }},
+                                 {{ request.args.get('year') }})">Lưu</button>
     </div>
 
-    <div id="alert" style="display:none" > Lưu thành công </div>
 {% endblock %}

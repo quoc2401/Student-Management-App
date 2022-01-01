@@ -1,6 +1,6 @@
 <script src="{{ url_for('static', filename='js/header_script.js') }}" ></script>
 <nav class="navbar navbar-expand-sm bg-dark navbar-dark sticky-top">
-   <a class="navbar-brand" href="/">
+   <a class="navbar-brand flex" href="/">
     <img src="https://res.cloudinary.com/quoc2401/image/upload/v1639310528/logo_muibye.png"
          alt="Logo" style="width:40px;">
    </a>
@@ -8,17 +8,21 @@
    <!--Navbar links-->
     <div class="collapse navbar-collapse" id="collapsibleNavbar">
         <ul class="navbar-nav">
-            <li>
-                <a class="nav-link nav-item " id="nav_" href="/" >
+            <li class="main active">
+                <a class="nav-link nav-item" id="nav_" href="/">
                     <i class="fa fa-home"></i>Trang chủ</a>
             </li>
-            <li>
-                <a class="nav-link nav-item active" id="nav_intro" href="#">
+            <li class="main">
+                <a class="nav-link nav-item" id="nav_intro" href="/#gioithieu">
                     <i class="fa fa-info"></i>Giới thiệu</a>
             </li>
-            <li>
-                <a class="nav-link nav-item" id="nav_contact" href="/#lienhe">
+            <li class="main">
+                <a class="nav-link nav-item active" id="nav_contact" href="/#lienhe">
                     <i class="fa fa-phone"></i>Liên hệ</a>
+            </li>
+            <li class="main">
+                <a class="nav-link nav-item active" id="" href="/#lienhe">
+                    <i class="fa fa-thumbs-up" aria-hidden="true"></i>Đánh giá</a>
             </li>
         </ul>
     </div>
@@ -37,9 +41,22 @@
             <div class="dropdown-menu dropdown-menu-right">
                 <a class="nav-link nav-item text-info mr-auto" id="nav_students_marks"
                    href="{{ url_for('students_marks') }}">Nhập điểm</a>
-                <a class="nav-link nav-item text-info mr-auto" id="nav_export_marks" href="#">Xuất điểm</a>
+                <a class="nav-link nav-item text-info mr-auto" id="nav_export_marks"
+                   href="#">Xuất điểm</a>
             </div>
             {% endif %}
+
+            {% if current_user.user_role == UserRole.STAFF %}
+            <div class="dropdown-menu dropdown-menu-right">
+                <a class="nav-link nav-item text-info mr-auto" id="###"
+                   href="#">Tiếp nhận học sinh</a>
+                <a class="nav-link nav-item text-info mr-auto" id="#"
+                   href="{{ url_for('arrange_class') }}">Xếp lớp</a>
+                <a class="nav-link nav-item text-info mr-auto" id="##"
+                   href="{{ url_for('setup_class') }}">Lập danh sách lớp</a>
+            </div>
+            {% endif %}
+
         </div>
         {% endif %}
         <div class="btn-group">
@@ -63,7 +80,7 @@
                 <a class="nav-link nav-item text-info mr-auto" id="nav_user_logout"
                    href="{{ url_for('user_logout') }}">Đăng xuất</a>
                 <div class="dropdown-divider"></div>
-                <p style="margin-left:5px">Mã người dùng: {{ current_user.id }}</p>
+                <p style="margin-left:15px">Mã người dùng: {{ current_user.id }}</p>
             </div>
         </div>
     {% else %}
