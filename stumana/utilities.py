@@ -94,7 +94,7 @@ def average_ignore_none(numbers):
 
 def get_all_student():
     return db.session.query(Student, ClassRoom)\
-            .join(ClassRoom, ClassRoom.id.__eq__(Student.class_id), isouter=True).all()
+            .join(ClassRoom, ClassRoom.id.__eq__(Student.class_id), isouter=True)
 
 
 def get_student(keyword):
@@ -180,6 +180,7 @@ def get_stats(semester=None, year=None, subject_name=None):
     classes = get_classes()
     stats = []
     subject_id = db.session.query(Subject.id).filter(Subject.name.__eq__(subject_name)).first()
+    print(subject_id)
     for c in classes:
         total_qualified = total_qualified_by_class(c.id, semester=semester,
                                                    year=year, subject_id=subject_id[0])
@@ -204,7 +205,7 @@ def get_teacher_id(user_id):
 def get_classes_of_teacher(user_id):
     teacher_id = get_teacher_id(user_id=user_id)
 
-    return db.session.query(Subject.name, ClassRoom.grade, ClassRoom.name, Course.id)\
+    return db.session.query(Subject.name, ClassRoom.grade + ClassRoom.name, Course.id)\
              .join(Course, Course.subject_id.__eq__(Subject.id))\
              .join(ClassRoom, ClassRoom.id.__eq__(Course.class_id))\
              .filter(Course.teacher_id.__eq__(teacher_id)).all()
@@ -357,6 +358,7 @@ def update_marks(subject_id, student_id, year, mark15=None, mark45=None, final_m
     db.session.commit()
 
 
+# Cho: Tao bang diem hoc ki 1 va 2 cho hoc sinh
 def create_all_mark_records(course_id=None):
     course = Course.query.get(course_id)
     students_already_have = db.session.query(Mark.student_id).filter(Mark.subject_id.__eq__(course.subject_id),
@@ -396,9 +398,5 @@ def create_all_mark_records(course_id=None):
 
 
 # Tu day tro xuong la de test = console
-# a = get_mark_by_course_id(1)
-# cal_avg_mark(subject_id=1, year=2021, semester=1)
-# a = get_students_mark(class_id=2, semester=1, year=2021, subject_id=1)
-# a = get_students_mark(class_id=2, year=2021, subject_id=1)
-# a = create_all_mark_records(1)
+# a = get_classes_of_teacher(4)
 # print(a)

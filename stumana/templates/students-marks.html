@@ -36,25 +36,25 @@
                 <td class="name">{{ m.student_name }}</td>
                 {% for i in m.mark15 %}
                     {% if i %}
-                    <td class="marks mark15_{{ m.student_id }}">{{ i }}</td>
+                    <td class="mark15_{{ m.student_id }}">{{ i }}</td>
                     {% else %}
                     <td class="mark15_{{ m.student_id }}"></td>
                     {% endif %}
                 {% endfor %}
                 {% for i in m.mark45 %}
                     {% if i %}
-                    <td class="marks mark45_{{ m.student_id }}">{{ i }}</td>
+                    <td class="mark45_{{ m.student_id }}">{{ i }}</td>
                     {% else %}
                     <td class="mark45_{{ m.student_id }}"></td>
                     {% endif %}
                 {% endfor %}
                 {% if m.final_mark  %}
-                <td class="marks" id="final_mark_{{ m.student_id }}">{{ m.final_mark }}</td>
+                <td id="final_mark_{{ m.student_id }}">{{ m.final_mark }}</td>
                 {% else %}
                 <td id="final_mark_{{ m.student_id }}"></td>
                 {% endif %}
                 {% if m.avg_mark %}
-                <td class="marks" id="avg_mark_{{ m.student_id }}">{{ m.avg_mark }}</td>
+                <td id="avg_mark_{{ m.student_id }}">{{ m.avg_mark }}</td>
                 {% else %}
                 <td id="avg_mark_{{ m.student_id }}"></td>
                 {% endif %}
@@ -84,6 +84,12 @@
         </div>
         <div class="col-md-5 border high-div">
             <h3 class="bg-lightgray text text-center">Hướng dẫn sử dụng</h3>
+            <div class="border" style="padding:15px 0 0 15px">
+                <p class="guide">1. Chọn lớp để xem toàn bộ bảng điểm của các học sinh trong lớp</p>
+                <p class="guide">2. Chọn thay đổi học kỳ trên bảng điểm để xem điểm học kỳ khác</p>
+                <p class="guide">3. Chọn biểu tượng cây bút để chỉnh sửa điểm cho 1 học sinh</p>
+                <p class="guide">4. Nhập điểm và chọn lưu</p>
+            </div>
         </div>
     </div>
     {% endif %}
