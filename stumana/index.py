@@ -52,7 +52,8 @@ def change_rule():
     result2 = utilities.change_max_size(max=max_size)
     if result1 or result2:
         return jsonify({'status': 404,
-                        'err_msg': result1 + " " + result2})
+                        'err_msg1': result1,
+                        'err_msg2': result2})
 
     return jsonify({'status': 200})
 
@@ -65,18 +66,25 @@ def arrange_class():
     select_class = request.args.get('class')
     id_this_class = ''
     total = ''
+    student_name = request.args.get('student_name')
+    class_name = request.args.get('class_name')
+
     if select_class:
         this_class = select_class.split('-')
         id_this_class = utilities.get_class_id(grade=this_class[0], class_name=this_class[1])
         total = utilities.get_total(grade=this_class[0], class_name=this_class[1])
     students = utilities.get_all_student()
+    if student_name:
+        students = students.filter((Student.first_name + ' ' + Student.last_name).contains(student_name))
+    if class_name:
+        students = students.filter((ClassRoom.grade + ClassRoom.name).contains(class_name))
 
     return render_template('arrange-class.html',
                            grade12=grade12,
                            grade11=grade11,
                            grade10=grade10,
                            class_id=id_this_class,
-                           students=students,
+                           students=students.all(),
                            total=total)
 
 
@@ -135,6 +143,15 @@ def students_marks():
     if current_user.user_role == UserRole.TEACHER:
         classes = utilities.get_classes_of_teacher(current_user.id)
         course_id = request.args.get('course_id')
+        keyword = request.args.get('keyword')
+        if keyword:
+            filtered_classes = []
+            for c in classes:
+                for i in c:
+                    if keyword.lower() in str(i).lower():
+                        if c not in filtered_classes:
+                            filtered_classes.append(c)
+            return render_template("students-marks.html", classes=filtered_classes)
 
         if course_id:
             course = utilities.get_course_info(course_id)

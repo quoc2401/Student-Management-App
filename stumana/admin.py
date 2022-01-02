@@ -17,8 +17,28 @@ class AuthenticatedBaseView(BaseView):
 
 
 class AuthenticatedModelView(ModelView):
-
+    create_modal = True
     edit_modal = True
+    column_display_all_relations = True
+    column_labels = {
+        'first_name': 'Họ',
+        'last_name': 'Tên',
+        'bday': 'Ngày sinh',
+        'sex': 'Giới tính',
+        'address': 'Địa chỉ',
+        'phone': 'SĐT',
+        'email': 'Email',
+        'join_date': 'Ngày gia nhập',
+        'active': 'Active',
+        'user': 'Tài khoản',
+        'classroom': 'Lớp',
+        'name': 'Tên người dùng',
+        'username': 'Tài khoản',
+        'password': 'Mật khẩu',
+        'avatar': 'Ảnh đại diện',
+        'user_role': 'Chức vụ',
+        'classes': 'Các lớp phụ trách'
+    }
 
     def is_accessible(self):
         return current_user.is_authenticated and current_user.user_role == UserRole.ADMIN
@@ -36,26 +56,8 @@ class AdminBaseView(AuthenticatedBaseView):
             return current_user.user_role == UserRole.ADMIN
 
 
-class StudentModalView(AuthenticatedModelView):
-    column_labels = {
-        'first_name': 'Họ',
-        'last_name': 'Tên',
-        'bday': 'Ngày sinh',
-        'sex': 'Giới tính',
-        'address': 'Địa chỉ',
-        'phone': 'SĐT',
-        'email': 'Email',
-        'join_date': 'Ngày gia nhập',
-        'active': 'Active',
-        'user': 'Tên tài khoản',
-        'classroom': 'Lớp',
-        'class_name': 'Tên lớp',
-        'name': 'Tên người dùng',
-        'username': 'Tài khoản',
-        'password': 'Mật khẩu',
-        'avatar': 'Ảnh đại diện',
-        'user_role': 'Chức vụ'
-    }
+class UserView(AuthenticatedModelView):
+    column_display_all_relations = False
 
 
 class ClassModalView(AuthenticatedModelView):
@@ -63,10 +65,12 @@ class ClassModalView(AuthenticatedModelView):
         'grade': 'Khối',
         'name': 'Tên lớp',
         'total': 'Sỉ số',
+        'teacher': 'Giáo viên phụ trách',
+        'students': 'Các học sinh trong lớp'
     }
 
 
-class SubjectModelView(StudentModalView):
+class SubjectModelView(AuthenticatedModelView):
     page_size = 10
     column_searchable_list = ['name']
     column_filters = ['name']
@@ -74,14 +78,6 @@ class SubjectModelView(StudentModalView):
         'id': 'Mã môn học',
         'name': 'Tên môn học'
     }
-
-
-class CustomPersonForm(StudentModalView):
-    form_excluded_columns = ['user', 'classroom', 'classes']
-
-
-class CustomUserForm(StudentModalView):
-    form_excluded_columns = ['student', 'teacher', 'staff']
 
 
 class MyAdminIndexView(AdminIndexView):
@@ -111,12 +107,6 @@ class UserAllocation(AdminBaseView):    # de lam sau
     def is_accessible(self):
         if current_user.is_authenticated:
             return current_user.user_role == UserRole.ADMIN
-
-
-# class Student(ModalModelView):
-#     def is_accessible(self):
-#         if current_user.is_authenticated:
-#             return current_user.user_role == UserRole.STAFF
 
 
 class StatsView(StaffBaseView):
@@ -153,37 +143,37 @@ class LogoutView(BaseView):
 admin = Admin(app=app, name='Quản trị Trường THPT',
               template_mode='bootstrap4',
               index_view=MyAdminIndexView())
-admin.add_view(CustomUserForm(User, db.session,
-                              name='Quản lý tài khoản',
-                              category="Tài khoản",
-                              menu_icon_type='fa',
-                              menu_icon_value='fa-users'))
+admin.add_view(UserView(User, db.session,
+                        name='Quản lý tài khoản',
+                        category="Tài khoản",
+                        menu_icon_type='fa',
+                        menu_icon_value='fa-users'))
 admin.add_view(UserAllocation(name="Cấp tài khoản",
                               category="Tài khoản",
                               menu_icon_type='fa',
                               menu_icon_value='fa-id-card'))
 # Staff
-admin.add_view(CustomPersonForm(Student, db.session,
-                                name='Học sinh',
-                                category="Cá nhân",
-                                menu_icon_type='fa',
-                                menu_icon_value='fa-graduation-cap'))
+admin.add_view(AuthenticatedModelView(Student, db.session,
+                                      name='Học sinh',
+                                      category="Cá nhân",
+                                      menu_icon_type='fa',
+                                      menu_icon_value='fa-graduation-cap'))
 # Staff
 # admin.add_view(Change_class(Student, db.session,
 #                             name='Điều chỉnh lớp học',
 #                             category="Lớp học"))
 # Admin
-admin.add_view(CustomPersonForm(Teacher, db.session,
-                                name='Giáo viên',
-                                category="Cá nhân",
-                                menu_icon_type='fa',
-                                menu_icon_value='fa-podcast'))
+admin.add_view(AuthenticatedModelView(Teacher, db.session,
+                                      name='Giáo viên',
+                                      category="Cá nhân",
+                                      menu_icon_type='fa',
+                                      menu_icon_value='fa-podcast'))
 # Admin
-admin.add_view(CustomPersonForm(Staff, db.session,
-                                name='Nhân viên',
-                                category="Cá nhân",
-                                menu_icon_type='fa',
-                                menu_icon_value='fa-briefcase'))
+admin.add_view(AuthenticatedModelView(Staff, db.session,
+                                      name='Nhân viên',
+                                      category="Cá nhân",
+                                      menu_icon_type='fa',
+                                      menu_icon_value='fa-briefcase'))
 # Admin
 admin.add_view(ClassModalView(ClassRoom, db.session,
                               name='Quản lý lớp học',

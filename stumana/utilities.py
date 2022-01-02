@@ -94,7 +94,7 @@ def average_ignore_none(numbers):
 
 def get_all_student():
     return db.session.query(Student, ClassRoom)\
-            .join(ClassRoom, ClassRoom.id.__eq__(Student.class_id), isouter=True).all()
+            .join(ClassRoom, ClassRoom.id.__eq__(Student.class_id), isouter=True)
 
 
 def get_student(keyword):
@@ -205,7 +205,7 @@ def get_teacher_id(user_id):
 def get_classes_of_teacher(user_id):
     teacher_id = get_teacher_id(user_id=user_id)
 
-    return db.session.query(Subject.name, ClassRoom.grade, ClassRoom.name, Course.id)\
+    return db.session.query(Subject.name, ClassRoom.grade + ClassRoom.name, Course.id)\
              .join(Course, Course.subject_id.__eq__(Subject.id))\
              .join(ClassRoom, ClassRoom.id.__eq__(Course.class_id))\
              .filter(Course.teacher_id.__eq__(teacher_id)).all()
@@ -398,9 +398,5 @@ def create_all_mark_records(course_id=None):
 
 
 # Tu day tro xuong la de test = console
-# a = get_mark_by_course_id(1)
-# cal_avg_mark(subject_id=1, year=2021, semester=1)
-# a = get_students_mark(class_id=2, semester=1, year=2021, subject_id=1)
-# a = get_students_mark(class_id=2, year=2021, subject_id=1)
-# a = create_all_mark_records(1)
+# a = get_classes_of_teacher(4)
 # print(a)

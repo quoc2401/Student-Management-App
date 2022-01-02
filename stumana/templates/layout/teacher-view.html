@@ -13,7 +13,8 @@
                 <i class="fas fa-podcast"></i>Các lớp học phụ trách
                 </div>
                 <div style="padding: 10px 0;">
-                    <input type="text" class="form-control" name="keyword" placeholder="Tìm kiếm...">
+                    <input type="text" class="form-control" id="keyword" name="keyword"
+                           placeholder="Tìm kiếm..." onchange="classSearch()">
                 </div>
                 <a href=" {{ url_for('students_marks') }} " class="list-group-item list-group-item-action bg-light border">
                     <div>
@@ -26,10 +27,10 @@
                     </div>
                 </a>
                 {% for c in classes %}
-                <a href="{{ url_for('students_marks', course_id=c[3] ) }}"
+                <a href="{{ url_for('students_marks', course_id=c[2] ) }}"
                    class="list-group-item list-group-item-action bg-light border">
                     <div class="sidebar-item">
-                        <i class="fas fa-podcast"></i><span>{{ c[0] }} - {{ c[1] }}{{ c[2] }}</span>
+                        <i class="fas fa-podcast"></i><span>{{ c[0] }} - {{ c[1] }}</span>
                     </div>
                 </a>
                 {% endfor %}

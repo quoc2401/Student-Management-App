@@ -292,4 +292,29 @@ div.overlay-alert {
     height: 50px;
     opacity: 1;
     font-weight: bold;
+    padding: .75rem 1.25rem;
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+}
+
+.shadow-box {
+    box-shadow: 0 0 5px #0fe0f7;
+}
+
+div.overlay-alert-danger {
+    color: #f8f9fa;
+    background-color: #e85260;
+}
+
+div.overlay-alert-success {
+    color: #f8f9fa;
+    background-color: #28a745;
+}
+
+/************* Column-header admin model view ***************/
+
+th.column-header {
+    color: #007bff;
+    text-decoration: none;
+    background-color: transparent;
 }

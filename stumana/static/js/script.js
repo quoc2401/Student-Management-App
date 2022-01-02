@@ -1,3 +1,16 @@
+$(document).ready(function() {
+    a = document.getElementById('alert')
+
+    $(a).mouseenter(function() {
+        $(this).stop().animate({opacity:'100'})
+        $(this).toggleClass('shadow-box')
+    })
+    $(a).mouseleave(function() {
+        $(this).fadeOut(3000)
+        $(this).toggleClass('shadow-box')
+    })
+})
+
 function changeRule() {
     event.preventDefault()
     min_age = document.getElementById('min_age').value
@@ -22,17 +35,18 @@ function changeRule() {
 
         if(data.status == 200) {
             a.style.display = "block"
-            a.className = "alert alert-success overlay-alert"
+            a.className = "overlay-alert overlay-alert-success"
             a.innerText = "Thay đổi thành công"
         }
         else {
            a.style.display = "block"
-           a.className = "alert alert-danger overlay-alert"
+           a.className = "overlay-alert overlay-alert-danger"
            a.innerText = "Có dữ liệu vi phạm ràng buộc"
-           console.info(data.err_msg)
+           console.info(data.err_msg1)
+           console.info(data.err_msg2)
         }
 
-        $(a).fadeOut(5000)
+        $(a).fadeOut(3000)
     }).catch(function(err) {
         console.info(err)
     })
@@ -108,13 +122,14 @@ function updateMarks(subject_id, student_id, year) {
 
         if(data.status == 200) {
             a.style.display = "block"
-            a.className = "alert alert-success overlay-alert"
+            a.className = "overlay-alert overlay-alert-success"
             a.innerText = "Lưu thành công"
         }
         else {
            a.style.display = "block"
-           a.className = "alert alert-danger overlay-alert"
-           a.innerText = "Lưu thất bại!" + data.err_msg
+           a.className = "overlay-alert overlay-alert-danger"
+           a.innerText = "Lưu thất bại!"
+           console.info(data.err_msg)
         }
 
         $(a).fadeOut(3000)
@@ -124,49 +139,6 @@ function updateMarks(subject_id, student_id, year) {
 
 }
 
-
-//button get selected info and add_class
-function addClass(class_id) {
-    event.preventDefault()
-    if (confirm("Xác nhận thêm các học sinh đã chọn vào lớp" + $("div #class_id").text().split(":")[1]) == true) {
-        var items=[];
-        $("input.select-item:checked:checked").each(function (index,item) {
-            items[index] = item.value;
-        });
-        if (items.length < 1)
-            alert('Chưa có học sinh nào được chọn!')
-        else
-            fetch("/api/update-class", {
-                method: 'POST',
-                body: JSON.stringify({
-                    'student_id': items,
-                    'class_id': class_id
-                }),
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            }).then(function(res) {
-                console.info(res)
-                return res.json()
-            }).then(function(data) {
-                a = document.getElementById('alert')
-
-                if(data.status == 200) {
-
-                    window.location.reload()
-                }
-                else {
-                    a.style.display = "block"
-                    a.className = "alert alert-danger overlay-alert"
-                    a.innerText = "Thêm thất bại"
-                }
-
-                $(a).fadeOut(5000)
-            }).catch(function(err) {
-                console.info(err)
-            })
-        }
-}
 
 function loadMarks(course_id) {
      fetch("/api/load-marks", {
@@ -208,4 +180,103 @@ function loadMarks(course_id) {
     }).catch(function(err) {
         console.info(err)
     })
+}
+
+function classSearch() {
+    var keyword = $("#keyword").val()
+    if (keyword != undefined && keyword != null) {
+        window.location = '/students-marks?keyword=' + keyword;
+    }
+}
+
+//button get selected info and add_class
+function addClass(class_id) {
+    event.preventDefault()
+    var a = ''
+    if ($("div #class_id").text().split(":")[1] != undefined)
+        a = "Xác nhận thêm các học sinh đã chọn vào lớp" + $("div #class_id").text().split(":")[1]
+    else
+        a = "Xác nhận xóa các học sinh ra khỏi lớp"
+    if (confirm(a) == true) {
+        var items=[];
+        $("input.select-item:checked:checked").each(function (index,item) {
+            items[index] = item.value;
+        });
+        if (items.length < 1)
+            alert('Chưa có học sinh nào được chọn!')
+        else
+            fetch("/api/update-class", {
+                method: 'POST',
+                body: JSON.stringify({
+                    'student_id': items,
+                    'class_id': class_id
+                }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then(function(res) {
+                console.info(res)
+                return res.json()
+            }).then(function(data) {
+                a = document.getElementById('alert')
+
+                if(data.status == 200) {
+
+                    window.location.reload()
+                }
+                else {
+                    a.style.display = "block"
+                    a.className = "overlay-alert overlay-alert-danger"
+                    a.innerText = "Thêm thất bại"
+                }
+
+                $(a).fadeOut(5000)
+            }).catch(function(err) {
+                console.info(err)
+            })
+        }
+}
+
+function changeContext() {
+    document.getElementById("keyword").name = document.getElementById("context").value
+}
+
+String.prototype.replaceAt = function(index, replacement) {
+    return this.substr(0, index) + replacement + this.substr(index + replacement.length);
+}
+
+String.prototype.replaceBetween = function(start, end, what) {
+  return this.substring(0, start) + what + this.substring(end);
+};
+
+function studentFilter() {
+    var context = $("#context").val()
+    var keyword = $("#keyword").val()
+    var location = window.location
+    if (keyword != undefined && keyword != null && keyword != '') {
+        if (location.search)
+            if (location.search.indexOf(context) === -1)
+                location.search = location.search + "&" + context + "=" + keyword
+            else {
+                var start = location.search.indexOf(context)
+                var end =  location.search.indexOf("&", start)
+                if (end != -1)
+                    location.search = location.search.replaceBetween(start, end, context + "=" + keyword)
+                else
+                    location.search = location.search.replaceBetween(start, location.search.length,context + "=" + keyword)
+            }
+        else {
+            if (location.search.indexOf(context) === -1)
+                location.search = location.search + context + "=" + keyword
+            else {
+                var start = location.search.indexOf(context)
+                var end =  location.search.indexOf("&", start)
+                if (end != -1)
+                    location.search = location.search.replaceBetween(start, end, context + "=" + keyword)
+                else
+                    location.search = location.search.replaceBetween(start, location.search.length,context + "=" + keyword)
+            }
+        }
+
+    }
 }
