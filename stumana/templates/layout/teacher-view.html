@@ -12,9 +12,16 @@
                 <div class="sidebar-heading bg-light border">
                 <i class="fas fa-podcast"></i>Các lớp học phụ trách
                 </div>
-                <div style="padding: 10px 0;">
+                <div class="input-group" style="padding: 10px 0;">
                     <input type="text" class="form-control" id="keyword" name="keyword"
                            placeholder="Tìm kiếm..." onchange="classSearch()">
+                    {% if request.args.get('keyword') %}
+                    <span class="input-group-text" style="border-radius:0 5px 5px 0">
+                        <a href="#" onclick="removeFilter()" title="Hủy lọc">
+                          <span class="fa fa-times glyphicon glyphicon-remove"></span>
+                        </a>
+                    </span>
+                    {% endif %}
                 </div>
                 <a href=" {{ url_for('students_marks') }} " class="list-group-item list-group-item-action bg-light border">
                     <div>

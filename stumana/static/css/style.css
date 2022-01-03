@@ -18,7 +18,6 @@ body {
     background-size: cover;
     width: 100%;
     min-height:500px!important;
-    background-color: #EEEEEE
 }
 
 .overlay{
@@ -35,6 +34,7 @@ body {
 .flex {
     display:flex;
     flex-wrap: nowrap;
+    margin-bottom: 10px;
 }
 
 .footer {
@@ -235,8 +235,8 @@ div {
 }
 
 .highlight-item:hover .highlight-detail{
-display: block;
-animation: showDetail ease 0.4s;
+    display: block;
+    animation: showDetail ease 0.4s;
 }
 
 img {
@@ -418,6 +418,11 @@ img {
     height: 100%;
     -webkit-transition: 0.5s;
     transition: 0.5s;
+}
+
+.single_quick_activity {
+    box-shadow: 0px 2px 20px rgb(0 0 0 / 10%);
+}
 /***********************************************/
 
 /**********************Overlay fixed alert********************/
@@ -456,4 +461,27 @@ th.column-header {
     color: #007bff;
     text-decoration: none;
     background-color: transparent;
+}
+
+/************ Scroll to top ****************/
+.scrollToTop{
+    width:50px;
+    height:50px;
+    padding:5px;
+    text-align:center;
+    background: whiteSmoke;
+    font-size: 50px
+    font-weight: bold;
+    background-color: #e8eded ;
+    text-decoration: none;
+    position:fixed;
+    bottom:5px;
+    right:5px;
+    border-radius: 5px;
+    z-index: 99;
+    display: none;
+}
+
+.scrollToTop:hover{
+    text-decoration:none;
 }

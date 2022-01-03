@@ -139,6 +139,12 @@ class SetUpClass(AdminBaseView):
         return redirect("/setup-class")
 
 
+class ArrangeClass(AdminBaseView):
+    @expose('/')
+    def __index__(self):
+        return redirect("/arrange-class")
+
+
 class LogoutView(BaseView):
     @expose('/')
     def __index__(self):
@@ -153,14 +159,9 @@ admin = Admin(app=app, name='Quản trị Trường THPT',
               template_mode='bootstrap4',
               index_view=MyAdminIndexView())
 admin.add_view(UserView(User, db.session,
-                        name='Quản lý tài khoản',
-                        category="Tài khoản",
+                        name='Tài khoản',
                         menu_icon_type='fa',
                         menu_icon_value='fa-users'))
-admin.add_view(UserAllocation(name="Cấp tài khoản",
-                              category="Tài khoản",
-                              menu_icon_type='fa',
-                              menu_icon_value='fa-id-card'))
 # Staff
 admin.add_view(AuthenticatedModelView(Student, db.session,
                                       name='Học sinh',
@@ -190,10 +191,10 @@ admin.add_view(ClassModalView(ClassRoom, db.session,
                               menu_icon_value='fa-columns',
                               category="Lớp học"))
 # Staff
-# admin.add_view(Change_class(Student, db.session,
-#                             menu_icon_type='fa',
-#                             menu_icon_value='fa-graduation-cap',
-#                             category="Lớp học"))
+admin.add_view(ArrangeClass(name='Xếp lớp',
+                            menu_icon_type='fa',
+                            menu_icon_value='fa-reorder',
+                            category="Lớp học"))
 # Staff
 admin.add_view(SetUpClass(name="Lập danh sách lớp",
                           menu_icon_type='fa',

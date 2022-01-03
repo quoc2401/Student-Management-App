@@ -15,12 +15,14 @@
                 </div>
 
                 <form>
+                    {% if request.path == '/arrange-class' %}
                     <div class="sidebar-heading bg-light border">
                         <div class="site">
                             <input type="button" class="form-control" name="class"
-                                   value="Lớp rỗng" onclick="javascript:document.location = '/arrange-class'">
+                                   value="Lớp rỗng" onclick="javascript:document.location.search = ''">
                         </div>
                     </div>
+                    {% endif %}
                     <div class="sidebar-heading bg-light border">
                     <i class="fa fa-list"></i>Khối 12
                         <div class="flex grid-container">
@@ -84,6 +86,7 @@
                 {% endif %}
                 <br>
                 <div class="container-fluid">
+                        <label for="context" style="font-weight: bold;">Lọc theo:</label>
                         <div class="input-group mb-3">
                             <select id="context" class="form-control" style="margin-right:5px"
                                     onchange="changeContext()">
@@ -92,12 +95,20 @@
                             </select>
                             <input type="text" class="form-control" id="keyword"
                                    name="student-name" placeholder="Nhập từ khóa...">
+                            {% if request.args.get('student_name') or request.args.get('class_name') %}
+                            <span class="input-group-text" style="border-radius:0 5px 5px 0">
+                                <a href="#" onclick="removeFilter()" title="Hủy lọc">
+                                  <span class="fa fa-times glyphicon glyphicon-remove"></span>
+                                </a>
+                            </span>
+                            {% endif %}
                             <div class="input-group-append">
                                 <button class="btn btn-success"
                                         id="search"
                                         onclick="studentFilter()">Tìm kiếm</button>
                             </div>
                         </div>
+
                     <table id="tab" style="table-layout: fixed" width="100%"
                            class="table table-striped table-hover table-bordered table-responsive model-list bg-light">
                       <thead>
@@ -220,21 +231,5 @@ th {
 }
 
 </style>
-
-<script>
-
-$(document).ready(function() {
-  var x = document.getElementById("keyword");
-  var y = document.getElementById("search");
-  x.style.display = "none";
-  y.style.display = "none";
-
-  $('#context').on('change',function() {
-      x.style.display = "block";
-      y.style.display = "block";
-  });
-});
-
-</script>
 
 {% endblock %}

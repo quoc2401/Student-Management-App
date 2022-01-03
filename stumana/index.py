@@ -120,7 +120,10 @@ def arrange_class():
     if student_name:
         students = students.filter((Student.first_name + ' ' + Student.last_name).contains(student_name))
     if class_name:
-        students = students.filter((ClassRoom.grade + ClassRoom.name).contains(class_name))
+        if class_name == '0':
+            students = students.filter(Student.class_id.is_(None))
+        else:
+            students = students.filter((ClassRoom.grade + ClassRoom.name).contains(class_name))
 
     return render_template('arrange-class.html',
                            grade12=grade12,
@@ -156,6 +159,7 @@ def setup_class():
     grade11 = utilities.get_classes_by_grade(grade='11')
     grade10 = utilities.get_classes_by_grade(grade='10')
     select_class = request.args.get('class')
+
     if select_class:
         select_grade = select_class.split('-')
         select_class_name = select_class.split('-')
