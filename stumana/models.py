@@ -28,9 +28,6 @@ class User(BaseModel, UserMixin):
     teacher = relationship('Teacher', backref='user', lazy=True)
     staff = relationship('Staff', backref='user', lazy=True)
 
-    def __str__(self):
-        return self.name
-
 
 class Ethnic(BaseModel):
     name = Column(String(20), nullable=False)

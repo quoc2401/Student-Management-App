@@ -1,3 +1,16 @@
+$(document).ready(function() {
+    a = document.getElementById('alert')
+
+    $(a).mouseenter(function() {
+        $(this).stop().animate({opacity:'100'})
+        $(this).toggleClass('shadow-box')
+    })
+    $(a).mouseleave(function() {
+        $(this).fadeOut(3000)
+        $(this).toggleClass('shadow-box')
+    })
+})
+
 function changeRule() {
     event.preventDefault()
     min_age = document.getElementById('min_age').value
@@ -22,16 +35,18 @@ function changeRule() {
 
         if(data.status == 200) {
             a.style.display = "block"
-            a.className = "alert alert-success"
+            a.className = "overlay-alert overlay-alert-success"
             a.innerText = "Thay đổi thành công"
         }
         else {
            a.style.display = "block"
-           a.className = "alert alert-danger"
+           a.className = "overlay-alert overlay-alert-danger"
            a.innerText = "Có dữ liệu vi phạm ràng buộc"
+           console.info(data.err_msg1)
+           console.info(data.err_msg2)
         }
 
-        $(a).fadeOut(5000)
+        $(a).fadeOut(3000)
     }).catch(function(err) {
         console.info(err)
     })
@@ -106,13 +121,14 @@ function updateMarks(subject_id, student_id, year) {
         a = document.getElementById('alert')
 
         if(data.status == 200) {
-
-            window.location.reload()
+            a.style.display = "block"
+            a.className = "overlay-alert overlay-alert-success"
+            a.innerText = "Lưu thành công"
         }
         else {
            a.style.display = "block"
-           a.className = "alert alert-danger"
-           a.innerText = "Lưu thất bại"
+           a.className = "overlay-alert overlay-alert-danger"
+           a.innerText = "Lưu thất bại!"
            console.info(data.err_msg)
         }
 
@@ -179,7 +195,6 @@ $(function(){
             all.checked = len===total;
         }
 });
-
 
 //button get selected info and add_class
 function addClass(class_id) {
@@ -267,23 +282,22 @@ function loadMarks(course_id) {
 }
 
 // confirm password
-$(document).ready(function(){
+$(document).ready(function() {
   var passOne = $("#n-password").val();
   var passTwo = $("#c-password").val();
 
   var checkAndChange = function()
   {
-    if(passOne.length < 1){
+    if(passOne.length < 1)
       if($(".confirm").hasClass("alert-success")){
         $(".confirm").removeClass("alert-success").addClass("alert-danger");
         $(".confirm").html("Mật khẩu không giống nhau!");
       }else{
         $(".confirm").html("Mật khẩu không giống nhau!");
       }
-    }
     else if($(".confirm").hasClass("alert-danger"))
     {
-      if(passOne == passTwo){
+      if(passOne == passTwo) {
         $(".confirm").removeClass("alert-danger").addClass("alert-success");
         $(".confirm").html("Tiếp tục");
       }
@@ -309,3 +323,53 @@ $(document).ready(function(){
 });
 
 
+function classSearch() {
+    var keyword = $("#keyword").val()
+    if (keyword != undefined && keyword != null) {
+        window.location = '/students-marks?keyword=' + keyword;
+    }
+}
+
+function changeContext() {
+    document.getElementById("keyword").name = document.getElementById("context").value
+}
+
+String.prototype.replaceAt = function(index, replacement) {
+    return this.substr(0, index) + replacement + this.substr(index + replacement.length);
+}
+
+String.prototype.replaceBetween = function(start, end, what) {
+  return this.substring(0, start) + what + this.substring(end);
+};
+
+function studentFilter() {
+    var context = $("#context").val()
+    var keyword = $("#keyword").val()
+    var location = window.location
+    if (keyword != undefined && keyword != null && keyword != '') {
+        if (location.search)
+            if (location.search.indexOf(context) === -1)
+                location.search = location.search + "&" + context + "=" + keyword
+            else {
+                var start = location.search.indexOf(context)
+                var end =  location.search.indexOf("&", start)
+                if (end != -1)
+                    location.search = location.search.replaceBetween(start, end, context + "=" + keyword)
+                else
+                    location.search = location.search.replaceBetween(start, location.search.length,context + "=" + keyword)
+            }
+        else {
+            if (location.search.indexOf(context) === -1)
+                location.search = location.search + context + "=" + keyword
+            else {
+                var start = location.search.indexOf(context)
+                var end =  location.search.indexOf("&", start)
+                if (end != -1)
+                    location.search = location.search.replaceBetween(start, end, context + "=" + keyword)
+                else
+                    location.search = location.search.replaceBetween(start, location.search.length,context + "=" + keyword)
+            }
+        }
+
+    }
+}

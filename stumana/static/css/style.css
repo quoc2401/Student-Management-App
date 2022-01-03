@@ -18,7 +18,7 @@ body {
     background-size: cover;
     width: 100%;
     min-height:500px!important;
-    background-color: #d5e6e8
+    background-color: #EEEEEE
 }
 
 .overlay{
@@ -82,7 +82,7 @@ table.student tr td:first-child::before {
     font-weight: bold;
 }
 
-/************************************************************************/
+/*******************************--Sidebar--*********************************/
 #sidebar-wrapper {
     min-height: 67vh;
     margin-left: -15rem;
@@ -135,6 +135,11 @@ i {
 
 table.student_marks tbody tr td {
     width: 7%;
+}
+
+table.student_marks th,td {
+    white-space: nowrap;
+    min-width: 3rem;
 }
 
 td.name {
@@ -413,4 +418,42 @@ img {
     height: 100%;
     -webkit-transition: 0.5s;
     transition: 0.5s;
+/***********************************************/
+
+/**********************Overlay fixed alert********************/
+
+div.overlay-alert {
+    position: fixed;
+    right: 5px;
+    bottom: 5px;
+    z-index: 1000;
+    min-width: 200px;
+    height: 50px;
+    opacity: 1;
+    font-weight: bold;
+    padding: .75rem 1.25rem;
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+}
+
+.shadow-box {
+    box-shadow: 0 0 5px #0fe0f7;
+}
+
+div.overlay-alert-danger {
+    color: #f8f9fa;
+    background-color: #e85260;
+}
+
+div.overlay-alert-success {
+    color: #f8f9fa;
+    background-color: #28a745;
+}
+
+/************* Column-header admin model view ***************/
+
+th.column-header {
+    color: #007bff;
+    text-decoration: none;
+    background-color: transparent;
 }

@@ -3,5 +3,205 @@
 {% block title %}Thông tin người dùng{% endblock %}
 
 {% block body %}
+<div class="container profile">
+    <div class="row" style="padding-top: 1rem;">
+        <div class="col-md-2 mb-2">
+            <div class="profile-img text-center">
+                {% if current_user.avatar %}
+                <img src="{{ current_user.avatar }}" class="rounded-circle" alt="avatar" />
+                {% else %}
+                <img src="{{ url_for('static', filename='images/avatar.png') }}"
+                     class="rounded-circle" alt="avatar" />
+                {% endif %}
+            </div>
+        </div>
 
+        <div class="col-md-10 px-1">
+            {% if current_user.user_role == UserRole.STUDENT %}
+            <div class="card shadow-lg">
+                <div class="card-header text-primary" style="font-weight:bold;">
+                    <i class="fas fa-atom pr-2"></i>Thông tin học sinh
+                </div>
+
+                <div class="card-body py-1">
+                    <div class="row my-1">
+                        <div class="col-4 col-lg-3 text-nowrap">Mã HS:</div>
+                        <div class="col-8 col-lg-9">{{ student[0].id }}</div>
+                    </div>
+                    <div class="row my-1">
+                        <div class="col-4 col-lg-3 text-nowrap">Họ tên:</div>
+                        <div class="col-8 col-lg-9">{{ student[0].first_name }} {{ student[0].last_name }}</div>
+                    </div>
+                    <div class="row my-1">
+                        <div class="col-4 col-lg-3 text-nowrap">Ngày sinh:</div>
+                        <div class="col-8 col-lg-9">
+                            {{ student[0].bday.day }}/{{ student[0].bday.month }}/{{ student[0].bday.year }}
+                        </div>
+                    </div>
+                    <div class="row my-1">
+                        <div class="col-4 col-lg-3 text-nowrap">Giới tính:</div>
+                        <div class="col-8 col-lg-9">
+                            {% if student[0].sex == True %}
+                            Nam
+                            {% else %}
+                            Nữ
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row my-1">
+                        <div class="col-4 col-lg-3 text-nowrap">Địa chỉ:</div>
+                        <div class="col-8 col-lg-9">{{ student[0].address }}</div>
+                    </div>
+                    <div class="row my-1">
+                        <div class="col-4 col-lg-3 text-nowrap">Số điện thoại:</div>
+                        <div class="col-8 col-lg-9">{{ student[0].phone }}</div>
+                    </div>
+                    <div class="row my-1">
+                        <div class="col-4 col-lg-3 text-nowrap">Email:</div>
+                        <div class="col-8 col-lg-9">{{ student[0].email }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-lg my-2">
+                <div class="card-header text-primary" style="font-weight:bold;">
+                    <i class="fas fa-atom pr-2"></i>Lớp đang học
+                </div>
+
+                <div class="card-body py-1">
+                    <div class="row my-1">
+                        <div class="col-4 col-lg-3 text-nowrap">Khối:</div>
+                        <div class="col-8 col-lg-9">{{ student[1].grade }}</div>
+                    </div>
+                    <div class="row my-1">
+                        <div class="col-4 col-lg-3 text-nowrap">Tên lớp:</div>
+                        <div class="col-8 col-lg-9">{{ student[1].name }}</div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if current_user.user_role == UserRole.STAFF %}
+            <div class="card shadow-lg">
+                <div class="card-header text-primary" style="font-weight:bold;">
+                    <i class="fas fa-atom pr-2"></i>Thông tin nhân viên
+                </div>
+
+                <div class="card-body py-1">
+                    <div class="row my-1">
+                        <div class="col-4 col-lg-3 text-nowrap">Mã NV:</div>
+                        <div class="col-8 col-lg-9">{{ staff.id }}</div>
+                    </div>
+                    <div class="row my-1">
+                        <div class="col-4 col-lg-3 text-nowrap">Họ tên:</div>
+                        <div class="col-8 col-lg-9">{{ staff.first_name }} {{ staff.last_name }}</div>
+                    </div>
+                    <div class="row my-1">
+                        <div class="col-4 col-lg-3 text-nowrap">Ngày sinh:</div>
+                        <div class="col-8 col-lg-9">
+                            {{ staff.bday.day }}/{{ staff.bday.month }}/{{ staff.bday.year }}
+                        </div>
+                    </div>
+                    <div class="row my-1">
+                        <div class="col-4 col-lg-3 text-nowrap">Giới tính:</div>
+                        <div class="col-8 col-lg-9">
+                            {% if staff.sex == True %}
+                            Nam
+                            {% else %}
+                            Nữ
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row my-1">
+                        <div class="col-4 col-lg-3 text-nowrap">Địa chỉ:</div>
+                        <div class="col-8 col-lg-9">{{ staff.address }}</div>
+                    </div>
+                    <div class="row my-1">
+                        <div class="col-4 col-lg-3 text-nowrap">Số điện thoại:</div>
+                        <div class="col-8 col-lg-9">{{ staff.phone }}</div>
+                    </div>
+                    <div class="row my-1">
+                        <div class="col-4 col-lg-3 text-nowrap">Email:</div>
+                        <div class="col-8 col-lg-9">{{ staff.email }}</div>
+                    </div>
+                    <div class="row my-1">
+                        <div class="col-4 col-lg-3 text-nowrap">Chức vụ:</div>
+                        <div class="col-8 col-lg-9">#</div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if current_user.user_role == UserRole.TEACHER %}
+            <div class="card shadow-lg">
+                <div class="card-header text-primary" style="font-weight:bold;">
+                    <i class="fas fa-atom pr-2"></i>Thông tin giáo viên
+                </div>
+
+                <div class="card-body py-1">
+                    <div class="row my-1">
+                        <div class="col-4 col-lg-3 text-nowrap">Mã GV:</div>
+                        <div class="col-8 col-lg-9">{{ teacher[0].id }}</div>
+                    </div>
+                    <div class="row my-1">
+                        <div class="col-4 col-lg-3 text-nowrap">Họ tên:</div>
+                        <div class="col-8 col-lg-9">{{ teacher[0].first_name }} {{ teacher[0].last_name }}</div>
+                    </div>
+                    <div class="row my-1">
+                        <div class="col-4 col-lg-3 text-nowrap">Ngày sinh:</div>
+                        <div class="col-8 col-lg-9">
+                            {{ teacher[0].bday.day }}/{{ teacher[0].bday.month }}/{{ teacher[0].bday.year }}
+                        </div>
+                    </div>
+                    <div class="row my-1">
+                        <div class="col-4 col-lg-3 text-nowrap">Giới tính:</div>
+                        <div class="col-8 col-lg-9">
+                            {% if teacher[0].sex == True %}
+                            Nam
+                            {% else %}
+                            Nữ
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row my-1">
+                        <div class="col-4 col-lg-3 text-nowrap">Địa chỉ:</div>
+                        <div class="col-8 col-lg-9">{{ teacher[0].address }}</div>
+                    </div>
+                    <div class="row my-1">
+                        <div class="col-4 col-lg-3 text-nowrap">Số điện thoại:</div>
+                        <div class="col-8 col-lg-9">{{ teacher[0].phone }}</div>
+                    </div>
+                    <div class="row my-1">
+                        <div class="col-4 col-lg-3 text-nowrap">Email:</div>
+                        <div class="col-8 col-lg-9">{{ teacher[0].email }}</div>
+                    </div>
+                    <div class="row my-1">
+                        <div class="col-4 col-lg-3 text-nowrap">Môn học giảng dạy:</div>
+                        <div class="col-8 col-lg-9">{{ teacher[1].name }}</div>
+                    </div>
+                </div>
+            </div>
+
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+
+<style>
+
+.profile-img img {
+    width: 125px;
+    height: 135px;
+}
+
+img {
+    vertical-align: middle;
+    border-style: none;
+}
+
+
+
+
+</style>
 {% endblock %}

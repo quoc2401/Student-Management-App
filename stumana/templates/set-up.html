@@ -10,10 +10,12 @@
            class="table table-striped table-hover table-bordered table-responsive model-list bg-light">
         <thead>
         <tr class="bg-warning info">
-            <th colspan="3">Lớp: {{ request.args.get('class') }}</th>
+            <th colspan="3">Lớp: {{ request.args.get('class', 'Chưa chọn') }}</th>
             <th colspan="2">Sỉ số:
-                {% if total %}
+                {% if total[0] %}
                 {{ total[0] }}
+                {% else %}
+                0
                 {% endif %}
             </th>
         </tr>

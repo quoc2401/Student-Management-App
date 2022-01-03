@@ -15,41 +15,47 @@
                 </div>
 
                 <form>
-                <div class="sidebar-heading bg-light border">
-                <i class="fa fa-list"></i>Khối 12
-                    <div class="flex grid-container">
-                        {% for t in grade12 %}
+                    <div class="sidebar-heading bg-light border">
                         <div class="site">
-                        <input type="submit" class="form-control" name="class"
-                               value="{{ t.grade }}-{{ t.name }}">
+                            <input type="button" class="form-control" name="class"
+                                   value="Lớp rỗng" onclick="javascript:document.location = '/arrange-class'">
                         </div>
-                        {% endfor %}
                     </div>
-                </div>
+                    <div class="sidebar-heading bg-light border">
+                    <i class="fa fa-list"></i>Khối 12
+                        <div class="flex grid-container">
+                            {% for t in grade12 %}
+                            <div class="site">
+                            <input type="submit" class="form-control" name="class"
+                                   value="{{ t.grade }}-{{ t.name }}">
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
 
-                <div class="sidebar-heading bg-light border">
-                <i class="fa fa-list"></i>Khối 11
-                    <div class="flex grid-container">
-                        {% for t in grade11 %}
-                        <div class="site">
-                        <input type="submit" class="form-control" name="class"
-                               value="{{ t.grade }}-{{ t.name }}">
+                    <div class="sidebar-heading bg-light border">
+                    <i class="fa fa-list"></i>Khối 11
+                        <div class="flex grid-container">
+                            {% for t in grade11 %}
+                            <div class="site">
+                            <input type="submit" class="form-control" name="class"
+                                   value="{{ t.grade }}-{{ t.name }}">
+                            </div>
+                            {% endfor %}
                         </div>
-                        {% endfor %}
                     </div>
-                </div>
 
-                <div class="sidebar-heading bg-light border">
-                <i class="fa fa-list"></i>Khối 10
-                    <div class="flex grid-container">
-                        {% for t in grade10 %}
-                        <div class="site">
-                        <input type="submit" class="form-control" name="class"
-                               value="{{ t.grade }}-{{ t.name }}">
+                    <div class="sidebar-heading bg-light border">
+                    <i class="fa fa-list"></i>Khối 10
+                        <div class="flex grid-container">
+                            {% for t in grade10 %}
+                            <div class="site">
+                            <input type="submit" class="form-control" name="class"
+                                   value="{{ t.grade }}-{{ t.name }}">
+                            </div>
+                            {% endfor %}
                         </div>
-                        {% endfor %}
                     </div>
-                </div>
                 </form>
             </div>
         </div>
@@ -62,29 +68,36 @@
                 {% block content %}
                 <h2 class="text-center text-info">DANH SÁCH HỌC SINH</h2>
                 <hr>
+                {% if request.args.get('class') %}
                 <div class="flex">
-                <div class="text-primary info">Lớp đang chọn: {{ request.args.get('class') }}</div>
-                <div class="text-primary info">Sỉ số:
-                    {% if total %}
-                    {{ total[0] }}
-                    {% endif %}
+                        <div id="class_id" class="text-primary info">Lớp đang chọn: {{ request.args.get('class') }}</div>
+                        <div class="text-primary info">Sỉ số:
+                        {% if total[0] %}
+                        {{ total[0] }}
+                        {% else %}
+                        0
+                        {% endif %}
                 </div>
                 </div>
-
+                {% else %}
+                    <div class="alert alert-danger" > Đang chọn lớp rỗng!! Lớp rỗng để đưa học sinh ra khỏi lớp hiện tại. </div>
+                {% endif %}
                 <br>
                 <div class="container-fluid">
-                    <form action="javascript:document.location.reload()">
                         <div class="input-group mb-3">
-                            <input type="text" id="search"
-                                   name="search"
-                                   class="form-control"
-                                   placeholder="Nhập từ khóa...">
+                            <select id="context" class="form-control" style="margin-right:5px"
+                                    onchange="changeContext()">
+                                <option value="student_name" >Tên học sinh</option>
+                                <option value="class_name">Tên lớp</option>
+                            </select>
+                            <input type="text" class="form-control" id="keyword"
+                                   name="student-name" placeholder="Nhập từ khóa...">
                             <div class="input-group-append">
                                 <button class="btn btn-success"
-                                        type="submit">Tìm kiếm</button>
+                                        id="search"
+                                        onclick="studentFilter()">Tìm kiếm</button>
                             </div>
                         </div>
-                    </form>
                     <table id="tab" style="table-layout: fixed" width="100%"
                            class="table table-striped table-hover table-bordered table-responsive model-list bg-light">
                       <thead>
@@ -135,16 +148,21 @@
                         {% endfor %}
                       </tbody>
                     </table>
-<!--                    end form reload-->
 
                     <div class="statusbar flex justify-content-end"></div>
                     <br>
                     <div id="alert" style="display:none" ></div>
                     <div class="flex justify-content-end">
                     <button id="select-all" class="btn btn-info">Chọn tất cả/Hủy tất cả</button>
+                    {% if class_id %}
                     <button class="btn btn-info" type="submit"
                             onclick="addClass({{ class_id }})">Thêm vào lớp</button>
                     </div>
+                    {% else %}
+                    <button class="btn btn-info" type="submit"
+                        onclick="addClass({{ class_id }})">Xóa khỏi lớp hiện tại</button>
+                    </div>
+                    {% endif %}
                 </div>
                 <div id="test"></div>
                 {% endblock %}
@@ -202,5 +220,21 @@ th {
 }
 
 </style>
+
+<script>
+
+$(document).ready(function() {
+  var x = document.getElementById("keyword");
+  var y = document.getElementById("search");
+  x.style.display = "none";
+  y.style.display = "none";
+
+  $('#context').on('change',function() {
+      x.style.display = "block";
+      y.style.display = "block";
+  });
+});
+
+</script>
 
 {% endblock %}

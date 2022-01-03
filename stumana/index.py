@@ -66,6 +66,19 @@ def change_password():
 @app.route("/user-info")
 @login_required
 def user_info():
+    if current_user.is_authenticated:
+        if current_user.user_role == UserRole.STUDENT:
+            student = utilities.get_info_student(user_id=current_user.id)
+            return render_template('user-info.html',
+                                   student=student)
+        if current_user.user_role == UserRole.STAFF:
+            staff = utilities.get_info_staff(user_id=current_user.id)
+            return render_template('user-info.html',
+                                   staff=staff)
+        if current_user.user_role == UserRole.TEACHER:
+            teacher = utilities.get_info_teacher(user_id=current_user.id)
+            return render_template('user-info.html',
+                                   teacher=teacher)
     return render_template('user-info.html')
 
 
@@ -80,7 +93,9 @@ def change_rule():
     result1 = utilities.change_chk_age(min=min_age, max=max_age)
     result2 = utilities.change_max_size(max=max_size)
     if result1 or result2:
-        return jsonify({'status': 404})
+        return jsonify({'status': 404,
+                        'err_msg1': result1,
+                        'err_msg2': result2})
 
     return jsonify({'status': 200})
 
@@ -92,23 +107,27 @@ def arrange_class():
     grade11 = utilities.get_classes_by_grade(grade='11')
     grade10 = utilities.get_classes_by_grade(grade='10')
     select_class = request.args.get('class')
-    search = request.args.get('search')
     id_this_class = ''
     total = ''
+    student_name = request.args.get('student_name')
+    class_name = request.args.get('class_name')
+
     if select_class:
         this_class = select_class.split('-')
         id_this_class = utilities.get_class_id(grade=this_class[0], class_name=this_class[1])
         total = utilities.get_total(grade=this_class[0], class_name=this_class[1])
     students = utilities.get_all_student()
-    if search:
-        students = utilities.search_keyword(keyword=search)
+    if student_name:
+        students = students.filter((Student.first_name + ' ' + Student.last_name).contains(student_name))
+    if class_name:
+        students = students.filter((ClassRoom.grade + ClassRoom.name).contains(class_name))
 
     return render_template('arrange-class.html',
                            grade12=grade12,
                            grade11=grade11,
                            grade10=grade10,
                            class_id=id_this_class,
-                           students=students,
+                           students=students.all(),
                            total=total)
 
 
@@ -168,10 +187,19 @@ def students_marks():
     if current_user.user_role == UserRole.TEACHER:
         classes = utilities.get_classes_of_teacher(current_user.id)
         course_id = request.args.get('course_id')
+        keyword = request.args.get('keyword')
+        if keyword:
+            filtered_classes = []
+            for c in classes:
+                for i in c:
+                    if keyword.lower() in str(i).lower():
+                        if c not in filtered_classes:
+                            filtered_classes.append(c)
+            return render_template("students-marks.html", classes=filtered_classes)
 
         if course_id:
             course = utilities.get_course_info(course_id)
-            utilities.create_all_mark_records(course_id=course_id)
+            utilities.create_all_mark_records(course_id=course_id) # Tao bang diem khi vao nhap diem
             marks = utilities.get_mark_by_course_id(course_id=course_id)
 
             return render_template("students-marks.html",
@@ -246,21 +274,6 @@ def load_marks():
         return jsonify({'status': 404})
 
 
-# @app.route("/api/cal-avg", methods=['POST'])
-# def cal_avg():
-#     data = request.json
-#
-#     try:
-#         utilities.cal_avg_mark(subject_id=data.get('subject_id'),
-#                                semester=data.get('semester'),
-#                                year=data.get('year'))
-#     except:
-#         return jsonify({'status': 404})
-#
-#     return jsonify({'status': 200,
-#                     'avg_mark': })
-
-
 @login.user_loader
 def user_load(user_id):
     return utilities.get_user_by_id(user_id=user_id)
@@ -270,7 +283,7 @@ def user_load(user_id):
 def common_response():
     return {
         'UserRole': UserRole,
-        'year': datetime.now().year
+        'year': 2021
     }
 
 
