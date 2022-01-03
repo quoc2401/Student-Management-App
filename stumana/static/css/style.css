@@ -34,6 +34,7 @@ body {
 .flex {
     display:flex;
     flex-wrap: nowrap;
+    margin-bottom: 10px;
 }
 
 .footer {
@@ -317,4 +318,25 @@ th.column-header {
     color: #007bff;
     text-decoration: none;
     background-color: transparent;
+}
+
+/************ Scroll to top ****************/
+.scrollToTop{
+    width:50px;
+    height:50px;
+    padding:5px;
+    text-align:center;
+    background: whiteSmoke;
+    font-size: 50px
+    font-weight: bold;
+    background-color: #e8eded ;
+    text-decoration: none;
+    position:fixed;
+    bottom:5px;
+    right:5px;
+    display:none;
+    border-radius: 5px
+}
+.scrollToTop:hover{
+    text-decoration:none;
 }
