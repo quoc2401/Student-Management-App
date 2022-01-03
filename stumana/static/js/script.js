@@ -237,6 +237,8 @@ function addClass(class_id) {
         }
 }
 
+/******************** Filter  ***********************/
+
 function changeContext() {
     document.getElementById("keyword").name = document.getElementById("context").value
 }
@@ -253,7 +255,7 @@ function studentFilter() {
     var context = $("#context").val()
     var keyword = $("#keyword").val()
     var location = window.location
-    if (keyword != undefined && keyword != null && keyword != '') {
+    if (keyword != undefined && keyword != null) {
         if (location.search)
             if (location.search.indexOf(context) === -1)
                 location.search = location.search + "&" + context + "=" + keyword
@@ -277,6 +279,38 @@ function studentFilter() {
                     location.search = location.search.replaceBetween(start, location.search.length,context + "=" + keyword)
             }
         }
-
     }
 }
+
+function removeFilter() {
+    event.preventDefault()
+    var search = window.location.search
+    if (search.indexOf('class=') != -1) {
+        var start = search.indexOf('class=')
+        var end =  search.indexOf("&", start)
+        var keep = search.substring(start, end)
+    window.location.search = keep
+    }
+    else
+    window.location.search = ''
+}
+
+/**************** Back to top *******************/
+$(document).ready(function(){
+
+    //Check to see if the window is top if not then display button
+    $(window).scroll(function(){
+        if ($(this).scrollTop() > 100) {
+            $('.scrollToTop').fadeIn();
+        } else {
+            $('.scrollToTop').fadeOut();
+        }
+    });
+
+    //Click event to scroll to top
+    $('.scrollToTop').click(function(){
+        $('html, body').animate({scrollTop : 0},800);
+        return false;
+    });
+
+});
