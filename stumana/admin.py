@@ -21,12 +21,6 @@ class AuthenticatedModelView(ModelView):
         return current_user.is_authenticated and current_user.user_role == UserRole.ADMIN
 
 
-class StaffBaseView(AuthenticatedBaseView):
-    def is_accessible(self):
-        if current_user.is_authenticated:
-            return current_user.user_role == UserRole.STAFF or current_user.user_role == UserRole.ADMIN
-
-
 class AdminBaseView(AuthenticatedBaseView):
     def is_accessible(self):
         if current_user.is_authenticated:
@@ -83,7 +77,16 @@ class CustomUserForm(StudentModalView):
 class MyAdminIndexView(AdminIndexView):
     @expose("/")
     def index(self):
-        return self.render("admin/index.html")
+        count_student = utilities.count_student()
+        count_classroom = utilities.count_classroom()
+        count_staff = utilities.count_staff()
+        count_teacher = utilities.count_teacher()
+
+        return self.render("admin/index.html",
+                           count_student=count_student,
+                           count_classroom=count_classroom,
+                           count_staff=count_staff,
+                           count_teacher=count_teacher)
 
 
 class ChangeRule(AdminBaseView):
@@ -115,7 +118,7 @@ class UserAllocation(AdminBaseView):    # de lam sau
 #             return current_user.user_role == UserRole.STAFF
 
 
-class StatsView(StaffBaseView):
+class StatsView(AdminBaseView):
     @expose('/')
     def __index__(self):
         subject_name = request.args.get("subject", "Toán")
@@ -130,7 +133,7 @@ class StatsView(StaffBaseView):
                            subjects=utilities.get_subjects())
 
 
-class SetUpClass(StaffBaseView):
+class SetUpClass(AdminBaseView):
     @expose('/')
     def __index__(self):
         return redirect("/setup-class")

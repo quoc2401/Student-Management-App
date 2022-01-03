@@ -9,7 +9,7 @@ def index():
     return render_template("index.html")
 
 
-@app.route('/user_login', methods=['get', 'post'])
+@app.route('/user_login', methods=['GET', 'POST'])
 def user_login():
     error_msg = ""
     if current_user.is_authenticated:
@@ -41,7 +41,36 @@ def user_logout():
     return redirect(url_for("index"))
 
 
+@app.route("/change-password", methods=['GET', 'POST'])
+def change_password():
+    error_msg = ''
+    success_msg = ''
+    if request.method.__eq__('POST'):
+        try:
+            n_password = request.form['n-password']
+            c_password = request.form['c-password']
+            if n_password == c_password:
+                change = utilities.change_password(user_id=current_user.id,
+                                                   password=n_password)
+                success_msg = 'Thay đổi thành công'
+                return render_template('change-password.html', success_msg=success_msg)
+            else:
+                error_msg = "Thay đổi thất bại"
+
+        except Exception as ex:
+            error_msg = str(ex)
+
+    return render_template('change-password.html', error_msg=error_msg)
+
+
+@app.route("/user-info")
+@login_required
+def user_info():
+    return render_template('user-info.html')
+
+
 @app.route("/api/change-rule", methods=['PUT'])
+@login_required
 def change_rule():
     data = request.json
     min_age = data.get('min_age')
@@ -57,11 +86,13 @@ def change_rule():
 
 
 @app.route("/arrange-class")
+@login_required
 def arrange_class():
     grade12 = utilities.get_classes_by_grade(grade='12')
     grade11 = utilities.get_classes_by_grade(grade='11')
     grade10 = utilities.get_classes_by_grade(grade='10')
     select_class = request.args.get('class')
+    search = request.args.get('search')
     id_this_class = ''
     total = ''
     if select_class:
@@ -69,6 +100,8 @@ def arrange_class():
         id_this_class = utilities.get_class_id(grade=this_class[0], class_name=this_class[1])
         total = utilities.get_total(grade=this_class[0], class_name=this_class[1])
     students = utilities.get_all_student()
+    if search:
+        students = utilities.search_keyword(keyword=search)
 
     return render_template('arrange-class.html',
                            grade12=grade12,
@@ -96,6 +129,7 @@ def update_class():
 
 
 @app.route("/setup-class")
+@login_required
 def setup_class():
     err_msg = ''
     total = ''
@@ -204,7 +238,8 @@ def update_marks():
 def load_marks():
     data = request.json
     try:
-        marks = utilities.get_mark_by_course_id(course_id=data.get('course_id'), semester=data.get('semester'))
+        marks = utilities.get_mark_by_course_id(course_id=data.get('course_id'),
+                                                semester=data.get('semester'))
         return jsonify({'status': 200,
                         'marks': marks})
     except:

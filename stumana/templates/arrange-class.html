@@ -60,7 +60,7 @@
         <div id="page-content-wrapper">
             <div class="container-fluid border" style="min-height:67vh">
                 {% block content %}
-                <h2 class="text-center text-info">Danh sách học sinh chưa có lớp</h2>
+                <h2 class="text-center text-info">DANH SÁCH HỌC SINH</h2>
                 <hr>
                 <div class="flex">
                 <div class="text-primary info">Lớp đang chọn: {{ request.args.get('class') }}</div>
@@ -73,11 +73,15 @@
 
                 <br>
                 <div class="container-fluid">
-                    <form id="form-search" action="javascript:document.location.reload()">
+                    <form action="javascript:document.location.reload()">
                         <div class="input-group mb-3">
-                            <input type="text" class="form-control" placeholder="Nhập từ khóa...">
+                            <input type="text" id="search"
+                                   name="search"
+                                   class="form-control"
+                                   placeholder="Nhập từ khóa...">
                             <div class="input-group-append">
-                                <button class="btn btn-success" type="submit">Tìm kiếm</button>
+                                <button class="btn btn-success"
+                                        type="submit">Tìm kiếm</button>
                             </div>
                         </div>
                     </form>
@@ -99,26 +103,26 @@
                           </th>
                         </tr>
                       </thead>
-                      <tbody>
+                      <tbody id="tbody">
                         {% for s in students %}
                         <tr>
                           <td>{{ students.index(s) + 1 }}</td>
-                          <td>{{ s[0].first_name }} {{ s[0].last_name }}</td>
-                          <td>
+                          <td class="student name">{{ s[0].first_name }} {{ s[0].last_name }}</td>
+                          <td class="student sex">
                               {% if s[0].sex == True %}
                               Nam
                               {% else %}
                               Nữ
                               {% endif %}
                           </td>
-                          <td>{{ s[0].bday.year }}</td>
-                          <td>{{ s[0].address }}</td>
-                          <td>
+                          <td class="student birthday">{{ s[0].bday.year }}</td>
+                          <td class="student address">{{ s[0].address }}</td>
+                          <td class="student class__room">
                               <span class="text-primary info">
                               {% if s[1] %}
                               {{ s[1].grade }}{{ s[1].name }}
                               {% else %}
-                              chưa có lớp
+                              trống
                               {% endif %}
                               </span>
                           </td>
@@ -198,67 +202,5 @@ th {
 }
 
 </style>
-
-
-<script>
-    $(function(){
-        l = $("input.select-item").length
-        $('.statusbar').text(l+' items, items selected: 0');
-
-        //button select all or cancel
-        $("#select-all").click(function () {
-            var all = $("input.select-all")[0];
-            all.checked = !all.checked
-            var checked = all.checked;
-            $("input.select-item").each(function (index,item) {
-                item.checked = checked;
-            });
-        });
-
-         //column checkbox select all or cancel
-        $("input.select-all").click(function () {
-            var checked = this.checked;
-            $("input.select-item").each(function (index,item) {
-                item.checked = checked;
-            });
-        });
-
-        //count selected items
-        $(".select-all, .select-item, #select-all").click(function () {
-            var items=[];
-            var count = 0
-            var len = $("input.select-item").length
-            $("input.select-item:checked:checked").each(function (index,item) {
-                items[index] = item.value;
-            });
-            if (items.length < 1) {
-                $('.statusbar').text(len+' items, items selected: '+ count);
-            }else {
-                for(var i = 0; i < items.length; i++){
-                    if (items[i])
-                        count++;
-                }
-                $('.statusbar').text(len+' items, items selected: '+ count);
-            }
-        });
-
-        //check selected items
-        $("input.select-item").click(function () {
-            var checked = this.checked;
-            checkSelected();
-        });
-
-        //check is all selected
-        function checkSelected() {
-            var all = $("input.select-all")[0];
-            var total = $("input.select-item").length;
-            var len = $("input.select-item:checked:checked").length;
-            all.checked = len===total;
-        }
-    });
-
-
-</script>
-
 
 {% endblock %}

@@ -1,6 +1,6 @@
 from stumana import db
 from sqlalchemy import text, func, update, null
-from stumana.models import User, Student, Mark, Subject, XVMark, XXXXVMark, ClassRoom, Course, Teacher
+from stumana.models import User, Student, Mark, Subject, XVMark, XXXXVMark, ClassRoom, Course, Teacher, Staff
 import config
 from sqlalchemy.engine import cursor
 
@@ -14,6 +14,14 @@ def check_login(username, password):
     # password = str(hashlib.md5(password.strip().encode('utf-8')).hexdigest())
     return User.query.filter(User.username.__eq__(username.strip()),
                              User.password.__eq__(password)).first()
+
+
+def change_password(user_id, password):
+    if user_id:
+        db.session.query(User).filter(User.id.__eq__(user_id))\
+            .update({User.password: password if password != '' else null()},
+                    synchronize_session=False)
+    db.session.commit()
 
 
 # Thay doi tuoi quy dinh
@@ -39,7 +47,7 @@ def change_chk_age(min=None, max=None):
         return str(e)
 
 
-# thay doi si so toi da
+# Thay doi si so toi da
 def change_max_size(max=None):
     try:
         if max:
@@ -92,18 +100,29 @@ def average_ignore_none(numbers):
     return avg
 
 
+def count_student():
+    s = db.session.query(func.count(Student.id)).all()
+    return s[0]
+
+
+def count_classroom():
+    c = db.session.query(func.count(ClassRoom.id)).all()
+    return c[0]
+
+
+def count_staff():
+    s = db.session.query(func.count(Staff.id)).all()
+    return s[0]
+
+
+def count_teacher():
+    t = db.session.query(func.count(Teacher.id)).all()
+    return t[0]
+
+
 def get_all_student():
     return db.session.query(Student, ClassRoom)\
             .join(ClassRoom, ClassRoom.id.__eq__(Student.class_id), isouter=True).all()
-
-
-def get_student(keyword):
-    if keyword == '1':
-        s = db.session.query(Student, ClassRoom)\
-            .join(ClassRoom, ClassRoom.id.__eq__(Student.class_id), isouter=True).all()
-    else:
-        s = db.engine.execute("SELECT * FROM student, class_room WHERE class_id is null").fetchall()
-    return s
 
 
 # Cho: lay danh sach hoc sinh theo khoi, ten lop.
@@ -288,6 +307,18 @@ def get_class_id(grade, class_name):
                                               ClassRoom.name.__eq__(class_name)).first()
 
     return c[0]
+
+
+def search_keyword(keyword):
+    if keyword == '':
+        s = db.session.query(Student, ClassRoom)\
+            .join(ClassRoom, ClassRoom.id.__eq__(Student.class_id), isouter=True).all()
+    else:
+        s = db.session.query(Student, ClassRoom)\
+            .join(ClassRoom, ClassRoom.id.__eq__(Student.class_id), isouter=True)\
+            .filter(Student.last_name.like('%%'+keyword+'%')).all()
+
+    return s
 
 
 # chinh sua lop cho hoc sinh

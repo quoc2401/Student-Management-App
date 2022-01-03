@@ -123,6 +123,63 @@ function updateMarks(subject_id, student_id, year) {
 
 }
 
+// input type check all
+$(function(){
+    l = $("input.select-item").length
+    $('.statusbar').text(l+' items, items selected: 0');
+
+        //button select all or cancel
+        $("#select-all").click(function () {
+            var all = $("input.select-all")[0];
+            all.checked = !all.checked
+            var checked = all.checked;
+            $("input.select-item").each(function (index,item) {
+                item.checked = checked;
+            });
+        });
+
+         //column checkbox select all or cancel
+        $("input.select-all").click(function () {
+            var checked = this.checked;
+            $("input.select-item").each(function (index,item) {
+                item.checked = checked;
+            });
+        });
+
+        //count selected items
+        $(".select-all, .select-item, #select-all").click(function () {
+            var items=[];
+            var count = 0
+            var len = $("input.select-item").length
+            $("input.select-item:checked:checked").each(function (index,item) {
+                items[index] = item.value;
+            });
+            if (items.length < 1) {
+                $('.statusbar').text(len+' items, items selected: '+ count);
+            }else {
+                for(var i = 0; i < items.length; i++){
+                    if (items[i])
+                        count++;
+                }
+                $('.statusbar').text(len+' items, items selected: '+ count);
+            }
+        });
+
+        //check selected items
+        $("input.select-item").click(function () {
+            var checked = this.checked;
+            checkSelected();
+        });
+
+        //check is all selected
+        function checkSelected() {
+            var all = $("input.select-all")[0];
+            var total = $("input.select-item").length;
+            var len = $("input.select-item:checked:checked").length;
+            all.checked = len===total;
+        }
+});
+
 
 //button get selected info and add_class
 function addClass(class_id) {
@@ -153,6 +210,7 @@ function addClass(class_id) {
             if(data.status == 200) {
 
                 window.location.reload()
+                alert("Thêm thành công")
             }
             else {
                 a.style.display = "block"
@@ -164,11 +222,9 @@ function addClass(class_id) {
         }).catch(function(err) {
             console.info(err)
         });
-
 }
 
 function loadMarks(course_id) {
-     clear_marks()
      fetch("/api/load-marks", {
         method: 'POST',
         body: JSON.stringify({
@@ -200,8 +256,6 @@ function loadMarks(course_id) {
                 document.getElementById('final_mark_' + marks[i].student_id).innerText = marks[i].final_mark
                 document.getElementById('avg_mark_' + marks[i].student_id).innerText = marks[i].avg_mark
             }
-
-
         }
         else {
            console.info("that bai")
@@ -212,19 +266,46 @@ function loadMarks(course_id) {
     })
 }
 
-function clear_marks() {
-    marks = document.getElementsByClassName('marks')
-    for (let i = 0; i < marks.length; i++) {
-         marks[i].innerText = ''
-    }
-}
+// confirm password
+$(document).ready(function(){
+  var passOne = $("#n-password").val();
+  var passTwo = $("#c-password").val();
 
-$(document).ready(function() {
-    var main_route = (window.location.pathname.split("/")[1]);
-    $('.nav-item').removeClass('active');
-    $('#nav_' + main_route).addClass('active');
-    $(document).on('click', '.nav-item', function (e) {
-        $('.nav-item').removeClass('active');
-        $('#nav_' + main_route).addClass('active');
-    });
-})
+  var checkAndChange = function()
+  {
+    if(passOne.length < 1){
+      if($(".confirm").hasClass("alert-success")){
+        $(".confirm").removeClass("alert-success").addClass("alert-danger");
+        $(".confirm").html("Mật khẩu không giống nhau!");
+      }else{
+        $(".confirm").html("Mật khẩu không giống nhau!");
+      }
+    }
+    else if($(".confirm").hasClass("alert-danger"))
+    {
+      if(passOne == passTwo){
+        $(".confirm").removeClass("alert-danger").addClass("alert-success");
+        $(".confirm").html("Tiếp tục");
+      }
+    }
+    else
+    {
+      if(passOne != passTwo){
+        $(".confirm").removeClass("alert-success").addClass("alert-danger");
+        $(".confirm").html("Mật khẩu không giống nhau!");
+      }
+    }
+  }
+
+  $("input[type=password]").keyup(function(){
+    var newPassOne = $("#n-password").val();
+    var newPassTwo = $("#c-password").val();
+
+    passOne = newPassOne;
+    passTwo = newPassTwo;
+
+    checkAndChange();
+  });
+});
+
+
