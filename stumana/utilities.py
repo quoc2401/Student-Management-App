@@ -214,7 +214,6 @@ def get_stats(semester=None, year=None, subject_name=None):
     classes = get_classes()
     stats = []
     subject_id = db.session.query(Subject.id).filter(Subject.name.__eq__(subject_name)).first()
-    print(subject_id)
     for c in classes:
         total_qualified = total_qualified_by_class(c.id, semester=semester,
                                                    year=year, subject_id=subject_id[0])

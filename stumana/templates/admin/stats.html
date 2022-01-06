@@ -54,12 +54,15 @@
         <br>
 
         <table class="table table-striped table-bordered table-hover table-responsive bg-light overflow-auto">
-          <h4 class="text-center text-danger" style="font-weight:bold">Báo cáo tổng kết môn học</h4>
+
           <thead>
+          <tr>
+              <td colspan="5"><h4 class="text-center text-danger" style="font-weight:bold">Báo cáo tổng kết môn học</h4></td>
+          </tr>
           <tr class="info text-center">
-            <td colspan="2">Môn: {{ request.args.get('subject', 'Toán 10') }}</td>
+            <td colspan="2">Môn: {{ request.args.get('subject', 'Toán') }}</td>
             <td colspan="1">Học kỳ: {{ request.args.get('semester', '1') }}</td>
-            <td colspan="2">Năm học: {{ request.args.get('year', year) }}</td>
+            <td colspan="2">Năm học: {{ request.args.get('year', '2021') }}</td>
           </tr>
             <tr class="text-center">
               <th>STT</th>
@@ -70,6 +73,7 @@
             </tr>
           </thead>
           <tbody>
+            {% if stats %}
             {% for s in stats %}
             <tr>
               <td>{{ stats.index(s) + 1 }}</td>
@@ -79,6 +83,7 @@
               <td>{{ s.ratio }} %</td>
             </tr>
             {% endfor %}
+            {% endif %}
           </tbody>
         </table>
       </div>

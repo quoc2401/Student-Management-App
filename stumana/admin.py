@@ -124,13 +124,15 @@ class StatsView(AdminBaseView):
         subject_name = request.args.get("subject", "Toán")
         semester = request.args.get("semester", "1")
         year = request.args.get("year", 2021)
-        stats = utilities.get_stats(subject_name=subject_name,
-                                    semester=semester,
-                                    year=year)
+        if subject_name and semester and year:
+            stats = utilities.get_stats(subject_name=subject_name,
+                                        semester=semester,
+                                        year=year)
 
-        return self.render("admin/stats.html",
-                           stats=stats,
-                           subjects=utilities.get_subjects())
+            return self.render("admin/stats.html",
+                               stats=stats,
+                               subjects=utilities.get_subjects())
+        return self.render("admin/stats.html", subjects=utilities.get_subjects())
 
 
 class SetUpClass(AdminBaseView):
