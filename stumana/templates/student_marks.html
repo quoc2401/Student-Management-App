@@ -4,20 +4,19 @@
 
 {% block content %}
     <h1 class="text text-center">Chỉnh sửa điểm</h1>
-    <table class="student_marks table table-striped table-hover table-responsive table-bordered">
+    <table class="student_marks table table-striped table-hover table-responsive table-bordered bg-light">
         <thead>
             <tr>
                 <th colspan="3">Học sinh: {{ marks[0].student.name}}</th>
-                <th colspan="3">Lớp: {{ request.args.get('class_name') }}</th>
+                <th colspan="2">Lớp: {{ request.args.get('class_name') }}</th>
                 <th colspan="3">Môn: {{ marks[0].subject.name}}</th>
                 <th colspan="2">Năm: {{ request.args.get('year') }}</th>
             </tr>
-            <tr>
+            <tr class="text-center" style="font-weight:bold;">
                 <td>Học kỳ</td>
                 <td colspan="5">Điểm 15 phút</td>
                 <td colspan="3">Điểm 1 tiết</td>
                 <td>Điểm cuối kỳ</td>
-                <td></td>
             </tr>
         </thead>
         <tbody>
@@ -42,7 +41,6 @@
                 {% else %}
                 <td><input type="number" id="final_mark1" value="" min="0" max="10"></td>
                 {% endif %}
-                <td></td>
             </tr>
             {% if marks[1] %}
             <tr>
@@ -66,7 +64,6 @@
                 {% else %}
                 <td><input type="number" id="final_mark2" value="" min="0" max="10"></td>
                 {% endif %}
-                <td></td>
             </tr>
             {% endif %}
         </tbody>

@@ -21,7 +21,7 @@
                     <i class="fa fa-phone"></i>Liên hệ</a>
             </li>
             <li class="main">
-                <a class="nav-link nav-item active" id="" href="/#lienhe">
+                <a class="nav-link nav-item active" id="" href="#">
                     <i class="fa fa-thumbs-up" aria-hidden="true"></i>Đánh giá</a>
             </li>
         </ul>
@@ -48,12 +48,19 @@
 
             {% if current_user.user_role == UserRole.STAFF %}
             <div class="dropdown-menu dropdown-menu-right">
-                <a class="nav-link nav-item text-info mr-auto" id="###"
+                <a class="nav-link nav-item text-info mr-auto" id="nav_student"
                    href="#">Tiếp nhận học sinh</a>
-                <a class="nav-link nav-item text-info mr-auto" id="#"
+                <a class="nav-link nav-item text-info mr-auto" id="nav_arrange_class"
                    href="{{ url_for('arrange_class') }}">Xếp lớp</a>
-                <a class="nav-link nav-item text-info mr-auto" id="##"
+                <a class="nav-link nav-item text-info mr-auto" id="nav_class_list"
                    href="{{ url_for('setup_class') }}">Lập danh sách lớp</a>
+            </div>
+            {% endif %}
+
+            {% if current_user.user_role == UserRole.STUDENT %}
+            <div class="dropdown-menu dropdown-menu-right">
+                <a class="nav-link nav-item text-info mr-auto" id="nav_marks"
+                   href="#">Xem điểm</a>
             </div>
             {% endif %}
 
@@ -75,8 +82,12 @@
                 {{ current_user.name }}
              </a>
             <div class="dropdown-menu dropdown-menu-right">
-                <a class="nav-link nav-item text-info mr-auto" id="nav_user_info" href="#">Thông tin cá nhân</a>
-                <a class="nav-link nav-item text-info mr-auto" id="nav_change_pw" href="#">Đổi mật khẩu</a>
+                <a class="nav-link nav-item text-info mr-auto"
+                   id="nav_user_info"
+                   href="{{ url_for('user_info') }}">Thông tin cá nhân</a>
+                <a class="nav-link nav-item text-info mr-auto"
+                   id="nav_change_pw"
+                   href="{{ url_for('change_password') }}">Đổi mật khẩu</a>
                 <a class="nav-link nav-item text-info mr-auto" id="nav_user_logout"
                    href="{{ url_for('user_logout') }}">Đăng xuất</a>
                 <div class="dropdown-divider"></div>

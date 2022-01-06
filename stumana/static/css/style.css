@@ -133,8 +133,8 @@ i {
     padding-right: 5px;
 }
 
-table.student_marks tr td:last-child {
-    width: 100%;
+table.student_marks tbody tr td {
+    width: 7%;
 }
 
 table.student_marks th,td {
@@ -235,8 +235,8 @@ div {
 }
 
 .highlight-item:hover .highlight-detail{
-display: block;
-animation: showDetail ease 0.4s;
+    display: block;
+    animation: showDetail ease 0.4s;
 }
 
 img {
@@ -279,6 +279,149 @@ img {
   opacity: 1;
   height: 100%;
   }
+}
+
+/**********************************Trang chu admin***************************************/
+
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600&display=swap');
+
+@media (min-width: 992px) {
+  .col-lg-12 {
+      -ms-flex: 0 0 100%;
+      flex: 0 0 100%;
+      max-width: 100%;
+  }
+}
+
+*, ::after, ::before {
+    box-sizing: border-box;
+}
+
+.row {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    margin-right: -15px;
+    margin-left: -15px;
+}
+
+.col-12 {
+    -ms-flex: 0 0 100%;
+    flex: 0 0 100%;
+    max-width: 100%;
+}
+
+.single_element .quick_activity_wrap {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-gap: 30px;
+    margin-bottom: 30px;
+}
+
+@media (max-width: 575.98px) {
+  .single_element .quick_activity_wrap {
+    grid-template-columns: repeat(1, 1fr);
+    grid-gap: 15px;
+    margin-bottom: 30px;
+  }
+}
+
+@media only screen and (min-width: 576px) and (max-width: 767px) {
+  .single_element .quick_activity_wrap {
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 15px;
+    margin-bottom: 30px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .single_element .quick_activity_wrap {
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 15px;
+    margin-bottom: 30px;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .single_element .quick_activity_wrap {
+    grid-template-columns: repeat(2, 1fr);
+    margin-bottom: 30px;
+  }
+}
+
+@media (min-width: 1200px) and (max-width: 1500px) {
+  .single_element .quick_activity_wrap {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.single_element .single_quick_activity {
+    background-color: #fff;
+    border-radius: 10px;
+    -webkit-transition: 0.5s;
+    transition: 0.5s;
+    padding: 43px 30px;
+    position: relative;
+    align-items: center;
+    justify-content: center;
+}
+
+.single_element .single_quick_activity .icon {
+    width: 100px;
+    height: 100px;
+    flex-basis: 80px;
+    text-align: right;
+}
+
+.d-flex {
+    display: -ms-flexbox!important;
+    display: flex!important;
+}
+
+.single_element .single_quick_activity .count_content {
+    margin-left: 30px;
+    flex-basis: 50%;
+    text-align: left;
+}
+
+.single_element .single_quick_activity h3 {
+  margin-bottom: 0px;
+}
+
+.single_element .single_quick_activity h3 span {
+    font-size: 45px;
+    margin-bottom: 0px;
+    font-weight: 600;
+    -webkit-transition: 0.5s;
+    transition: 0.5s;
+    color: #2E4765;
+    font-family: "Rajdhani", sans-serif;
+    line-height: 1;
+}
+
+.single_element .single_quick_activity p {
+    -webkit-transition: 0.5s;
+    transition: 0.5s;
+    font-size: 19px;
+    font-weight: 500;
+    color: #B2B5C0;
+    font-family: "Rajdhani", sans-serif;
+    line-height: 1;
+}
+
+.single_element .single_quick_activity::before {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    -webkit-transition: 0.5s;
+    transition: 0.5s;
+}
+
+.single_quick_activity {
+    box-shadow: 0px 2px 20px rgb(0 0 0 / 10%);
 }
 /***********************************************/
 
@@ -334,9 +477,11 @@ th.column-header {
     position:fixed;
     bottom:5px;
     right:5px;
-    display:none;
-    border-radius: 5px
+    border-radius: 5px;
+    z-index: 99;
+    display: none;
 }
+
 .scrollToTop:hover{
     text-decoration:none;
 }
