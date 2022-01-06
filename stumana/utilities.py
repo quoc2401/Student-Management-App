@@ -1,7 +1,7 @@
 from stumana import db
 from sqlalchemy import text, func, update, null
 from stumana.models import User, Student, Mark, Subject, XVMark, XXXXVMark, ClassRoom, Course, Teacher
-import config
+from stumana import config
 from sqlalchemy.engine import cursor
 
 
@@ -180,7 +180,10 @@ def get_stats(semester=None, year=None, subject_name=None):
     classes = get_classes()
     stats = []
     subject_id = db.session.query(Subject.id).filter(Subject.name.__eq__(subject_name)).first()
-    print(subject_id)
+
+    if not subject_id:
+        subject_id = 0
+
     for c in classes:
         total_qualified = total_qualified_by_class(c.id, semester=semester,
                                                    year=year, subject_id=subject_id[0])
@@ -398,5 +401,5 @@ def create_all_mark_records(course_id=None):
 
 
 # Tu day tro xuong la de test = console
-# a = get_classes_of_teacher(4)
-# print(a)
+a = total_qualified_by_class(class_id=2, semester=2, year=2021, subject_id=1)
+print(a)

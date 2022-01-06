@@ -1,6 +1,6 @@
 from stumana import login
 from flask import render_template, url_for, jsonify
-from admin import *
+from stumana.admin import *
 from flask_login import login_user, logout_user, login_required
 
 

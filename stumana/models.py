@@ -133,16 +133,16 @@ class Mark(db.Model):
 
 if __name__ == '__main__':
     # db.drop_all()
-
     db.create_all()
 
     # tao Trigger tu dong tinh toan si so lop hoc
     db.engine.execute("drop trigger if exists change_class_size;")
-    db.engine.execute("create trigger change_class_size before update on student for each row begin"
+    db.engine.execute("create trigger change_class_size after update on student for each row begin"
                       " declare old_size int; declare new_size int; set old_size = (select count(s.id)"
-                      " from student s, class_room c where s.class_id = c.id and c.id = old.class_id);"
+                      " from student s, class_room c where s.class_id = c.id and c.id = old.class_id"
+                      " group by old.class_id);"
                       " set new_size = (select count(s.id) from student s, class_room c"
-                      " where s.class_id = c.id and c.id = new.class_id);"
-                      " update class_room set total = new_size + 1 where id = new.class_id;"
-                      " update class_room set total = old_size - 1 where id = old.class_id;"
+                      " where s.class_id = c.id and c.id = new.class_id group by new.class_id);"
+                      " update class_room set total = new_size where id = new.class_id;"
+                      " update class_room set total = old_size where id = old.class_id;"
                       "end;")
