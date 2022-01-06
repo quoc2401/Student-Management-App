@@ -7,16 +7,21 @@
         <h1 class="text text-center">Nhập điểm cho học sinh</h1>
     <table class="student_marks table table-striped table-hover table-responsive table-bordered bg-light">
         <thead>
+            <tr class="info text-center" style="font-size: 20px">
+                <th colspan="13"> Bảng điểm môn học</th>
+            </tr>
             <tr>
-                <th colspan="2">Lớp: {{ course[0] + course[1] }}</th>
-                <th colspan="5">Môn: {{ course[2]}}</th>
-                <th colspan="4">Học kỳ:
+                <th colspan="6">Lớp: {{ course[0] + course[1] }}</th>
+                <th colspan="7">Môn: {{ course[2]}}</th>
+            </tr>
+            <tr>
+                 <th colspan="6">Học kỳ:
                     <select id="semester" name="semester" onchange="loadMarks({{ request.args.get('course_id') }})">
                         <option value="1">1</option>
                         <option value="2">2</option>
                     </select>
                 </th>
-                <th colspan="2" id="year">Năm: {{ course[3] }}</th>
+                <th colspan="7" id="year">Năm: {{ course[3] }}</th>
             </tr>
             <tr class="text-center" style="font-weight:bold;">
                 <td>STT</td>

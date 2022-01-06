@@ -42,9 +42,10 @@ def user_logout():
 
 
 @app.route("/change-password", methods=['GET', 'POST'])
+@login_required
 def change_password():
-    error_msg = ''
-    success_msg = ''
+    error_msg = None
+    success_msg = None
     if request.method.__eq__('POST'):
         try:
             n_password = request.form['n-password']
@@ -103,35 +104,38 @@ def change_rule():
 @app.route("/arrange-class")
 @login_required
 def arrange_class():
-    grade12 = utilities.get_classes_by_grade(grade='12')
-    grade11 = utilities.get_classes_by_grade(grade='11')
-    grade10 = utilities.get_classes_by_grade(grade='10')
-    select_class = request.args.get('class')
-    id_this_class = ''
-    total = ''
-    student_name = request.args.get('student_name')
-    class_name = request.args.get('class_name')
+    if current_user.user_role in (UserRole.STAFF, UserRole.ADMIN):
+        grade12 = utilities.get_classes_by_grade(grade='12')
+        grade11 = utilities.get_classes_by_grade(grade='11')
+        grade10 = utilities.get_classes_by_grade(grade='10')
+        select_class = request.args.get('class')
+        id_this_class = ''
+        total = ''
+        student_name = request.args.get('student_name')
+        class_name = request.args.get('class_name')
 
-    if select_class:
-        this_class = select_class.split('-')
-        id_this_class = utilities.get_class_id(grade=this_class[0], class_name=this_class[1])
-        total = utilities.get_total(grade=this_class[0], class_name=this_class[1])
-    students = utilities.get_all_student()
-    if student_name:
-        students = students.filter((Student.first_name + ' ' + Student.last_name).contains(student_name))
-    if class_name:
-        if class_name == '0':
-            students = students.filter(Student.class_id.is_(None))
-        else:
-            students = students.filter((ClassRoom.grade + ClassRoom.name).contains(class_name))
+        if select_class:
+            this_class = select_class.split('-')
+            id_this_class = utilities.get_class_id(grade=this_class[0], class_name=this_class[1])
+            total = utilities.get_total(grade=this_class[0], class_name=this_class[1])
+        students = utilities.get_all_student()
+        if student_name:
+            students = students.filter((Student.first_name + ' ' + Student.last_name).contains(student_name))
+        if class_name:
+            if class_name == '0':
+                students = students.filter(Student.class_id.is_(None))
+            else:
+                students = students.filter((ClassRoom.grade + ClassRoom.name).contains(class_name))
 
-    return render_template('arrange-class.html',
-                           grade12=grade12,
-                           grade11=grade11,
-                           grade10=grade10,
-                           class_id=id_this_class,
-                           students=students.all(),
-                           total=total)
+        return render_template('arrange-class.html',
+                               grade12=grade12,
+                               grade11=grade11,
+                               grade10=grade10,
+                               class_id=id_this_class,
+                               students=students.all(),
+                               total=total)
+    else:
+        return redirect("/")
 
 
 @app.route("/api/update-class", methods=['POST'])
@@ -287,7 +291,7 @@ def user_load(user_id):
 def common_response():
     return {
         'UserRole': UserRole,
-        'year': 2021
+        'current_year': datetime.now().year
     }
 
 

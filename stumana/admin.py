@@ -16,6 +16,7 @@ class AuthenticatedBaseView(BaseView):
 
 
 class AuthenticatedModelView(ModelView):
+    page_size = 10
     create_modal = True
     edit_modal = True
     column_display_all_relations = True
@@ -54,6 +55,7 @@ class UserView(AuthenticatedModelView):
 
 
 class ClassModalView(AuthenticatedModelView):
+    column_exclude_list = ['course']
     column_labels = {
         'grade': 'Khối',
         'name': 'Tên lớp',
@@ -64,7 +66,7 @@ class ClassModalView(AuthenticatedModelView):
 
 
 class SubjectModelView(AuthenticatedModelView):
-    page_size = 10
+    column_exclude_list = ['course']
     column_searchable_list = ['name']
     column_filters = ['name']
     column_labels = {
@@ -120,7 +122,7 @@ class UserAllocation(AdminBaseView):    # de lam sau
 class StatsView(AdminBaseView):
     @expose('/')
     def __index__(self):
-        subject_name = request.args.get("subject", "Toán")
+        subject_name = request.args.get("subject", "Toán 10")
         semester = request.args.get("semester", "1")
         year = request.args.get("year", 2021)
         stats = utilities.get_stats(subject_name=subject_name,
