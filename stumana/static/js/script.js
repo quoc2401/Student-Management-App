@@ -139,6 +139,105 @@ function updateMarks(subject_id, student_id, year) {
 
 }
 
+// input type check all
+$(function(){
+    l = $("input.select-item").length
+    $('.statusbar').text(l+' items, items selected: 0');
+
+        //button select all or cancel
+        $("#select-all").click(function () {
+            var all = $("input.select-all")[0];
+            all.checked = !all.checked
+            var checked = all.checked;
+            $("input.select-item").each(function (index,item) {
+                item.checked = checked;
+            });
+        });
+
+         //column checkbox select all or cancel
+        $("input.select-all").click(function () {
+            var checked = this.checked;
+            $("input.select-item").each(function (index,item) {
+                item.checked = checked;
+            });
+        });
+
+        //count selected items
+        $(".select-all, .select-item, #select-all").click(function () {
+            var items=[];
+            var count = 0
+            var len = $("input.select-item").length
+            $("input.select-item:checked:checked").each(function (index,item) {
+                items[index] = item.value;
+            });
+            if (items.length < 1) {
+                $('.statusbar').text(len+' items, items selected: '+ count);
+            }else {
+                for(var i = 0; i < items.length; i++){
+                    if (items[i])
+                        count++;
+                }
+                $('.statusbar').text(len+' items, items selected: '+ count);
+            }
+        });
+
+        //check selected items
+        $("input.select-item").click(function () {
+            var checked = this.checked;
+            checkSelected();
+        });
+
+        //check is all selected
+        function checkSelected() {
+            var all = $("input.select-all")[0];
+            var total = $("input.select-item").length;
+            var len = $("input.select-item:checked:checked").length;
+            all.checked = len===total;
+        }
+});
+
+//button get selected info and add_class
+function addClass(class_id) {
+    event.preventDefault()
+    var items=[];
+    $("input.select-item:checked:checked").each(function (index,item) {
+        items[index] = item.value;
+    });
+
+    if (items.length < 1)
+        alert('Chưa có học sinh nào được chọn!')
+    else
+        fetch("/api/update-class", {
+            method: 'POST',
+            body: JSON.stringify({
+                'student_id': items,
+                'class_id': class_id
+            }),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then(function(res) {
+            console.info(res)
+            return res.json()
+        }).then(function(data) {
+            a = document.getElementById('alert')
+
+            if(data.status == 200) {
+
+                window.location.reload()
+                alert("Thêm thành công")
+            }
+            else {
+                a.style.display = "block"
+                a.className = "alert alert-danger"
+                a.innerText = "Thêm thất bại"
+            }
+
+            $(a).fadeOut(5000)
+        }).catch(function(err) {
+            console.info(err)
+        });
+}
 
 function loadMarks(course_id) {
      fetch("/api/load-marks", {
@@ -182,59 +281,53 @@ function loadMarks(course_id) {
     })
 }
 
+// confirm password
+$(document).ready(function() {
+  var passOne = $("#n-password").val();
+  var passTwo = $("#c-password").val();
+
+  var checkAndChange = function()
+  {
+    if(passOne.length < 1)
+      if($(".confirm").hasClass("alert-success")){
+        $(".confirm").removeClass("alert-success").addClass("alert-danger");
+        $(".confirm").html("Mật khẩu không giống nhau!");
+      }else{
+        $(".confirm").html("Mật khẩu không giống nhau!");
+      }
+    else if($(".confirm").hasClass("alert-danger"))
+    {
+      if(passOne == passTwo) {
+        $(".confirm").removeClass("alert-danger").addClass("alert-success");
+        $(".confirm").html("Tiếp tục");
+      }
+    }
+    else
+    {
+      if(passOne != passTwo){
+        $(".confirm").removeClass("alert-success").addClass("alert-danger");
+        $(".confirm").html("Mật khẩu không giống nhau!");
+      }
+    }
+  }
+
+  $("input[type=password]").keyup(function(){
+    var newPassOne = $("#n-password").val();
+    var newPassTwo = $("#c-password").val();
+
+    passOne = newPassOne;
+    passTwo = newPassTwo;
+
+    checkAndChange();
+  });
+});
+
+
 function classSearch() {
     var keyword = $("#keyword").val()
     if (keyword != undefined && keyword != null) {
         window.location = '/students-marks?keyword=' + keyword;
     }
-}
-
-//button get selected info and add_class
-function addClass(class_id) {
-    event.preventDefault()
-    var a = ''
-    if ($("div #class_id").text().split(":")[1] != undefined)
-        a = "Xác nhận thêm các học sinh đã chọn vào lớp" + $("div #class_id").text().split(":")[1]
-    else
-        a = "Xác nhận xóa các học sinh ra khỏi lớp"
-    if (confirm(a) == true) {
-        var items=[];
-        $("input.select-item:checked:checked").each(function (index,item) {
-            items[index] = item.value;
-        });
-        if (items.length < 1)
-            alert('Chưa có học sinh nào được chọn!')
-        else
-            fetch("/api/update-class", {
-                method: 'POST',
-                body: JSON.stringify({
-                    'student_id': items,
-                    'class_id': class_id
-                }),
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            }).then(function(res) {
-                console.info(res)
-                return res.json()
-            }).then(function(data) {
-                a = document.getElementById('alert')
-
-                if(data.status == 200) {
-
-                    window.location.reload()
-                }
-                else {
-                    a.style.display = "block"
-                    a.className = "overlay-alert overlay-alert-danger"
-                    a.innerText = "Thêm thất bại"
-                }
-
-                $(a).fadeOut(5000)
-            }).catch(function(err) {
-                console.info(err)
-            })
-        }
 }
 
 /******************** Filter  ***********************/
@@ -292,7 +385,7 @@ function removeFilter() {
     window.location.search = keep
     }
     else
-    window.location.search = ''
+        window.location.search = ''
 }
 
 /**************** Back to top *******************/
@@ -301,7 +394,7 @@ $(document).ready(function(){
     //Check to see if the window is top if not then display button
     $(window).scroll(function(){
         if ($(this).scrollTop() > 100) {
-            $('.scrollToTop').fadeIn();
+            $('.scrollToTop').fadeIn(0);
         } else {
             $('.scrollToTop').fadeOut();
         }

@@ -43,12 +43,6 @@ class AuthenticatedModelView(ModelView):
         return current_user.is_authenticated and current_user.user_role == UserRole.ADMIN
 
 
-class StaffBaseView(AuthenticatedBaseView):
-    def is_accessible(self):
-        if current_user.is_authenticated:
-            return current_user.user_role == UserRole.STAFF or current_user.user_role == UserRole.ADMIN
-
-
 class AdminBaseView(AuthenticatedBaseView):
     def is_accessible(self):
         if current_user.is_authenticated:
@@ -82,7 +76,16 @@ class SubjectModelView(AuthenticatedModelView):
 class MyAdminIndexView(AdminIndexView):
     @expose("/")
     def index(self):
-        return self.render("admin/index.html")
+        count_student = utilities.count_student()
+        count_classroom = utilities.count_classroom()
+        count_staff = utilities.count_staff()
+        count_teacher = utilities.count_teacher()
+
+        return self.render("admin/index.html",
+                           count_student=count_student,
+                           count_classroom=count_classroom,
+                           count_staff=count_staff,
+                           count_teacher=count_teacher)
 
 
 class ChangeRule(AdminBaseView):
@@ -108,10 +111,16 @@ class UserAllocation(AdminBaseView):    # de lam sau
             return current_user.user_role == UserRole.ADMIN
 
 
-class StatsView(StaffBaseView):
+# class Student(ModalModelView):
+#     def is_accessible(self):
+#         if current_user.is_authenticated:
+#             return current_user.user_role == UserRole.STAFF
+
+
+class StatsView(AdminBaseView):
     @expose('/')
     def __index__(self):
-        subject_name = request.args.get("subject", "Toán 10")
+        subject_name = request.args.get("subject", "Toán")
         semester = request.args.get("semester", "1")
         year = request.args.get("year", 2021)
         stats = utilities.get_stats(subject_name=subject_name,
@@ -123,13 +132,13 @@ class StatsView(StaffBaseView):
                            subjects=utilities.get_subjects())
 
 
-class SetUpClass(StaffBaseView):
+class SetUpClass(AdminBaseView):
     @expose('/')
     def __index__(self):
         return redirect("/setup-class")
 
 
-class ArrangeClass(StaffBaseView):
+class ArrangeClass(AdminBaseView):
     @expose('/')
     def __index__(self):
         return redirect("/arrange-class")
