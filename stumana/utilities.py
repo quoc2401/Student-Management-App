@@ -1,7 +1,7 @@
 from stumana import db
 from sqlalchemy import text, func, update, null
-from stumana.models import User, Student, Mark, Subject, XVMark, XXXXVMark, ClassRoom, Course, Teacher, Staff
-import config
+from stumana import config
+from stumana.models import User, Student, Mark, Subject, Mark15, Mark45, ClassRoom, Course, Teacher, Staff
 from sqlalchemy.engine import cursor
 
 
@@ -70,11 +70,11 @@ def change_max_size(max=None):
 
 # Cho: lay bang diem cua cac hoc sinh trong 1 lop theo hoc ky, nam, mon
 def get_students_mark(class_id=None, semester=None, year=None, subject_id=None):
-    marks = db.session.query(Subject, Student, Mark.semester, Mark.year, XVMark, XXXXVMark, Mark.FinalMark, Mark.avg)\
+    marks = db.session.query(Subject, Student, Mark.semester, Mark.year, Mark15, Mark45, Mark.FinalMark, Mark.avg)\
                                 .join(Mark, Mark.subject_id.__eq__(Subject.id))\
                                 .join(Student, Student.id.__eq__(Mark.student_id))\
-                                .join(XVMark, XVMark.id.__eq__(Mark.XV_mark_id), isouter=True)\
-                                .join(XXXXVMark, XXXXVMark.id.__eq__(Mark.XXXXV_mark_id), isouter=True)
+                                .join(Mark15, Mark15.id.__eq__(Mark.mark15_id), isouter=True)\
+                                .join(Mark45, Mark45.id.__eq__(Mark.mark45_id), isouter=True)
 
     if class_id:
         marks = marks.filter(Student.class_id.__eq__(class_id))
@@ -160,12 +160,12 @@ def cal_avg_mark(subject_id, semester, year):
     marks = get_students_mark(subject_id=subject_id, semester=semester, year=year)
 
     for s in marks:
-        if s.XVMark:
-            mark15 = average_ignore_none([s.XVMark.col1, s.XVMark.col2, s.XVMark.col3, s.XVMark.col4, s.XVMark.col5])
+        if s.Mark15:
+            mark15 = average_ignore_none([s.Mark15.col1, s.Mark15.col2, s.Mark15.col3, s.Mark15.col4, s.Mark15.col5])
         else:
             mark15 = 0
-        if s.XXXXVMark:
-            mark45 = average_ignore_none([s.XXXXVMark.col1, s.XXXXVMark.col2, s.XXXXVMark.col3])
+        if s.Mark45:
+            mark45 = average_ignore_none([s.Mark45.col1, s.Mark45.col2, s.Mark45.col3])
         else:
             mark45 = 0
         if s.FinalMark:
@@ -214,10 +214,10 @@ def get_stats(semester=None, year=None, subject_name=None):
     classes = get_classes()
     stats = []
     subject_id = db.session.query(Subject.id).filter(Subject.name.__eq__(subject_name)).first()
-    print(subject_id)
+
     for c in classes:
         total_qualified = total_qualified_by_class(c.id, semester=semester,
-                                                   year=year, subject_id=subject_id[0])
+                                                   year=year, subject_id=(subject_id[0] if subject_id else 0))
         total = c.total if c.total else 0
         stats.append({
             'class_id': c.id,
@@ -270,8 +270,8 @@ def get_mark_by_course_id(course_id, semester=None):
     for s in students:
         marks.append({
             'student_name': s.Student.first_name + " " + s.Student.last_name,
-            'mark15': [s.XVMark.col1, s.XVMark.col2, s.XVMark.col3, s.XVMark.col4, s.XVMark.col5],
-            'mark45': [s.XXXXVMark.col1, s.XXXXVMark.col2, s.XXXXVMark.col3],
+            'mark15': [s.Mark15.col1, s.Mark15.col2, s.Mark15.col3, s.Mark15.col4, s.Mark15.col5],
+            'mark45': [s.Mark45.col1, s.Mark45.col2, s.Mark45.col3],
             'final_mark': s.FinalMark,
             'avg_mark': s.avg,
             'student_id': s.Student.id,
@@ -285,11 +285,11 @@ def get_mark_by_course_id(course_id, semester=None):
 def get_marks_of_student(subject_id, student_id, year, semester=None):
     cal_avg_mark(subject_id=subject_id, semester=semester, year=year)
     records = db.session.query(Subject, Student,
-                               Mark.semester, XVMark, XXXXVMark, Mark.FinalMark)\
+                               Mark.semester, Mark15, Mark45, Mark.FinalMark)\
                                .join(Subject, Subject.id.__eq__(Mark.subject_id))\
                                .join(Student, Student.id.__eq__(Mark.student_id))\
-                               .join(XVMark, XVMark.id.__eq__(Mark.XV_mark_id), isouter=True)\
-                               .join(XXXXVMark, XXXXVMark.id.__eq__(Mark.XXXXV_mark_id), isouter=True)\
+                               .join(Mark15, Mark15.id.__eq__(Mark.mark15_id), isouter=True)\
+                               .join(Mark45, Mark45.id.__eq__(Mark.mark45_id), isouter=True)\
                                .filter(Mark.subject_id.__eq__(subject_id),
                                        Mark.year.__eq__(year),
                                        Mark.student_id.__eq__(student_id))
@@ -309,8 +309,8 @@ def get_marks_of_student(subject_id, student_id, year, semester=None):
                 'name': r.Student.first_name + " " + r.Student.last_name,
             },
             'semester': r.semester,
-            'mark15': [r.XVMark.col1, r.XVMark.col2, r.XVMark.col3, r.XVMark.col4, r.XVMark.col5],
-            'mark45': [r.XXXXVMark.col1, r.XXXXVMark.col2, r.XXXXVMark.col3],
+            'mark15': [r.Mark15.col1, r.Mark15.col2, r.Mark15.col3, r.Mark15.col4, r.Mark15.col5],
+            'mark45': [r.Mark45.col1, r.Mark45.col2, r.Mark45.col3],
             'final_mark': r.FinalMark,
         })
 
@@ -349,30 +349,30 @@ def update_classes(student_id, class_id):
 
 # Cho: chinh sua diem cho 1 hoc sinh.
 def update_marks(subject_id, student_id, year, mark15=None, mark45=None, final_mark=None):
-    record = db.session.query(Mark.XV_mark_id, Mark.XXXXV_mark_id)\
+    record = db.session.query(Mark.mark15_id, Mark.mark45_id)\
                 .filter(Mark.subject_id.__eq__(subject_id),
                         Mark.student_id.__eq__(student_id),
-                        Mark.year.__eq__(year))     #Query lay ra 2 khoa ngoai xvmark, xxxxvmark
+                        Mark.year.__eq__(year))     #Query lay ra 2 khoa ngoai mark15, mark45
     final_marks = db.session.query(Mark).filter(Mark.subject_id.__eq__(subject_id),
                                                 Mark.student_id.__eq__(student_id),
                                                 Mark.year.__eq__(year))   #Query lay ra diem de cap nhat
 
     if mark15['1'] or mark45['1'] or final_mark['1']:
-        record_put = record.filter(Mark.semester.__eq__(1)).first()     # xvmark_id, xxxxvmark_id cua hoc ky 1
-        # Lay ra 2 id cua xvmark voi xxxxvmark trong Mark vi tri [0] la id cua xvmark, [1] la id cua xxxxvmark
+        record_put = record.filter(Mark.semester.__eq__(1)).first()     # mark15_id, mark45_id cua hoc ky 1
+        # Lay ra 2 id cua mark15 voi mark45 trong Mark vi tri [0] la id cua mark15, [1] la id cua mark45
 
-        db.session.query(XVMark).filter(XVMark.id.__eq__(record_put[0]))\
-            .update({XVMark.col1: mark15['1'][0] if mark15['1'][0] != '' else null(),
-                     XVMark.col2: mark15['1'][1] if mark15['1'][1] != '' else null(),
-                     XVMark.col3: mark15['1'][2] if mark15['1'][2] != '' else null(),
-                     XVMark.col4: mark15['1'][3] if mark15['1'][3] != '' else null(),
-                     XVMark.col5: mark15['1'][4] if mark15['1'][4] != '' else null()},
+        db.session.query(Mark15).filter(Mark15.id.__eq__(record_put[0]))\
+            .update({Mark15.col1: mark15['1'][0] if mark15['1'][0] != '' else null(),
+                     Mark15.col2: mark15['1'][1] if mark15['1'][1] != '' else null(),
+                     Mark15.col3: mark15['1'][2] if mark15['1'][2] != '' else null(),
+                     Mark15.col4: mark15['1'][3] if mark15['1'][3] != '' else null(),
+                     Mark15.col5: mark15['1'][4] if mark15['1'][4] != '' else null()},
                     synchronize_session=False)  #Neu khong nhap diem thi diem = null
 
-        db.session.query(XXXXVMark).filter(XXXXVMark.id.__eq__(record_put[1])) \
-            .update({XXXXVMark.col1: mark45['1'][0] if mark45['1'][0] != '' else null(),
-                     XXXXVMark.col2: mark45['1'][1] if mark45['1'][1] != '' else null(),
-                     XXXXVMark.col3: mark45['1'][2] if mark45['1'][2] != '' else null()},
+        db.session.query(Mark45).filter(Mark45.id.__eq__(record_put[1])) \
+            .update({Mark45.col1: mark45['1'][0] if mark45['1'][0] != '' else null(),
+                     Mark45.col2: mark45['1'][1] if mark45['1'][1] != '' else null(),
+                     Mark45.col3: mark45['1'][2] if mark45['1'][2] != '' else null()},
                     synchronize_session=False)  #Neu khong nhap diem thi diem = null
 
         final_marks.filter(Mark.semester.__eq__(1))\
@@ -380,21 +380,21 @@ def update_marks(subject_id, student_id, year, mark15=None, mark45=None, final_m
                     synchronize_session=False)  #Neu khong nhap diem thi diem = null
 
     if mark15['2'] or mark45['2'] or final_mark['2']:
-        record_put = record.filter(Mark.semester.__eq__(2)).first() # xvmark_id, xxxxvmark_id cua hoc ky 2
-        # Lay ra 2 id cua xvmark voi xxxxvmark trong Mark vi tri [0] la id cua xvmark, [1] la id cua xxxxvmark
+        record_put = record.filter(Mark.semester.__eq__(2)).first() # mark15_id, mark45_id cua hoc ky 2
+        # Lay ra 2 id cua mark15 voi mark45 trong Mark vi tri [0] la id cua mark15, [1] la id cua mark45
 
-        db.session.query(XVMark).filter(XVMark.id.__eq__(record_put[0])) \
-            .update({XVMark.col1: mark15['2'][0] if mark15['2'][0] != '' else null(),
-                     XVMark.col2: mark15['2'][1] if mark15['2'][1] != '' else null(),
-                     XVMark.col3: mark15['2'][2] if mark15['2'][2] != '' else null(),
-                     XVMark.col4: mark15['2'][3] if mark15['2'][3] != '' else null(),
-                     XVMark.col5: mark15['2'][4] if mark15['2'][4] != '' else null()},
+        db.session.query(Mark15).filter(Mark15.id.__eq__(record_put[0])) \
+            .update({Mark15.col1: mark15['2'][0] if mark15['2'][0] != '' else null(),
+                     Mark15.col2: mark15['2'][1] if mark15['2'][1] != '' else null(),
+                     Mark15.col3: mark15['2'][2] if mark15['2'][2] != '' else null(),
+                     Mark15.col4: mark15['2'][3] if mark15['2'][3] != '' else null(),
+                     Mark15.col5: mark15['2'][4] if mark15['2'][4] != '' else null()},
                     synchronize_session=False)  #Neu khong nhap diem thi diem = null
 
-        db.session.query(XXXXVMark).filter(XXXXVMark.id.__eq__(record_put[1])) \
-            .update({XXXXVMark.col1: mark45['2'][0] if mark45['2'][0] != '' else null(),
-                     XXXXVMark.col2: mark45['2'][1] if mark45['2'][1] != '' else null(),
-                     XXXXVMark.col3: mark45['2'][2] if mark45['2'][2] != '' else null()},
+        db.session.query(Mark45).filter(Mark45.id.__eq__(record_put[1])) \
+            .update({Mark45.col1: mark45['2'][0] if mark45['2'][0] != '' else null(),
+                     Mark45.col2: mark45['2'][1] if mark45['2'][1] != '' else null(),
+                     Mark45.col3: mark45['2'][2] if mark45['2'][2] != '' else null()},
                     synchronize_session=False)  #Neu khong nhap diem thi diem = null
 
         final_marks.filter(Mark.semester.__eq__(2)) \
@@ -414,10 +414,10 @@ def create_all_mark_records(course_id=None):
                                         Student.id.not_in(students_already_have))
 
     for s in students_have_no_record:
-        mark15_1 = XVMark()
-        mark15_2 = XVMark()
-        mark45_1 = XXXXVMark()
-        mark45_2 = XXXXVMark()
+        mark15_1 = Mark15()
+        mark15_2 = Mark15()
+        mark45_1 = Mark45()
+        mark45_2 = Mark45()
 
         db.session.add(mark15_1)
         db.session.add(mark15_2)
@@ -428,21 +428,21 @@ def create_all_mark_records(course_id=None):
                      student_id=s[0],
                      semester=1,
                      year=course.year,
-                     xvmark=mark15_1,
-                     xxxxvmark=mark45_1)
+                     mark15=mark15_1,
+                     mark45=mark45_1)
         db.session.add(mark1)
 
         mark2 = Mark(subject_id=course.subject_id,
                      student_id=s[0],
                      semester=2,
                      year=course.year,
-                     xvmark=mark15_2,
-                     xxxxvmark=mark45_2)
+                     mark15=mark15_2,
+                     mark45=mark45_2)
         db.session.add(mark2)
 
     db.session.commit()
 
 
 # Tu day tro xuong la de test = console
-# a = get_classes_of_teacher(4)
+# a = total_qualified_by_class(class_id=2, semester=2, year=2021, subject_id=1)
 # print(a)

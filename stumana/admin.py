@@ -1,13 +1,12 @@
 from flask_admin.babel import gettext
 from flask_admin.form import FormOpts
-
 from stumana import app, db, utilities
 from flask_admin.contrib.sqla import ModelView
-from stumana.models import User, Student, ClassRoom, Subject, Teacher, Staff, UserRole
+from stumana.models import User, Student, ClassRoom, Subject, Teacher, Staff, UserRole, Course
 from flask_admin import Admin, AdminIndexView, expose, BaseView
 from flask_login import current_user, logout_user
-from flask import redirect, request, render_template, flash
-import config
+from flask import redirect, request
+from stumana import config
 from datetime import datetime
 
 
@@ -17,6 +16,7 @@ class AuthenticatedBaseView(BaseView):
 
 
 class AuthenticatedModelView(ModelView):
+    page_size = 10
     create_modal = True
     edit_modal = True
     column_display_all_relations = True
@@ -55,6 +55,7 @@ class UserView(AuthenticatedModelView):
 
 
 class ClassModalView(AuthenticatedModelView):
+    column_exclude_list = ['course']
     column_labels = {
         'grade': 'Khối',
         'name': 'Tên lớp',
@@ -65,7 +66,7 @@ class ClassModalView(AuthenticatedModelView):
 
 
 class SubjectModelView(AuthenticatedModelView):
-    page_size = 10
+    column_exclude_list = ['course']
     column_searchable_list = ['name']
     column_filters = ['name']
     column_labels = {
@@ -121,7 +122,7 @@ class UserAllocation(AdminBaseView):    # de lam sau
 class StatsView(AdminBaseView):
     @expose('/')
     def __index__(self):
-        subject_name = request.args.get("subject", "Toán")
+        subject_name = request.args.get("subject", "Toán 10")
         semester = request.args.get("semester", "1")
         year = request.args.get("year", 2021)
         stats = utilities.get_stats(subject_name=subject_name,
@@ -200,6 +201,13 @@ admin.add_view(SetUpClass(name="Lập danh sách lớp",
                           menu_icon_type='fa',
                           menu_icon_value='fa-reorder',
                           category="Lớp học"))
+
+admin.add_view(AuthenticatedModelView(Course, db.session,
+                                      name='Quản lý khóa học',
+                                      menu_icon_type='fa',
+                                      menu_icon_value='fa-book',
+                                      category="Lớp học"))
+
 # Admin
 admin.add_view(SubjectModelView(Subject, db.session,
                                 name='Môn học',

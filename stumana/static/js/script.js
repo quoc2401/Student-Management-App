@@ -225,11 +225,14 @@ function addClass(class_id) {
             if(data.status == 200) {
 
                 window.location.reload()
-                alert("Thêm thành công")
+                if ($("div #class_id").text().split(":")[1] != undefined)
+                    alert("Thêm thành công")
+                else
+                    alert("Xóa thành công")
             }
             else {
                 a.style.display = "block"
-                a.className = "alert alert-danger"
+                a.className = "overlay-alert overlay-alert-danger"
                 a.innerText = "Thêm thất bại"
             }
 
@@ -386,6 +389,12 @@ function removeFilter() {
     }
     else
         window.location.search = ''
+}
+
+function display0Class() {
+    $("#context option[value='class_name']").prop('selected', true)
+    $("#keyword").val(0)
+    $("#search").click()
 }
 
 /**************** Back to top *******************/
