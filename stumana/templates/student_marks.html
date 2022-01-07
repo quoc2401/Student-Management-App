@@ -6,6 +6,9 @@
     <h1 class="text text-center">Chỉnh sửa điểm</h1>
     <table class="student_marks table table-striped table-hover table-responsive table-bordered bg-light">
         <thead>
+            <tr class="info text-center" style="font-size: 20px">
+                <th colspan="10">Bảng điểm học sinh</th>
+            </tr>
             <tr>
                 <th colspan="3">Học sinh: {{ marks[0].student.name}}</th>
                 <th colspan="2">Lớp: {{ request.args.get('class_name') }}</th>

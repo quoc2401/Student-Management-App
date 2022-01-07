@@ -59,7 +59,7 @@ class ClassRoom(BaseModel):
     #                         backref=backref('classroom', lazy=True))
 
     def __str__(self):
-        return self.name
+        return self.grade + self.name
 
 
 class Student(Person):
@@ -96,27 +96,30 @@ class Subject(BaseModel):
 # Lop hoc theo bo mon
 class Course(BaseModel):
     teacher_id = Column(Integer, ForeignKey(Teacher.id), nullable=False)
+    teacher = relationship(Teacher, backref="course", lazy=True)
     class_id = Column(Integer, ForeignKey(ClassRoom.id), nullable=False)
+    class_room = relationship(ClassRoom, backref="course", lazy=True)
     subject_id = Column(Integer, ForeignKey(Subject.id), nullable=False)
+    subject = relationship(Subject, backref="course", lazy=True)
     year = Column(Integer, default=datetime.now().year)
 
 
 # diem 15p
-class XVMark(BaseModel):
+class Mark15(BaseModel):
     col1 = Column(Float)
     col2 = Column(Float)
     col3 = Column(Float)
     col4 = Column(Float)
     col5 = Column(Float)
-    mark = relationship('Mark', backref='xvmark', lazy=True)
+    mark = relationship('Mark', backref='mark15', lazy=True)
 
 
 # diem 45p
-class XXXXVMark(BaseModel):
+class Mark45(BaseModel):
     col1 = Column(Float)
     col2 = Column(Float)
     col3 = Column(Float)
-    mark = relationship('Mark', backref='xxxxvmark', lazy=True)
+    mark = relationship('Mark', backref='mark45', lazy=True)
 
 
 # bang diem cua 1 hoc sinh trong mot hoc ky cua 1 nam
@@ -125,24 +128,24 @@ class Mark(db.Model):
     student_id = Column(Integer, ForeignKey(Student.id), primary_key=True, nullable=False)
     semester = Column(Integer, primary_key=True)
     year = Column(Integer, primary_key=True)
-    XV_mark_id = Column(Integer, ForeignKey(XVMark.id), unique=True)
-    XXXXV_mark_id = Column(Integer, ForeignKey(XXXXVMark.id), unique=True)
+    mark15_id = Column(Integer, ForeignKey(Mark15.id), unique=True)
+    mark45_id = Column(Integer, ForeignKey(Mark45.id), unique=True)
     FinalMark = Column(Float)
     avg = Column(Float)
 
 
 if __name__ == '__main__':
     # db.drop_all()
-
     db.create_all()
 
     # tao Trigger tu dong tinh toan si so lop hoc
     db.engine.execute("drop trigger if exists change_class_size;")
-    db.engine.execute("create trigger change_class_size before update on student for each row begin"
+    db.engine.execute("create trigger change_class_size after update on student for each row begin"
                       " declare old_size int; declare new_size int; set old_size = (select count(s.id)"
-                      " from student s, class_room c where s.class_id = c.id and c.id = old.class_id);"
+                      " from student s, class_room c where s.class_id = c.id and c.id = old.class_id"
+                      " group by old.class_id);"
                       " set new_size = (select count(s.id) from student s, class_room c"
-                      " where s.class_id = c.id and c.id = new.class_id);"
-                      " update class_room set total = new_size + 1 where id = new.class_id;"
-                      " update class_room set total = old_size - 1 where id = old.class_id;"
+                      " where s.class_id = c.id and c.id = new.class_id group by new.class_id);"
+                      " update class_room set total = new_size where id = new.class_id;"
+                      " update class_room set total = old_size where id = old.class_id;"
                       "end;")

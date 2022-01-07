@@ -71,8 +71,9 @@
                 <h2 class="text-center text-info">DANH SÁCH HỌC SINH</h2>
                 <hr>
                 {% if request.args.get('class') %}
-                <div class="flex">
-                        <div id="class_id" class="text-primary info">Lớp đang chọn: {{ request.args.get('class') }}</div>
+                <div class="flex h3">
+                        <div id="class_id" class="text-primary info" >
+                            Lớp đang chọn: {{ request.args.get('class') }}</div>
                         <div class="text-primary info">Sỉ số:
                         {% if total[0] %}
                         {{ total[0] }}
@@ -106,6 +107,10 @@
                                 <button class="btn btn-success"
                                         id="search"
                                         onclick="studentFilter()">Tìm kiếm</button>
+                            </div>
+                            <div class="input-group-append">
+                                <button class="btn btn-success"
+                                        onclick="display0Class()">Hiển thị học sinh chưa có lớp</button>
                             </div>
                         </div>
 
@@ -163,17 +168,16 @@
                     <div class="statusbar flex justify-content-end"></div>
                     <br>
                     <div id="alert" style="display:none" ></div>
-                    <div class="flex justify-content-end">
-                    <button id="select-all" class="btn btn-info">Chọn tất cả/Hủy tất cả</button>
-                    {% if class_id %}
-                    <button class="btn btn-info" type="submit"
-                            onclick="addClass({{ class_id }})">Thêm vào lớp</button>
-                    </div>
-                    {% else %}
-                    <button class="btn btn-info" type="submit"
-                        onclick="addClass({{ class_id }})">Xóa khỏi lớp hiện tại</button>
-                    </div>
-                    {% endif %}
+                        <div class="d-flex justify-content-end">
+                        <button id="select-all" class="btn btn-info">Chọn tất cả/Hủy tất cả</button>
+                        {% if class_id %}
+                        <button class="btn btn-info" type="submit"
+                                onclick="addClass({{ class_id }})">Thêm vào lớp</button>
+                        </div>
+                        {% else %}
+                        <button class="btn btn-info" type="submit"
+                            onclick="addClass({{ class_id }})">Xóa khỏi lớp hiện tại</button>
+                        {% endif %}
                 </div>
                 <div id="test"></div>
                 {% endblock %}
