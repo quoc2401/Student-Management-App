@@ -68,6 +68,7 @@ def change_password():
 @login_required
 def user_info():
     if current_user.is_authenticated:
+        print(current_user.teacher)
         if current_user.user_role == UserRole.STUDENT:
             student = utilities.get_info_student(user_id=current_user.id)
             return render_template('user-info.html',
@@ -157,76 +158,82 @@ def update_class():
 @app.route("/setup-class")
 @login_required
 def setup_class():
-    err_msg = ''
-    total = ''
-    grade12 = utilities.get_classes_by_grade(grade='12')
-    grade11 = utilities.get_classes_by_grade(grade='11')
-    grade10 = utilities.get_classes_by_grade(grade='10')
-    select_class = request.args.get('class')
+    if current_user.user_role in (UserRole.STAFF, UserRole.ADMIN):
+        err_msg = ''
+        total = ''
+        grade12 = utilities.get_classes_by_grade(grade='12')
+        grade11 = utilities.get_classes_by_grade(grade='11')
+        grade10 = utilities.get_classes_by_grade(grade='10')
+        select_class = request.args.get('class')
 
-    if select_class:
-        select_grade = select_class.split('-')
-        select_class_name = select_class.split('-')
-        students = utilities.get_student_by_class(grade=select_grade[0],
-                                                  class_name=select_class_name[1])
-        total = utilities.get_total(grade=select_grade[0],
-                                    class_name=select_class_name[1])
-        if students:
-            return render_template('set-up.html',
-                                   grade12=grade12,
-                                   grade11=grade11,
-                                   grade10=grade10,
-                                   students=students,
-                                   total=total)
-        else:
-            err_msg = 'Không có học sinh nào !!!'
+        if select_class:
+            select_grade = select_class.split('-')
+            select_class_name = select_class.split('-')
+            students = utilities.get_student_by_class(grade=select_grade[0],
+                                                      class_name=select_class_name[1])
+            total = utilities.get_total(grade=select_grade[0],
+                                        class_name=select_class_name[1])
+            if students:
+                return render_template('set-up.html',
+                                       grade12=grade12,
+                                       grade11=grade11,
+                                       grade10=grade10,
+                                       students=students,
+                                       total=total)
+            else:
+                err_msg = 'Không có học sinh nào !!!'
 
-    return render_template('set-up.html',
-                           grade12=grade12,
-                           grade11=grade11,
-                           grade10=grade10,
-                           total=total,
-                           err_msg=err_msg)
+        return render_template('set-up.html',
+                               grade12=grade12,
+                               grade11=grade11,
+                               grade10=grade10,
+                               total=total,
+                               err_msg=err_msg)
+    else:
+        return redirect("/")
 
 
 @app.route("/students-marks")
 @login_required
 def students_marks():
-    if current_user.user_role == UserRole.TEACHER:
-        classes = utilities.get_classes_of_teacher(current_user.id)
-        course_id = request.args.get('course_id')
-        keyword = request.args.get('keyword')
-        if keyword:
-            filtered_classes = []
-            for c in classes:
-                for i in c:
-                    if keyword.lower() in str(i).lower():
-                        if c not in filtered_classes:
-                            filtered_classes.append(c)
-            return render_template("students-marks.html", classes=filtered_classes)
+    course_id = request.args.get('course_id')
+    keyword = request.args.get('keyword')
+    classes = utilities.get_classes_of_teacher(current_user.id)
 
-        if course_id:
-            course = utilities.get_course_info(course_id)
-            utilities.create_all_mark_records(course_id=course_id) # Tao bang diem khi vao nhap diem
-            marks = utilities.get_mark_by_course_id(course_id=course_id)
+    if course_id:
+        if utilities.check_teacher_access(user_id=current_user.id, course_id=course_id):
+            if keyword:
+                filtered_classes = []
+                for c in classes:
+                    for i in c:
+                        if keyword.lower() in str(i).lower():
+                            if c not in filtered_classes:
+                                filtered_classes.append(c)
+                return render_template("students-marks.html", classes=filtered_classes)
 
-            return render_template("students-marks.html",
-                                   marks=marks,
-                                   course=course,
-                                   classes=classes)
-        return render_template("students-marks.html", classes=classes)
+            if course_id:
+                course = utilities.get_course_info(course_id)
+                utilities.create_all_mark_records(course_id=course_id) # Tao bang diem khi vao nhap diem
+                marks = utilities.get_mark_by_course_id(course_id=course_id)
+
+                return render_template("students-marks.html",
+                                       marks=marks,
+                                       course=course,
+                                       classes=classes)
+        else:
+            return redirect("/")
     else:
-        return redirect("/")
+        return render_template("students-marks.html", classes=classes)
 
 
 @app.route("/students-marks/edit/<int:student_id>")
 @login_required
 def edit_marks(student_id):
-    if current_user.user_role == UserRole.TEACHER:
-        year = request.args.get('year')
-        subject_id = request.args.get('subject_id')
-        classes = utilities.get_classes_of_teacher(current_user.id)
+    year = request.args.get('year')
+    subject_id = request.args.get('subject_id')
 
+    if utilities.check_teacher_access(user_id=current_user.id, student_id=student_id, subject_id=subject_id):
+        classes = utilities.get_classes_of_teacher(current_user.id)
         marks = utilities.get_marks_of_student(student_id=student_id,
                                                subject_id=subject_id,
                                                year=year)
@@ -255,19 +262,22 @@ def update_marks():
         '1': data.get('final_mark1'),
         '2': data.get('final_mark2')
     }
+    if utilities.check_teacher_access(user_id=current_user.id, student_id=student_id, subject_id=subject_id):
+        try:
+            result = utilities.update_marks(subject_id=subject_id,
+                                            student_id=student_id,
+                                            year=year,
+                                            mark15=mark15,
+                                            mark45=mark45,
+                                            final_mark=final_mark)
+        except Exception as e:
+            return jsonify({'status': 404,
+                            'err_msg': e})
 
-    try:
-        result = utilities.update_marks(subject_id=subject_id,
-                                        student_id=student_id,
-                                        year=year,
-                                        mark15=mark15,
-                                        mark45=mark45,
-                                        final_mark=final_mark)
-    except Exception as e:
-        return jsonify({'status': 404,
-                        'err_msg': e})
+        return jsonify({'status': 200})
 
-    return jsonify({'status': 200})
+    return jsonify({'status': 404,
+                    'err_msg': "You do not have the right to do this!"})
 
 
 @app.route("/api/load-marks", methods=['POST'])
@@ -280,6 +290,109 @@ def load_marks():
                         'marks': marks})
     except:
         return jsonify({'status': 404})
+
+
+@app.route("/calendar")
+def calendar():
+    if current_user.user_role == UserRole.TEACHER:
+        classes = utilities.get_classes_of_teacher(current_user.id)
+    else:
+        classes = None
+
+    return render_template("calendar.html", classes=classes)
+
+
+# STAFF them hoc sinh
+@app.route("/students",  methods=['get', 'post'])
+@login_required
+def list_students():
+    if current_user.user_role == UserRole.STAFF:
+        list_student = utilities.info_student()
+
+        return render_template("list-students.html", list_student=list_student)
+    else:
+        return redirect("/")
+
+
+@app.route('/students/add', methods=['GET', 'POST'])
+@login_required
+def add_students():
+    if current_user.user_role == UserRole.STAFF:
+
+        return render_template("list-students.html")
+
+
+# @admin.route('/add-newstudents/edit/<int:student_id>', methods=['GET', 'POST'])
+# @login_required
+# def edit_student(student_id):
+
+
+# xuat danh sach hoc sinh moi
+@app.route("/student/out", methods=['GET', 'POST'])
+@login_required
+def out_student():
+    if current_user.user_role == UserRole.STAFF:
+        if request.method.__eq__('POST'):
+            first_name = request.form.get('first_name')
+            last_name = request.form.get('last_name')
+            sex = request.form.get('sex')
+            bday = request.form.get('bday')
+            address = request.form.get('address')
+            phone = request.form.get('phone')
+            email = request.form.get('email')
+
+            utilities.add_student(first_name=first_name,
+                                  last_name=last_name,
+                                  sex=sex,
+                                  bday=bday,
+                                  address=address,
+                                  phone=phone,
+                                  email=email)
+
+            info_student = {
+                'first_name': first_name,
+                'last_name': last_name,
+                'sex': 'Nam' if sex == 'male' else 'Nữ',
+                'bday': 'Ngày ' + bday.split('-')[2] + ' Tháng ' + bday.split('-')[1] + ' Năm ' + bday.split('-')[0],
+                'address': address,
+                'phone': phone,
+                'email': email
+            }
+            return render_template("out_student.html", info_student=info_student)
+        return render_template("out_student.html")
+    else:
+        return redirect("/")
+
+
+# xuat diem hoc ky
+@app.route("/students-marks/out/<int:course_id>")
+@login_required
+def out_mark(course_id):
+    semester = request.args.get('semester', 1)
+    course = utilities.get_course_info(course_id=course_id)
+    marks = utilities.get_mark_by_course_id(course_id=course_id, semester=semester)
+
+    return render_template("out_mark.html", marks=marks, semester=semester, course=course)
+
+
+# xuat diem ca nam
+@app.route("/students-marks/out_total/<int:course_id>")
+@login_required
+def out_total_mark(course_id):
+    if current_user.user_role == UserRole.TEACHER:
+        classes = utilities.get_classes_of_teacher(current_user.id)
+        course = utilities.get_course_info(course_id)
+        marks = utilities.get_total_mark_by_course_id(course_id=course_id)
+        keys_list = list(marks.keys())
+
+        return render_template("out_total_mark.html",
+                               marks=marks,
+                               keys_list=keys_list,
+                               course=course,
+                               classes=classes)
+
+    else:
+        return redirect("/")
 
 
 @login.user_loader

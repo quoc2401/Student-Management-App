@@ -1,9 +1,10 @@
+import random
+
 from stumana import db
 from sqlalchemy import text, func, update, null
 from stumana import config
-from stumana.models import User, Student, Mark, Subject, Mark15, Mark45, ClassRoom, Course, Teacher, Staff
-from sqlalchemy.engine import cursor
-
+from stumana.models import User, Student, Mark, Subject, Mark15, Mark45, ClassRoom, Course, Teacher, Staff, UserRole
+from datetime import datetime
 
 # Dang nhap
 def get_user_by_id(user_id):
@@ -61,8 +62,8 @@ def change_max_size(max=None):
                 " where new.id = id); if new_size >= (" + _max_size + " + 1) then"\
                 " signal sqlstate '45001' set message_text = 'Vuot qua so luong toi da'; end if; end;"
 
-            db.engine.execute(text(drop_trigger))
-            db.engine.execute(text(create_trigger))
+            db.engine.execute(text(drop_trigger)) # Khong chay dc tren pythonanywhere
+            db.engine.execute(text(create_trigger)) # Khong chay dc tren pythonanywhere
             config.max_size = max
     except Exception as e:
         return str(e)
@@ -255,6 +256,8 @@ def get_course_info(course_id):
 # Cho: lay bang diem cua cac hoc sinh trong 1 lop hoc duoc day boi 1 giao vien trong 1 hoc ky.
 def get_mark_by_course_id(course_id, semester=None):
     course = Course.query.get(course_id)
+    marks = []
+
     if not semester:
         semester = 1
     students = get_students_mark(subject_id=course.subject_id,
@@ -266,7 +269,6 @@ def get_mark_by_course_id(course_id, semester=None):
                  semester=semester,
                  year=course.year)
 
-    marks = []
     for s in students:
         marks.append({
             'student_name': s.Student.first_name + " " + s.Student.last_name,
@@ -283,7 +285,6 @@ def get_mark_by_course_id(course_id, semester=None):
 
 # Cho: lay bang diem cua 1 hoc sinh hien thi ra view chinh sua diem.
 def get_marks_of_student(subject_id, student_id, year, semester=None):
-    cal_avg_mark(subject_id=subject_id, semester=semester, year=year)
     records = db.session.query(Subject, Student,
                                Mark.semester, Mark15, Mark45, Mark.FinalMark)\
                                .join(Subject, Subject.id.__eq__(Mark.subject_id))\
@@ -315,6 +316,30 @@ def get_marks_of_student(subject_id, student_id, year, semester=None):
         })
 
     return marks
+
+
+# Check xem neu giao vien co phu trach khoa hoc nay
+def check_teacher_access(user_id, course_id=None, student_id=None, subject_id=None):
+    teacher_id = get_teacher_id(user_id=user_id).first()[0]
+
+    if course_id:
+        course = Course.query.get(course_id)
+        print("teacher_id")
+        print(course.teacher_id)
+        if teacher_id == course.teacher_id:
+            return True
+
+    if student_id and subject_id:
+        class_id = Student.query.get(student_id).class_id
+        course = db.session.query(Course)\
+                   .join(Student, Student.class_id.__eq__(Course.class_id))\
+                   .filter(Course.teacher_id.__eq__(teacher_id),
+                           Course.subject_id.__eq__(subject_id),
+                           Course.class_id.__eq__(class_id)).first()
+        if teacher_id == course.teacher_id:
+            return True
+
+    return False
 
 
 # lay class_id cho update_classes
@@ -443,6 +468,62 @@ def create_all_mark_records(course_id=None):
     db.session.commit()
 
 
+# lay thong tin hoc sinh
+def info_student():
+    return db.session.query(Student).all()
+
+
+def get_total_mark_by_course_id(course_id):
+    marks1 = get_mark_by_course_id(course_id=course_id, semester=1)
+    marks2 = get_mark_by_course_id(course_id=course_id, semester=2)
+    marks = {}
+
+    for m in marks1:
+        marks[m['student_id']] = ({
+            'student_name': m['student_name'],
+            'avg_mark1': m['avg_mark'],
+            'avg_mark2': 0
+        })
+    for m in marks2:
+        marks[m['student_id']]['avg_mark2'] = m['avg_mark']
+    return marks
+
+
+def add_student(first_name, last_name, sex, bday, address, phone, email):
+    if sex == 'male':
+        sex = True
+    else:
+        sex = False
+
+    student = Student(first_name=first_name,
+                      last_name=last_name,
+                      sex=sex,
+                      bday=bday,
+                      address=address,
+                      phone=phone,
+                      email=email)
+
+    db.session.add(student)
+    db.session.flush()
+    create_account(student_id=student.id,
+                   first_name=first_name,
+                   last_name=last_name)
+    db.session.commit()
+
+
+def create_account(student_id, first_name, last_name):
+    name = last_name + " " + first_name
+    username = str((datetime.now().year % 100) * 10000 + student_id) + first_name
+    password = str((datetime.now().year % 100) * 10000 + student_id)
+
+    user = User(name=name,
+                username=username,
+                password=password,
+                user_role=UserRole.STUDENT)
+
+    db.session.add(user)
+    db.session.commit()
+
 # Tu day tro xuong la de test = console
-# a = total_qualified_by_class(class_id=2, semester=2, year=2021, subject_id=1)
+# a = get_total_mark_by_course_id(1)
 # print(a)

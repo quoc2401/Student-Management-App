@@ -1,0 +1,63 @@
+{% extends 'layout/base.html' %}
+
+{% block title %} Thêm học sinh {% endblock %}
+
+{% block body %}
+<div class="container" style="width: 40vw">
+    <h1 class="text text-center">Nhập học sinh mới</h1>
+    <form method="POST" action="{{ url_for('out_student') }}">
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text">Họ tên</span>
+            </div>
+            <input type="text" name="last_name" class="form-control" placeholder="Họ" required>
+            <input type="text" name="first_name" class="form-control" placeholder="Tên" required>
+        </div>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text">Giới tính</span>
+            </div>
+            <select id="sex" name="sex" class="form-control">
+                <option value="male" >Nam</option>
+                <option value="female">Nữ</option>
+            </select>
+       </div>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text">Ngày sinh</span>
+            </div>
+            <input type="date" name="bday" class="form-control" required>
+        </div>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text">Địa chỉ</span>
+            </div>
+            <input type="text" name="address" class="form-control">
+        </div>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text">Số điện thoại</span>
+            </div>
+            <input type="text" name="phone" class="form-control">
+        </div>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text">Email</span>
+            </div>
+            <input type="email" name="email" class="form-control">
+        </div>
+        <div class="flex justify-content-end">
+            <input type="submit" class="btn btn-success ml-auto" value="Thêm">
+        </div>
+    </form>
+</div>
+
+{% if error_msg %}
+    <script>
+        $(document).ready(function() {
+            alertMsg(false, '{{ error_msg }}')
+        });
+    </script>
+{% endif %}
+
+{% endblock %}

@@ -1,4 +1,5 @@
 $(document).ready(function() {
+/*********** Hover alert **********/
     a = document.getElementById('alert')
 
     $(a).mouseenter(function() {
@@ -9,6 +10,61 @@ $(document).ready(function() {
         $(this).fadeOut(3000)
         $(this).toggleClass('shadow-box')
     })
+
+/**************** Back to top *******************/
+    //Check to see if the window is top if not then display button
+    $(window).scroll(function(){
+        if ($(this).scrollTop() > 100) {
+            $('.scrollToTop').fadeIn(0);
+        } else {
+            $('.scrollToTop').fadeOut();
+        }
+    });
+
+    //Click event to scroll to top
+    $('.scrollToTop').click(function(){
+        $('html, body').animate({scrollTop : 0},800);
+        return false;
+    });
+
+/************** Check confirm password ****************/
+
+    var checkAndChange = function(passOne, passTwo) {
+        if(passOne.length > 2) {
+            $("#n-passwordHelp").css('opacity', '0')
+            if($("#c-password").hasClass("is-invalid")) {
+                if(passOne == passTwo) {
+                    $("#c-password").removeClass("is-invalid").addClass("is-valid");
+                    $("#n-password").removeClass("is-invalid").addClass("is-valid");
+                    $("#c-passwordHelp").css('opacity', '0')
+                }
+            }
+            else {
+                if(passOne != passTwo){
+                    $("#c-password").removeClass("is-valid").addClass("is-invalid");
+                    $("#n-password").removeClass("is-valid").addClass("is-invalid");
+                    $("#c-passwordHelp").css('opacity', '1')
+                }
+            }
+        }
+        else {
+            $("#n-passwordHelp").css('opacity', '1')
+        }
+    }
+
+  $("input[type=password]").keyup(function(){
+    var newPassOne = $("#n-password").val();
+    var newPassTwo = $("#c-password").val();
+
+    passOne = newPassOne;
+    passTwo = newPassTwo;
+
+    checkAndChange(passOne, passTwo);
+  });
+  /**************** datepicker ******************/
+    $('#datepicker').datepicker({
+                    uiLibrary: 'bootstrap4'
+                });
 })
 
 function changeRule() {
@@ -31,22 +87,14 @@ function changeRule() {
         console.info(res)
         return res.json()
     }).then(function(data) {
-        a = document.getElementById('alert')
-
         if(data.status == 200) {
-            a.style.display = "block"
-            a.className = "overlay-alert overlay-alert-success"
-            a.innerText = "Thay đổi thành công"
+            alertMsg(true, "Thay đổi thành công")
         }
         else {
-           a.style.display = "block"
-           a.className = "overlay-alert overlay-alert-danger"
-           a.innerText = "Có dữ liệu vi phạm ràng buộc"
+          alertMsg(false, "Thay đổi thất bại")
            console.info(data.err_msg1)
            console.info(data.err_msg2)
         }
-
-        $(a).fadeOut(3000)
     }).catch(function(err) {
         console.info(err)
     })
@@ -118,21 +166,13 @@ function updateMarks(subject_id, student_id, year) {
         console.info(res)
         return res.json()
     }).then(function(data) {
-        a = document.getElementById('alert')
-
         if(data.status == 200) {
-            a.style.display = "block"
-            a.className = "overlay-alert overlay-alert-success"
-            a.innerText = "Lưu thành công"
+            alertMsg(true, "Lưu thành công")
         }
         else {
-           a.style.display = "block"
-           a.className = "overlay-alert overlay-alert-danger"
-           a.innerText = "Lưu thất bại!"
+           alertMsg(false, "Lưu thất bại")
            console.info(data.err_msg)
         }
-
-        $(a).fadeOut(3000)
     }).catch(function(err) {
         console.info(err)
     });
@@ -220,7 +260,6 @@ function addClass(class_id) {
             console.info(res)
             return res.json()
         }).then(function(data) {
-            a = document.getElementById('alert')
 
             if(data.status == 200) {
 
@@ -231,12 +270,8 @@ function addClass(class_id) {
                     alert("Xóa thành công")
             }
             else {
-                a.style.display = "block"
-                a.className = "overlay-alert overlay-alert-danger"
-                a.innerText = "Thêm thất bại"
+                alertMsg(false, "Có lỗi xảy ra")
             }
-
-            $(a).fadeOut(5000)
         }).catch(function(err) {
             console.info(err)
         });
@@ -284,48 +319,7 @@ function loadMarks(course_id) {
     })
 }
 
-// confirm password
-$(document).ready(function() {
-  var passOne = $("#n-password").val();
-  var passTwo = $("#c-password").val();
-
-  var checkAndChange = function()
-  {
-    if(passOne.length < 1)
-      if($(".confirm").hasClass("alert-success")){
-        $(".confirm").removeClass("alert-success").addClass("alert-danger");
-        $(".confirm").html("Mật khẩu không giống nhau!");
-      }else{
-        $(".confirm").html("Mật khẩu không giống nhau!");
-      }
-    else if($(".confirm").hasClass("alert-danger"))
-    {
-      if(passOne == passTwo) {
-        $(".confirm").removeClass("alert-danger").addClass("alert-success");
-        $(".confirm").html("Tiếp tục");
-      }
-    }
-    else
-    {
-      if(passOne != passTwo){
-        $(".confirm").removeClass("alert-success").addClass("alert-danger");
-        $(".confirm").html("Mật khẩu không giống nhau!");
-      }
-    }
-  }
-
-  $("input[type=password]").keyup(function(){
-    var newPassOne = $("#n-password").val();
-    var newPassTwo = $("#c-password").val();
-
-    passOne = newPassOne;
-    passTwo = newPassTwo;
-
-    checkAndChange();
-  });
-});
-
-
+/*** Class filter ****/
 function classSearch() {
     var keyword = $("#keyword").val()
     if (keyword != undefined && keyword != null) {
@@ -333,7 +327,7 @@ function classSearch() {
     }
 }
 
-/******************** Filter  ***********************/
+/******************** Student Filter  ***********************/
 
 function changeContext() {
     document.getElementById("keyword").name = document.getElementById("context").value
@@ -397,22 +391,19 @@ function display0Class() {
     $("#search").click()
 }
 
-/**************** Back to top *******************/
-$(document).ready(function(){
+function alertMsg(bool, message) {
+    a = document.getElementById('alert')
+    $(a).stop().animate({opacity:'100'})
 
-    //Check to see if the window is top if not then display button
-    $(window).scroll(function(){
-        if ($(this).scrollTop() > 100) {
-            $('.scrollToTop').fadeIn(0);
-        } else {
-            $('.scrollToTop').fadeOut();
-        }
-    });
-
-    //Click event to scroll to top
-    $('.scrollToTop').click(function(){
-        $('html, body').animate({scrollTop : 0},800);
-        return false;
-    });
-
-});
+    if (bool) {
+        a.style.display = "block"
+        a.className = "overlay-alert overlay-alert-success"
+        a.innerText = message
+    }
+    else {
+        a.style.display = "block"
+        a.className = "overlay-alert overlay-alert-danger"
+        a.innerText = message
+    }
+    $(a).fadeOut(3000)
+}

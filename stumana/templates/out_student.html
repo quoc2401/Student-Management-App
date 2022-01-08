@@ -1,0 +1,37 @@
+{% extends 'layout/base.html' %}
+
+{% block title %} Danh sách học sinh {% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/out.css') }}" />
+{% endblock %}
+
+{% block footer %}
+{% endblock %}
+
+{% block body %}
+<div class="A4">
+
+      <table class="table"  align="center">
+
+         <tr align="center">
+            <th colspan="2"> HỒ SƠ HỌC SINH</th>
+         </tr>
+         <tr>
+            <td>Họ tên: {{ info_student.last_name }}  {{ info_student.first_name }}  </td>
+            <td>Giới tính: {{ info_student.sex }}
+            </td>
+         </tr>
+         <tr>
+            <td>Ngày sinh: {{ info_student.bday }} </td>
+            <td>Địa chỉ: {{ info_student.address }}  </td>
+         </tr>
+         <tr>
+            <td>Số điện thoại: {{ info_student.phone }}  </td>
+            <td>Email: {{ info_student.email }} </td>
+         </tr>
+      </table>
+</div>
+
+
+{% endblock %}
