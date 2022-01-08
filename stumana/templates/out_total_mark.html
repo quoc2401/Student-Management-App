@@ -1,0 +1,49 @@
+{% extends 'layout/base.html' %}
+
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/out.css') }}" />
+{% endblock %}
+
+{% block footer %}
+{% endblock %}
+
+{% block body %}
+<div class="A4">
+
+      <table class="table"  align="center" >
+         <tr align="center">
+            <th colspan="5"> BẢNG ĐIỂM MÔN HỌC</th>
+         </tr>
+          <tr>
+            <th colspan="5"> Năm học: {{ course.year }}</th>
+         </tr>
+         <tr>
+            <td>STT  </td>
+            <td>Họ tên </td>
+            <td>Lớp </td>
+            <td>Điểm TB HK1 </td>
+            <td>Điểm TB HK2 </td>
+         </tr>
+
+         {% for k in keys_list %}
+            <tr>
+                <td>{{ keys_list.index(k) + 1}}</td>
+                <td>{{ marks[k].student_name }}</td>
+                <td>{{ course[0] + course[1]  }}</td>
+                {% if marks[k].avg_mark1 %}
+                <td>{{ marks[k].avg_mark1 }}</td>
+                {% else %}
+                <td></td>
+                {% endif %}
+                {% if marks[k].avg_mark2 %}
+                <td>{{ marks[k].avg_mark2 }}</td>
+                {% else %}
+                <td></td>
+                {% endif %}
+            </tr>
+         {% endfor %}
+
+      </table>
+</div>
+
+{% endblock %}
