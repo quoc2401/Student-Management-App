@@ -505,9 +505,11 @@ def add_student(first_name, last_name, sex, bday, address, phone, email):
 
     db.session.add(student)
     db.session.flush()
-    create_account(student_id=student.id,
-                   first_name=first_name,
-                   last_name=last_name)
+    user_id = create_account(student_id=student.id,
+                             first_name=first_name,
+                             last_name=last_name)
+    student.user_id = user_id
+
     db.session.commit()
 
 
@@ -522,7 +524,11 @@ def create_account(student_id, first_name, last_name):
                 user_role=UserRole.STUDENT)
 
     db.session.add(user)
+    db.session.flush()
+    user_id = user.id
     db.session.commit()
+
+    return user_id
 
 # Tu day tro xuong la de test = console
 # a = get_total_mark_by_course_id(1)

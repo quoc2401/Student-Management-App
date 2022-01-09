@@ -9,6 +9,7 @@ body {
    margin: 0 auto;
    padding: 10px 25px;
    margin-bottom: 0.5cm;
+   margin-top: 0.5cm;
    box-shadow: 0 0 0.5cm rgba(0,0,0,0.5);
 }
 @media print {
@@ -22,6 +23,7 @@ body {
 
 table, th, td{
     border: 2px solid black;
+    margin-top: 1cm;
 }
 
 tr{

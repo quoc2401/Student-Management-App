@@ -302,32 +302,27 @@ def calendar():
     return render_template("calendar.html", classes=classes)
 
 
-# STAFF them hoc sinh
 @app.route("/students",  methods=['get', 'post'])
 @login_required
 def list_students():
     if current_user.user_role == UserRole.STAFF:
         list_student = utilities.info_student()
 
-        return render_template("list-students.html", list_student=list_student)
+        return render_template("add-students.html", list_student=list_student)
     else:
         return redirect("/")
 
 
+# STAFF them hoc sinh
 @app.route('/students/add', methods=['GET', 'POST'])
 @login_required
 def add_students():
     if current_user.user_role == UserRole.STAFF:
 
-        return render_template("list-students.html")
+        return render_template("add-students.html")
 
 
-# @admin.route('/add-newstudents/edit/<int:student_id>', methods=['GET', 'POST'])
-# @login_required
-# def edit_student(student_id):
-
-
-# xuat danh sach hoc sinh moi
+# xuat ho so hoc sinh moi
 @app.route("/student/out", methods=['GET', 'POST'])
 @login_required
 def out_student():
@@ -393,6 +388,26 @@ def out_total_mark(course_id):
 
     else:
         return redirect("/")
+
+
+# xuat danh sach lop hoc
+@app.route("/setup-class/out")
+@login_required
+def out_class():
+    this_class = request.args.get('class')
+    if this_class:
+        this_grade = this_class.split('-')
+        this_class_name = this_class.split('-')
+        students = utilities.get_student_by_class(grade=this_grade[0],
+                                                  class_name=this_class_name[1])
+        total = utilities.get_total(grade=this_grade[0],
+                                    class_name=this_class_name[1])
+
+        if students:
+            return render_template('out_class.html',
+                                   students=students,
+                                   total=total)
+    return redirect("/setup-class")
 
 
 @login.user_loader
