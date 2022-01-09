@@ -1,0 +1,51 @@
+{% extends 'layout/base.html' %}
+
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/out.css') }}" />
+{% endblock %}
+
+{% block footer %}
+{% endblock %}
+
+{% block body %}
+<div class="A4">
+      <table class="table"  align="center">
+         <tr align="center">
+            <th colspan="5">DANH SÁCH LỚP</th>
+         </tr>
+         <tr>
+            <th colspan="3">Lớp: {{ request.args.get('class') }}</th>
+            <th colspan="2">Sỉ số:
+                {% if total[0] %}
+                {{ total[0] }}
+                {% else %}
+                0
+                {% endif %}
+            </th>
+        </tr>
+        <tr>
+            <th>STT</th>
+            <th>Họ tên</th>
+            <th>Giới tính</th>
+            <th>Năm sinh</th>
+            <th>Địa chỉ</th>
+        </tr>
+        {% for s in students %}
+        <tr>
+            <td>{{ students.index(s) + 1 }}</td>
+            <td>{{ s.first_name }} {{ s.last_name }}</td>
+            <td>
+                {% if s.sex == True %}
+                Nam
+                {% else %}
+                Nữ
+                {% endif %}
+            </td>
+            <td >{{ s.bday.year }}</td>
+            <td >{{ s.address }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+</div>
+
+{% endblock %}

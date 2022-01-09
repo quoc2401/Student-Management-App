@@ -53,6 +53,13 @@
         {{ err_msg }}
     </div>
     {% endif %}
+
+    <div class="flex justify-content-end">
+        <a href="{{ url_for('out_class', class=request.args.get('class')) }}"
+           title="Xuất danh sách lớp học">
+            <button class="btn btn-info">Xuất danh sách lớp học</button>
+        </a>
+    </div>
 </div>
 
 <style>

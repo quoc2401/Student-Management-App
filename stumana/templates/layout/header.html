@@ -24,32 +24,32 @@
                 <a class="nav-link nav-item active" id="" href="#">
                     <i class="fa fa-thumbs-up" aria-hidden="true"></i>Đánh giá</a>
             </li>
+
         </ul>
+        {% if current_user.user_role == UserRole.TEACHER %}
+            <div class="navbar-nav ml-auto">
+                <a class="nav-link nav-item " id="nav_students-marks"
+                   href="{{ url_for('students_marks') }}"
+                   style="text-transform: uppercase; font-size: 15px;padding: 15px 0; margin-right: 10px">Quản lý điểm</a>
+            </div>
+
+            {% endif %}
     </div>
     {% if current_user.is_authenticated %}
         {% if current_user.user_role == UserRole.ADMIN %}
          <a class="nav-link text-danger mr-auto" href="/admin">ADMIN</a>
-        {% else %}
-        <div class="btn-group">
+        {% elif current_user.user_role != UserRole.TEACHER %}
+        <div class="btn-group navbar-nav">
             <a class="nav-link text-success mr-auto dropdown-toggle"
                 href="#"
                 data-toggle="dropdown"
                 aria-haspopup="true"
                 aria-expanded="false">Chức năng</a>
 
-            {% if current_user.user_role == UserRole.TEACHER %}
-            <div class="dropdown-menu dropdown-menu-right">
-                <a class="nav-link nav-item text-info mr-auto" id="nav_students_marks"
-                   href="{{ url_for('students_marks') }}">Nhập điểm</a>
-                <a class="nav-link nav-item text-info mr-auto" id="nav_export_marks"
-                   href="#">Xuất điểm</a>
-            </div>
-            {% endif %}
-
             {% if current_user.user_role == UserRole.STAFF %}
             <div class="dropdown-menu dropdown-menu-right">
                 <a class="nav-link nav-item text-info mr-auto" id="nav_student"
-                   href="#">Tiếp nhận học sinh</a>
+                   href="{{ url_for('add_students') }}">Tiếp nhận học sinh</a>
                 <a class="nav-link nav-item text-info mr-auto" id="nav_arrange_class"
                    href="{{ url_for('arrange_class') }}">Xếp lớp</a>
                 <a class="nav-link nav-item text-info mr-auto" id="nav_class_list"

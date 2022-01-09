@@ -44,6 +44,10 @@ class AuthenticatedModelView(ModelView):
         return current_user.is_authenticated and current_user.user_role == UserRole.ADMIN
 
 
+class PersonView(AuthenticatedModelView):
+    column_searchable_list = ['first_name', 'last_name']
+
+
 class AdminBaseView(AuthenticatedBaseView):
     def is_accessible(self):
         if current_user.is_authenticated:
@@ -166,7 +170,7 @@ admin.add_view(UserView(User, db.session,
                         menu_icon_type='fa',
                         menu_icon_value='fa-users'))
 # Staff
-admin.add_view(AuthenticatedModelView(Student, db.session,
+admin.add_view(PersonView(Student, db.session,
                                       name='Học sinh',
                                       category="Cá nhân",
                                       menu_icon_type='fa',
@@ -176,13 +180,13 @@ admin.add_view(AuthenticatedModelView(Student, db.session,
 #                             name='Điều chỉnh lớp học',
 #                             category="Lớp học"))
 # Admin
-admin.add_view(AuthenticatedModelView(Teacher, db.session,
+admin.add_view(PersonView(Teacher, db.session,
                                       name='Giáo viên',
                                       category="Cá nhân",
                                       menu_icon_type='fa',
                                       menu_icon_value='fa-podcast'))
 # Admin
-admin.add_view(AuthenticatedModelView(Staff, db.session,
+admin.add_view(PersonView(Staff, db.session,
                                       name='Nhân viên',
                                       category="Cá nhân",
                                       menu_icon_type='fa',
