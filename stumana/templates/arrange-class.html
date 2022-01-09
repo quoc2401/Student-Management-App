@@ -18,7 +18,7 @@
                     {% if request.path == '/arrange-class' %}
                     <div class="sidebar-heading bg-light border">
                         <div class="site">
-                            <input type="button" class="form-control" name="class"
+                            <input type="button" class="empty form-control" name="class"
                                    value="Lớp rỗng" onclick="javascript:document.location.search = ''">
                         </div>
                     </div>
@@ -201,7 +201,7 @@
     padding: 0 18px;
 }
 
-input[type='submit'].form-control:hover {
+input[type='submit'].form-control:hover, .empty:hover {
   background-color: lightblue;
 }
 
