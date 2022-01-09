@@ -2,19 +2,22 @@
 
 {% block title %} Chức năng giáo viên {% endblock %}
 
+{% block css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/sidebar-view.css') }}" />
+{% endblock %}
+
 {% block body %}
-  <div class="container-fluid" style="margin-top:25px;">
+  <div class="container-fluid" style="margin-top:25px; padding-left: 0">
       <div class="d-flex" id="wrapper">
         <!-- Sidebar -->
-        <div class="bg-lightgray border-right border-left vh-100" id="sidebar-wrapper"
-             style="height:67vh!important; padding:10px;">
+        <div class="bg-lightgray border-right border-left vh-100" id="sidebar-wrapper">
             <div class="list-group list-group-flush overflow-auto h-100">
                 <div class="sidebar-heading bg-light border">
                 <i class="fas fa-podcast"></i>Các lớp học phụ trách
                 </div>
                 <div class="input-group" style="padding: 10px 0;">
                     <input type="text" class="form-control" id="keyword" name="keyword"
-                           placeholder="Tìm kiếm..." onchange="classSearch()">
+                           placeholder="Tìm kiếm..." onchange="classSearch('{{ current_user.user_role }}')">
                     {% if request.args.get('keyword') %}
                     <span class="input-group-text" style="border-radius:0 5px 5px 0">
                         <a href="#" onclick="removeFilter()" title="Hủy lọc">
@@ -23,28 +26,46 @@
                     </span>
                     {% endif %}
                 </div>
+                {% if current_user.user_role == UserRole.TEACHER %}
                 <a href=" {{ url_for('students_marks') }} " class="list-group-item list-group-item-action bg-light border">
                     <div>
                         <i class="fa fa-tachometer" aria-hidden="true"></i><span>Dashboard</span>
                     </div>
                 </a>
+                {% else %}
+                <a href=" {{ url_for('view_mark') }} " class="list-group-item list-group-item-action bg-light border">
+                    <div>
+                        <i class="fa fa-tachometer" aria-hidden="true"></i><span>Dashboard</span>
+                    </div>
+                </a>
+                {% endif %}
                 <a href="{{ url_for('calendar') }}" class="list-group-item list-group-item-action bg-light border">
                     <div>
                         <i class="fas fa-calendar"></i><span>Lịch</span>
                     </div>
                 </a>
                 {% for c in classes %}
+                {% if current_user.user_role == UserRole.TEACHER %}
                 <a href="{{ url_for('students_marks', course_id=c[2] ) }}"
                    class="list-group-item list-group-item-action bg-light border">
                     <div class="sidebar-item">
                         <i class="fas fa-podcast"></i><span>{{ c[0] }} - {{ c[1] }}</span>
                     </div>
                 </a>
+                {% else %}
+                <a href="{{ url_for('view_mark', course_id=c[2] ) }}"
+                   class="list-group-item list-group-item-action bg-light border">
+                    <div class="sidebar-item">
+                        <i class="fas fa-podcast"></i><span>{{ c[0] }} - {{ c[1] }}</span>
+                    </div>
+                </a>
+                {% endif %}
                 {% endfor %}
             </div>
         </div>
         <!-- /#sidebar-wrapper -->
         <!-- Page Content -->
+        <div id="place-holder"></div>
 
         <div id="page-content-wrapper">
             <div class="container-fluid border" style="min-height:67vh">
@@ -55,5 +76,6 @@
         </div>
         <!-- /#page-content-wrapper -->
     </div>
+
   </div>
 {% endblock %}

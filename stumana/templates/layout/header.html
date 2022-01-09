@@ -32,13 +32,19 @@
                    href="{{ url_for('students_marks') }}"
                    style="text-transform: uppercase; font-size: 15px;padding: 15px 0; margin-right: 10px">Quản lý điểm</a>
             </div>
-
-            {% endif %}
+        {% endif %}
+        {% if current_user.user_role == UserRole.STUDENT %}
+            <div class="navbar-nav ml-auto">
+                <a class="nav-link nav-item " id="nav_student-marks"
+                   href="{{ url_for('view_mark') }}"
+                   style="text-transform: uppercase; font-size: 15px;padding: 15px 0; margin-right: 10px">Xem điểm</a>
+            </div>
+        {% endif %}
     </div>
     {% if current_user.is_authenticated %}
         {% if current_user.user_role == UserRole.ADMIN %}
          <a class="nav-link text-danger mr-auto" href="/admin">ADMIN</a>
-        {% elif current_user.user_role != UserRole.TEACHER %}
+        {% elif current_user.user_role == UserRole.STAFF %}
         <div class="btn-group navbar-nav">
             <a class="nav-link text-success mr-auto dropdown-toggle"
                 href="#"
@@ -54,13 +60,6 @@
                    href="{{ url_for('arrange_class') }}">Xếp lớp</a>
                 <a class="nav-link nav-item text-info mr-auto" id="nav_class_list"
                    href="{{ url_for('setup_class') }}">Lập danh sách lớp</a>
-            </div>
-            {% endif %}
-
-            {% if current_user.user_role == UserRole.STUDENT %}
-            <div class="dropdown-menu dropdown-menu-right">
-                <a class="nav-link nav-item text-info mr-auto" id="nav_marks"
-                   href="#">Xem điểm</a>
             </div>
             {% endif %}
 
