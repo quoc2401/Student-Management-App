@@ -6,6 +6,7 @@ from stumana import config
 from stumana.models import User, Student, Mark, Subject, Mark15, Mark45, ClassRoom, Course, Teacher, Staff, UserRole
 from datetime import datetime
 
+
 # Dang nhap
 def get_user_by_id(user_id):
     return User.query.get(user_id)
@@ -13,7 +14,7 @@ def get_user_by_id(user_id):
 
 def check_login(username, password):
     # password = str(hashlib.md5(password.strip().encode('utf-8')).hexdigest())
-    return User.query.filter(User.username.__eq__(username.strip()),
+    return User.query.filter(User.username.__eq__(username.strip().lower()),
                              User.password.__eq__(password)).first()
 
 
@@ -284,22 +285,32 @@ def get_mark_by_course_id(course_id, semester=None):
 
 
 # Cho: lay bang diem cua 1 hoc sinh hien thi ra view chinh sua diem.
-def get_marks_of_student(subject_id, student_id, year, semester=None):
-    records = db.session.query(Subject, Student,
-                               Mark.semester, Mark15, Mark45, Mark.FinalMark)\
-                               .join(Subject, Subject.id.__eq__(Mark.subject_id))\
-                               .join(Student, Student.id.__eq__(Mark.student_id))\
-                               .join(Mark15, Mark15.id.__eq__(Mark.mark15_id), isouter=True)\
-                               .join(Mark45, Mark45.id.__eq__(Mark.mark45_id), isouter=True)\
-                               .filter(Mark.subject_id.__eq__(subject_id),
-                                       Mark.year.__eq__(year),
-                                       Mark.student_id.__eq__(student_id))
-
-    if semester:
-        records = records.filter(Mark.semester.__eq__(semester))
+def get_marks_of_student(subject_id=None, student_id=None, year=None, user_id=None, course_id=None):
+    if course_id:
+        course = Course.query.get(course_id)
+        student_id = db.session.query(Student.id).filter(Student.user_id.__eq__(user_id))
+        records = db.session.query(Subject, Student,
+                                   Mark.semester, Mark15, Mark45, Mark.FinalMark) \
+            .join(Subject, Subject.id.__eq__(Mark.subject_id)) \
+            .join(Student, Student.id.__eq__(Mark.student_id)) \
+            .join(Mark15, Mark15.id.__eq__(Mark.mark15_id), isouter=True) \
+            .join(Mark45, Mark45.id.__eq__(Mark.mark45_id), isouter=True) \
+            .filter(Mark.subject_id.__eq__(course.subject_id),
+                    Mark.year.__eq__(course.year),
+                    Mark.student_id.__eq__(student_id)).all()
+    else:
+        records = db.session.query(Subject, Student,
+                                   Mark.semester, Mark15, Mark45, Mark.FinalMark)\
+                                   .join(Subject, Subject.id.__eq__(Mark.subject_id))\
+                                   .join(Student, Student.id.__eq__(Mark.student_id))\
+                                   .join(Mark15, Mark15.id.__eq__(Mark.mark15_id), isouter=True)\
+                                   .join(Mark45, Mark45.id.__eq__(Mark.mark45_id), isouter=True)\
+                                   .filter(Mark.subject_id.__eq__(subject_id),
+                                           Mark.year.__eq__(year),
+                                           Mark.student_id.__eq__(student_id)).all()
 
     marks = []
-    for r in records.all():
+    for r in records:
         marks.append({
             'subject': {
                 'id': r.Subject.id,
@@ -505,15 +516,21 @@ def add_student(first_name, last_name, sex, bday, address, phone, email):
 
     db.session.add(student)
     db.session.flush()
-    create_account(student_id=student.id,
-                   first_name=first_name,
-                   last_name=last_name)
+    user_id = create_account(student_id=student.id,
+                             first_name=first_name,
+                             last_name=last_name)
+    student.user_id = user_id
+
     db.session.commit()
 
 
 def create_account(student_id, first_name, last_name):
     name = last_name + " " + first_name
-    username = str((datetime.now().year % 100) * 10000 + student_id) + first_name
+    f = first_name.split(" ")
+    if len(f) > 1:
+        username = str((datetime.now().year % 100) * 10000 + student_id) + f[1].lower()
+    else:
+        username = str((datetime.now().year % 100) * 10000 + student_id) + f[0].lower()
     password = str((datetime.now().year % 100) * 10000 + student_id)
 
     user = User(name=name,
@@ -522,8 +539,23 @@ def create_account(student_id, first_name, last_name):
                 user_role=UserRole.STUDENT)
 
     db.session.add(user)
-    db.session.commit()
+    db.session.flush()
 
-# Tu day tro xuong la de test = console
-# a = get_total_mark_by_course_id(1)
+    return user.id
+
+
+def get_classes_of_student(user_id):
+    student_id = db.session.query(Student.id).filter(Student.user_id.__eq__(user_id))
+
+    classes = db.session.query(Subject.name, ClassRoom.grade + ClassRoom.name, Course.id)\
+        .join(Course, Course.subject_id.__eq__(Subject.id))\
+        .join(ClassRoom, ClassRoom.id.__eq__(Course.class_id))\
+        .join(Student, Student.class_id.__eq__(ClassRoom.id))\
+        .filter(Student.id.__eq__(student_id)).all()
+
+    return classes
+
+
+# # Tu day tro xuong la de test = console
+# a = get_marks_of_student(course_id=1, user_id=9)
 # print(a)

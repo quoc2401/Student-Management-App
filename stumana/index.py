@@ -199,27 +199,26 @@ def students_marks():
     course_id = request.args.get('course_id')
     keyword = request.args.get('keyword')
     classes = utilities.get_classes_of_teacher(current_user.id)
+    if keyword:
+        filtered_classes = []
+        for c in classes:
+            for i in c:
+                if keyword.lower() in str(i).lower():
+                    if c not in filtered_classes:
+                        filtered_classes.append(c)
+
+        return render_template("students-marks.html", classes=filtered_classes)
 
     if course_id:
         if utilities.check_teacher_access(user_id=current_user.id, course_id=course_id):
-            if keyword:
-                filtered_classes = []
-                for c in classes:
-                    for i in c:
-                        if keyword.lower() in str(i).lower():
-                            if c not in filtered_classes:
-                                filtered_classes.append(c)
-                return render_template("students-marks.html", classes=filtered_classes)
+            course = utilities.get_course_info(course_id)
+            utilities.create_all_mark_records(course_id=course_id) # Tao bang diem khi vao nhap diem
+            marks = utilities.get_mark_by_course_id(course_id=course_id)
 
-            if course_id:
-                course = utilities.get_course_info(course_id)
-                utilities.create_all_mark_records(course_id=course_id) # Tao bang diem khi vao nhap diem
-                marks = utilities.get_mark_by_course_id(course_id=course_id)
-
-                return render_template("students-marks.html",
-                                       marks=marks,
-                                       course=course,
-                                       classes=classes)
+            return render_template("students-marks.html",
+                                   marks=marks,
+                                   course=course,
+                                   classes=classes)
         else:
             return redirect("/")
     else:
@@ -276,7 +275,7 @@ def update_marks():
 
         return jsonify({'status': 200})
 
-    return jsonify({'status': 404,
+    return jsonify({'status': 403,
                     'err_msg': "You do not have the right to do this!"})
 
 
@@ -297,7 +296,7 @@ def calendar():
     if current_user.user_role == UserRole.TEACHER:
         classes = utilities.get_classes_of_teacher(current_user.id)
     else:
-        classes = None
+        classes = utilities.get_classes_of_student(current_user.id)
 
     return render_template("calendar.html", classes=classes)
 
@@ -393,6 +392,29 @@ def out_total_mark(course_id):
 
     else:
         return redirect("/")
+
+
+@app.route("/student-marks")
+def view_mark():
+    course_id = request.args.get('course_id')
+    classes = utilities.get_classes_of_student(current_user.id)
+    keyword = request.args.get('keyword')
+
+    if keyword:
+        filtered_classes = []
+        for c in classes:
+            for i in c:
+                if keyword.lower() in str(i).lower():
+                    if c not in filtered_classes:
+                        filtered_classes.append(c)
+
+        return render_template("students-marks.html", classes=filtered_classes)
+
+    if course_id:
+        marks = utilities.get_marks_of_student(user_id=current_user.id, course_id=course_id)
+        return render_template("student_marks.html", classes=classes, marks=marks)
+
+    return render_template("students-marks.html", classes=classes)
 
 
 @login.user_loader

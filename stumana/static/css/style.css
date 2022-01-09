@@ -18,6 +18,7 @@ body {
     background-size: cover;
     width: 100%;
     min-height:500px!important;
+    overflow-x: hidden;
 }
 
 .overlay{
@@ -52,44 +53,16 @@ body {
 .info {
     font-weight: bold;
 }
-/*table.student tr {
-    counter-increment: rowNumber;
-}
-
-table.student tr td:first-child::before {
-    content: counter(rowNumber);
-    width: 1em;
-}*/
-.col60 {
-    width: 60%;
-}
-
-.align-center {
-    margin: 0 auto;
-}
-
-.navbar-collapse .navbar-nav>li>a {
-    text-transform: uppercase;
-    font-size: 15px;
-    padding: 15px 0;
-}
-
-.navbar-collapse .navbar-nav>li.main>a {
-    margin: 0 8px;
-}
-
-.navbar-collapse .navbar-nav>li.active>a {
-    font-weight: bold;
-}
 
 /*******************************--Sidebar--*********************************/
 #sidebar-wrapper {
-    min-height: 67vh;
+    min-height: 100 vh;
     margin-left: -15rem;
     -webkit-transition: margin .25s ease-out;
     -moz-transition: margin .25s ease-out;
     -o-transition: margin .25s ease-out;
     transition: margin .25s ease-out;
+    z-index: 1000;
 }
 
 #sidebar-wrapper .sidebar-heading {
@@ -98,7 +71,7 @@ table.student tr td:first-child::before {
 }
 
 #sidebar-wrapper .list-group {
-    width: 17rem;
+    width: 17vw;
 }
 
 #page-content-wrapper {
@@ -123,7 +96,29 @@ table.student tr td:first-child::before {
         margin-left: -15rem;
     }
 }
-/************************************************************************/
+
+.col60 {
+    width: 60%;
+}
+
+.align-center {
+    margin: 0 auto;
+}
+
+.navbar-collapse .navbar-nav>li>a {
+    text-transform: uppercase;
+    font-size: 15px;
+    padding: 15px 0;
+}
+
+.navbar-collapse .navbar-nav>li.main>a {
+    margin: 0 8px;
+}
+
+.navbar-collapse .navbar-nav>li.active>a {
+    font-weight: bold;
+}
+
 
 .bg-lightgray {
     background-color: #e8eded;
@@ -139,7 +134,7 @@ table.student_marks tbody tr td {
 
 table.student_marks th,td {
     white-space: nowrap;
-    min-width: 3rem;
+    min-width: 3vw;
 }
 
 td.name {
