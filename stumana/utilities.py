@@ -479,11 +479,6 @@ def create_all_mark_records(course_id=None):
     db.session.commit()
 
 
-# lay thong tin hoc sinh
-def info_student():
-    return db.session.query(Student).all()
-
-
 def get_total_mark_by_course_id(course_id):
     marks1 = get_mark_by_course_id(course_id=course_id, semester=1)
     marks2 = get_mark_by_course_id(course_id=course_id, semester=2)
