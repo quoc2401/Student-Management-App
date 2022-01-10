@@ -301,17 +301,6 @@ def calendar():
     return render_template("calendar.html", classes=classes)
 
 
-@app.route("/students",  methods=['get', 'post'])
-@login_required
-def list_students():
-    if current_user.user_role == UserRole.STAFF:
-        list_student = utilities.info_student()
-
-        return render_template("add-students.html", list_student=list_student)
-    else:
-        return redirect("/")
-
-
 # STAFF them hoc sinh
 @app.route('/students/add', methods=['GET', 'POST'])
 @login_required
