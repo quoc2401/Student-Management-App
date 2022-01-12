@@ -1,10 +1,9 @@
-import random
-
 from stumana import db
 from sqlalchemy import text, func, update, null
 from stumana import config
 from stumana.models import User, Student, Mark, Subject, Mark15, Mark45, ClassRoom, Course, Teacher, Staff, UserRole
 from datetime import datetime
+from dateutil import parser
 
 
 # Dang nhap
@@ -375,12 +374,21 @@ def search_keyword(keyword):
 
 # chinh sua lop cho hoc sinh
 def update_classes(student_id, class_id):
-    if student_id:
-        for s in student_id:
-            db.session.query(Student).filter(Student.id.__eq__(s))\
-                                     .update({Student.class_id: class_id if class_id != '' else null()},
-                                             synchronize_session=False)
-    db.session.commit()
+    if class_id:
+        class_total = ClassRoom.query.get(class_id).total
+        if class_total is None:
+            class_total = 0
+    else:
+        class_total = 0
+    if class_total < config.max_size:
+        if student_id:
+            for s in student_id:
+                db.session.query(Student).filter(Student.id.__eq__(s))\
+                                         .update({Student.class_id: class_id if class_id != '' else null()},
+                                                 synchronize_session=False)
+            db.session.commit()
+    else:
+        return "Vượt quá số lượng tối đa"
 
 
 # Cho: chinh sua diem cho 1 hoc sinh.
@@ -500,23 +508,26 @@ def add_student(first_name, last_name, sex, bday, address, phone, email):
         sex = True
     else:
         sex = False
+    if config.min_age <= (datetime.now() - parser.parse(bday)).days / 365 <= config.max_age:
 
-    student = Student(first_name=first_name,
-                      last_name=last_name,
-                      sex=sex,
-                      bday=bday,
-                      address=address,
-                      phone=phone,
-                      email=email)
+        student = Student(first_name=first_name,
+                          last_name=last_name,
+                          sex=sex,
+                          bday=bday,
+                          address=address,
+                          phone=phone,
+                          email=email)
 
-    db.session.add(student)
-    db.session.flush()
-    user_id = create_account(student_id=student.id,
-                             first_name=first_name,
-                             last_name=last_name)
-    student.user_id = user_id
+        db.session.add(student)
+        db.session.flush()
+        user_id = create_account(student_id=student.id,
+                                 first_name=first_name,
+                                 last_name=last_name)
+        student.user_id = user_id
 
-    db.session.commit()
+        db.session.commit()
+    else:
+        return "Tuổi không hợp lệ"
 
 
 def create_account(student_id, first_name, last_name):

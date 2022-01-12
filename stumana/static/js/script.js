@@ -270,7 +270,7 @@ function addClass(class_id) {
                     alert("Xóa thành công")
             }
             else {
-                alertMsg(false, "Có lỗi xảy ra")
+                alertMsg(false, data.err_msg)
             }
         }).catch(function(err) {
             console.info(err)

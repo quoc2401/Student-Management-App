@@ -148,9 +148,14 @@ def update_class():
 
     try:
         result = utilities.update_classes(student_id=student_id, class_id=classid)
+
+        if result:
+            return jsonify({'status': 404,
+                            'err_msg': result})
+
     except Exception as e:
-        print(e)
-        return jsonify({'status': 404})
+        return jsonify({'status': 404,
+                        'err_msg': "Vượt quá số lượng tối đa"})
 
     return jsonify({'status': 200})
 
@@ -306,6 +311,8 @@ def calendar():
 @login_required
 def add_students():
     if current_user.user_role == UserRole.STAFF:
+        if request.args.get('err_msg'):
+            return render_template("add-students.html", err_msg=request.args.get('err_msg'))
 
         return render_template("add-students.html")
 
@@ -324,14 +331,15 @@ def out_student():
             phone = request.form.get('phone')
             email = request.form.get('email')
 
-            utilities.add_student(first_name=first_name,
-                                  last_name=last_name,
-                                  sex=sex,
-                                  bday=bday,
-                                  address=address,
-                                  phone=phone,
-                                  email=email)
-
+            result = utilities.add_student(first_name=first_name,
+                                           last_name=last_name,
+                                           sex=sex,
+                                           bday=bday,
+                                           address=address,
+                                           phone=phone,
+                                           email=email)
+            if result:
+                return redirect(url_for("add_students", err_msg=result))
             info_student = {
                 'first_name': first_name,
                 'last_name': last_name,

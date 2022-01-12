@@ -460,9 +460,8 @@ th.column-header {
 
 /************ Scroll to top ****************/
 .scrollToTop{
-    width:50px;
-    height:50px;
-    padding:5px;
+    width: 4vw;
+    height: 7vh;
     text-align:center;
     background: whiteSmoke;
     font-size: 50px

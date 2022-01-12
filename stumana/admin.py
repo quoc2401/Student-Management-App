@@ -37,7 +37,14 @@ class AuthenticatedModelView(ModelView):
         'password': 'Mật khẩu',
         'avatar': 'Ảnh đại diện',
         'user_role': 'Chức vụ',
-        'classes': 'Các lớp phụ trách'
+        'classes': 'Các lớp phụ trách',
+        'teacher': 'Giáo viên',
+        'class_room': 'Lớp',
+        'student': 'Học sinh',
+        'staff': 'Nhân viên',
+        'subject': 'Môn',
+        'year': 'Năm',
+        'course': 'Khóa học'
     }
 
     def is_accessible(self):
@@ -48,6 +55,11 @@ class PersonView(AuthenticatedModelView):
     column_searchable_list = ['first_name', 'last_name']
 
 
+class TeacherView(PersonView):
+    column_exclude_list = ['course', 'classes']
+    form_excluded_columns = ['course', 'classes']
+
+
 class AdminBaseView(AuthenticatedBaseView):
     def is_accessible(self):
         if current_user.is_authenticated:
@@ -56,21 +68,23 @@ class AdminBaseView(AuthenticatedBaseView):
 
 class UserView(AuthenticatedModelView):
     column_display_all_relations = False
+    column_searchable_list = ['name', 'username']
 
 
 class ClassModalView(AuthenticatedModelView):
-    column_exclude_list = ['course']
+    column_exclude_list = ['course', 'teacher']
+    form_excluded_columns = ['course', 'teacher', 'total']
     column_labels = {
         'grade': 'Khối',
         'name': 'Tên lớp',
         'total': 'Sỉ số',
-        'teacher': 'Giáo viên phụ trách',
         'students': 'Các học sinh trong lớp'
     }
 
 
 class SubjectModelView(AuthenticatedModelView):
     column_exclude_list = ['course']
+    form_excluded_columns = ['course']
     column_searchable_list = ['name']
     column_filters = ['name']
     column_labels = {
@@ -180,7 +194,7 @@ admin.add_view(PersonView(Student, db.session,
 #                             name='Điều chỉnh lớp học',
 #                             category="Lớp học"))
 # Admin
-admin.add_view(PersonView(Teacher, db.session,
+admin.add_view(TeacherView(Teacher, db.session,
                                       name='Giáo viên',
                                       category="Cá nhân",
                                       menu_icon_type='fa',
