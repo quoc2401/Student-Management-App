@@ -61,10 +61,7 @@ $(document).ready(function() {
 
     checkAndChange(passOne, passTwo);
   });
-  /**************** datepicker ******************/
-    $('#datepicker').datepicker({
-                    uiLibrary: 'bootstrap4'
-                });
+
 })
 
 function changeRule() {
@@ -169,9 +166,12 @@ function updateMarks(subject_id, student_id, year) {
         if(data.status == 200) {
             alertMsg(true, "Lưu thành công")
         }
+        else if (data.status == 403) {
+           alertMsg(false, data.err_msg)
+        }
         else {
-           alertMsg(false, "Lưu thất bại")
-           console.info(data.err_msg)
+            alertMsg(false, "Lưu thất bại")
+            console.info(data.err_msg)
         }
     }).catch(function(err) {
         console.info(err)
@@ -270,7 +270,7 @@ function addClass(class_id) {
                     alert("Xóa thành công")
             }
             else {
-                alertMsg(false, "Có lỗi xảy ra")
+                alertMsg(false, data.err_msg)
             }
         }).catch(function(err) {
             console.info(err)
@@ -320,10 +320,13 @@ function loadMarks(course_id) {
 }
 
 /*** Class filter ****/
-function classSearch() {
+function classSearch(user_role) {
     var keyword = $("#keyword").val()
     if (keyword != undefined && keyword != null) {
-        window.location = '/students-marks?keyword=' + keyword;
+        if (user_role == 'UserRole.TEACHER')
+            window.location = '/students-marks?keyword=' + keyword;
+        else
+            window.location = '/student-marks?keyword=' + keyword;
     }
 }
 

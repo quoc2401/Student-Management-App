@@ -148,9 +148,14 @@ def update_class():
 
     try:
         result = utilities.update_classes(student_id=student_id, class_id=classid)
+
+        if result:
+            return jsonify({'status': 404,
+                            'err_msg': result})
+
     except Exception as e:
-        print(e)
-        return jsonify({'status': 404})
+        return jsonify({'status': 404,
+                        'err_msg': "Vượt quá số lượng tối đa"})
 
     return jsonify({'status': 200})
 
@@ -199,27 +204,26 @@ def students_marks():
     course_id = request.args.get('course_id')
     keyword = request.args.get('keyword')
     classes = utilities.get_classes_of_teacher(current_user.id)
+    if keyword:
+        filtered_classes = []
+        for c in classes:
+            for i in c:
+                if keyword.lower() in str(i).lower():
+                    if c not in filtered_classes:
+                        filtered_classes.append(c)
+
+        return render_template("students-marks.html", classes=filtered_classes)
 
     if course_id:
         if utilities.check_teacher_access(user_id=current_user.id, course_id=course_id):
-            if keyword:
-                filtered_classes = []
-                for c in classes:
-                    for i in c:
-                        if keyword.lower() in str(i).lower():
-                            if c not in filtered_classes:
-                                filtered_classes.append(c)
-                return render_template("students-marks.html", classes=filtered_classes)
+            course = utilities.get_course_info(course_id)
+            utilities.create_all_mark_records(course_id=course_id) # Tao bang diem khi vao nhap diem
+            marks = utilities.get_mark_by_course_id(course_id=course_id)
 
-            if course_id:
-                course = utilities.get_course_info(course_id)
-                utilities.create_all_mark_records(course_id=course_id) # Tao bang diem khi vao nhap diem
-                marks = utilities.get_mark_by_course_id(course_id=course_id)
-
-                return render_template("students-marks.html",
-                                       marks=marks,
-                                       course=course,
-                                       classes=classes)
+            return render_template("students-marks.html",
+                                   marks=marks,
+                                   course=course,
+                                   classes=classes)
         else:
             return redirect("/")
     else:
@@ -276,7 +280,7 @@ def update_marks():
 
         return jsonify({'status': 200})
 
-    return jsonify({'status': 404,
+    return jsonify({'status': 403,
                     'err_msg': "You do not have the right to do this!"})
 
 
@@ -297,20 +301,9 @@ def calendar():
     if current_user.user_role == UserRole.TEACHER:
         classes = utilities.get_classes_of_teacher(current_user.id)
     else:
-        classes = None
+        classes = utilities.get_classes_of_student(current_user.id)
 
     return render_template("calendar.html", classes=classes)
-
-
-@app.route("/students",  methods=['get', 'post'])
-@login_required
-def list_students():
-    if current_user.user_role == UserRole.STAFF:
-        list_student = utilities.info_student()
-
-        return render_template("add-students.html", list_student=list_student)
-    else:
-        return redirect("/")
 
 
 # STAFF them hoc sinh
@@ -318,6 +311,8 @@ def list_students():
 @login_required
 def add_students():
     if current_user.user_role == UserRole.STAFF:
+        if request.args.get('err_msg'):
+            return render_template("add-students.html", err_msg=request.args.get('err_msg'))
 
         return render_template("add-students.html")
 
@@ -336,14 +331,15 @@ def out_student():
             phone = request.form.get('phone')
             email = request.form.get('email')
 
-            utilities.add_student(first_name=first_name,
-                                  last_name=last_name,
-                                  sex=sex,
-                                  bday=bday,
-                                  address=address,
-                                  phone=phone,
-                                  email=email)
-
+            result = utilities.add_student(first_name=first_name,
+                                           last_name=last_name,
+                                           sex=sex,
+                                           bday=bday,
+                                           address=address,
+                                           phone=phone,
+                                           email=email)
+            if result:
+                return redirect(url_for("add_students", err_msg=result))
             info_student = {
                 'first_name': first_name,
                 'last_name': last_name,
@@ -388,6 +384,31 @@ def out_total_mark(course_id):
 
     else:
         return redirect("/")
+
+
+@app.route("/student-marks")
+def view_mark():
+    course_id = request.args.get('course_id')
+    classes = utilities.get_classes_of_student(current_user.id)
+    keyword = request.args.get('keyword')
+
+    if keyword:
+        filtered_classes = []
+        for c in classes:
+            for i in c:
+                if keyword.lower() in str(i).lower():
+                    if c not in filtered_classes:
+                        filtered_classes.append(c)
+
+        return render_template("students-marks.html", classes=filtered_classes)
+
+    if course_id:
+        course = utilities.get_course_info(course_id=course_id)
+        marks = utilities.get_marks_of_student(user_id=current_user.id, course_id=course_id)
+
+        return render_template("student_marks.html", classes=classes, marks=marks, course=course)
+
+    return render_template("students-marks.html", classes=classes)
 
 
 # xuat danh sach lop hoc

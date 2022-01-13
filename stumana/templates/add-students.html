@@ -53,10 +53,10 @@
     </form>
 </div>
 
-{% if error_msg %}
+{% if err_msg %}
     <script>
         $(document).ready(function() {
-            alertMsg(false, '{{ error_msg }}')
+            alertMsg(false, '{{ err_msg }}')
         });
     </script>
 {% endif %}
