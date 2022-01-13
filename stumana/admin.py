@@ -171,26 +171,26 @@ admin.add_view(UserView(User, db.session,
                         menu_icon_value='fa-users'))
 # Staff
 admin.add_view(PersonView(Student, db.session,
-                                      name='Học sinh',
-                                      category="Cá nhân",
-                                      menu_icon_type='fa',
-                                      menu_icon_value='fa-graduation-cap'))
+                          name='Học sinh',
+                          category="Cá nhân",
+                          menu_icon_type='fa',
+                          menu_icon_value='fa-graduation-cap'))
 # Staff
 # admin.add_view(Change_class(Student, db.session,
 #                             name='Điều chỉnh lớp học',
 #                             category="Lớp học"))
 # Admin
 admin.add_view(PersonView(Teacher, db.session,
-                                      name='Giáo viên',
-                                      category="Cá nhân",
-                                      menu_icon_type='fa',
-                                      menu_icon_value='fa-podcast'))
+                          name='Giáo viên',
+                          category="Cá nhân",
+                          menu_icon_type='fa',
+                          menu_icon_value='fa-podcast'))
 # Admin
 admin.add_view(PersonView(Staff, db.session,
-                                      name='Nhân viên',
-                                      category="Cá nhân",
-                                      menu_icon_type='fa',
-                                      menu_icon_value='fa-briefcase'))
+                          name='Nhân viên',
+                          category="Cá nhân",
+                          menu_icon_type='fa',
+                          menu_icon_value='fa-briefcase'))
 # Admin
 admin.add_view(ClassModalView(ClassRoom, db.session,
                               name='Quản lý lớp học',

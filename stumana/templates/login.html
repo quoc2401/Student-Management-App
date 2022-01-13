@@ -3,9 +3,8 @@
 {% block title %}Đăng nhập{% endblock %}
 
 {% block body %}
-<h1 class="text-center heading" style="margin-top:50px;">Đăng nhập</h1>
-
-<div class="form-login" style="margin:0 auto; width:500px; height:400px;">
+<div class="form-login" style="margin:50px auto; width:500px; height:450px;">
+    <h1 class="text-center heading" style="margin-top:30px;margin-bottom:30px">Đăng nhập</h1>
     {% if error_msg %}
     <div class="alert alert-danger">
         {{ error_msg }}
@@ -34,5 +33,5 @@
         </div>
     </form>
 </div>
-<br>
+
 {% endblock %}

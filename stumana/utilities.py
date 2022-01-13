@@ -6,6 +6,7 @@ from stumana import config
 from stumana.models import User, Student, Mark, Subject, Mark15, Mark45, ClassRoom, Course, Teacher, Staff, UserRole
 from datetime import datetime
 
+
 # Dang nhap
 def get_user_by_id(user_id):
     return User.query.get(user_id)

@@ -47,7 +47,8 @@
 <body>
 {% block page_body %}
     <div class="container-fluid main-body" style="padding:0">
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-2 sticky-top" role="navigation">
+        <nav class="navbar navbar-expand-lg navbar-dark mb-2 sticky-top"
+             style="background-color: #091c50;" role="navigation">
             <!-- Brand and toggle get grouped for better mobile display -->
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#admin-navbar-collapse"
                     aria-controls="admin-navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,8 +58,8 @@
             <div class="collapse navbar-collapse" id="admin-navbar-collapse">
             {% block brand %}
                 <a class="navbar-brand" href="{{ admin_view.admin.url }}">
-                    <img src="https://res.cloudinary.com/quoc2401/image/upload/v1639310528/logo_muibye.png"
-                         alt="logo_image" width="40px">
+                    <img id="logo" src="{{ url_for('static', filename='images/logo-white.png') }}"
+                         alt="Logo" style="width:60px;margin:0 8px;">
                 </a>
             {% endblock %}
             {% block main_menu %}
@@ -84,7 +85,7 @@
         {# store the jinja2 context for form_rules rendering logic #}
         {% set render_ctx = h.resolve_ctx() %}
 
-        <div class="container-fluid">
+        <div class="container-fluid" style="padding-top: 20px">
         {% block body %}{% endblock %}
         </div>
     </div>
