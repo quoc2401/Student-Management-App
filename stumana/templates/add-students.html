@@ -3,8 +3,9 @@
 {% block title %} Thêm học sinh {% endblock %}
 
 {% block body %}
-<div class="container" style="width: 40vw">
+<div class="container" style="width: 40vw; padding-top: 50px; padding-bottom: 50px">
     <h1 class="text text-center">Nhập học sinh mới</h1>
+    <br>
     <form method="POST" action="{{ url_for('out_student') }}">
         <div class="input-group mb-3">
             <div class="input-group-prepend">
