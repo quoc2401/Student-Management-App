@@ -24,7 +24,9 @@ function snipMe() {
 }
 
 function out_marks(course_id) {
-    window.location = '/students-marks/out/' + course_id + '?semester=' + $('#semester').val()
+    var path = '/students-marks/out/' + course_id + '?semester=' + $('#semester').val()
+    var win = window.open(path, '_blank')
+    win.focus()
 }
 
 $(document).ready(function() {
