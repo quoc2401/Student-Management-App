@@ -39,7 +39,7 @@
         {% for s in students %}
         <tr>
             <td>{{ students.index(s) + 1 }}</td>
-            <td>{{ s.first_name }} {{ s.last_name }}</td>
+            <td>{{ s.last_name }} {{ s.first_name }}</td>
             <td>
                 {% if s.sex == True %}
                 Nam
