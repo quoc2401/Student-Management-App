@@ -4,7 +4,7 @@ from stumana import config
 from stumana.models import User, Student, Mark, Subject, Mark15, Mark45, ClassRoom, Course, Teacher, Staff, UserRole
 from datetime import datetime
 from dateutil import parser
-
+import unicodedata
 
 # Dang nhap
 def get_user_by_id(user_id):
@@ -271,7 +271,7 @@ def get_mark_by_course_id(course_id, semester=None):
 
     for s in students:
         marks.append({
-            'student_name': s.Student.first_name + " " + s.Student.last_name,
+            'student_name': s.Student.last_name + " " + s.Student.first_name,
             'mark15': [s.Mark15.col1, s.Mark15.col2, s.Mark15.col3, s.Mark15.col4, s.Mark15.col5],
             'mark45': [s.Mark45.col1, s.Mark45.col2, s.Mark45.col3],
             'final_mark': s.FinalMark,
@@ -317,7 +317,7 @@ def get_marks_of_student(subject_id=None, student_id=None, year=None, user_id=No
             },
             'student': {
                 'id': r.Student.id,
-                'name': r.Student.first_name + " " + r.Student.last_name,
+                'name': r.Student.last_name + " " + r.Student.first_name,
             },
             'semester': r.semester,
             'mark15': [r.Mark15.col1, r.Mark15.col2, r.Mark15.col3, r.Mark15.col4, r.Mark15.col5],
@@ -534,9 +534,12 @@ def create_account(student_id, first_name, last_name):
     name = last_name + " " + first_name
     f = first_name.split(" ")
     if len(f) > 1:
+        f[1] = (unicodedata.normalize('NFKD', f[1]).encode('ascii', 'ignore')).decode("utf-8")
         username = str((datetime.now().year % 100) * 10000 + student_id) + f[1].lower()
     else:
+        f[0] = (unicodedata.normalize('NFKD', f[0]).encode('ascii', 'ignore')).decode("utf-8")
         username = str((datetime.now().year % 100) * 10000 + student_id) + f[0].lower()
+
     password = str((datetime.now().year % 100) * 10000 + student_id)
 
     user = User(name=name,

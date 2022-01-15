@@ -136,7 +136,7 @@
                         {% for s in students %}
                         <tr>
                           <td>{{ students.index(s) + 1 }}</td>
-                          <td class="student name">{{ s[0].first_name }} {{ s[0].last_name }}</td>
+                          <td class="student name">{{ s[0].last_name }} {{ s[0].first_name }}</td>
                           <td class="student sex">
                               {% if s[0].sex == True %}
                               Nam
