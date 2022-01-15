@@ -36,8 +36,8 @@ class Ethnic(BaseModel):
 class Person(BaseModel):
     __abstract__ = True
 
-    first_name = Column(String(20), nullable=False)
     last_name = Column(String(20), nullable=False)
+    first_name = Column(String(20), nullable=False)
     bday = Column(DATETIME, nullable=False)
     sex = Column(Boolean, default=True)
     address = Column(String(100))
@@ -47,7 +47,7 @@ class Person(BaseModel):
     active = Column(Boolean, default=True)
 
     def __str__(self):
-        return self.first_name + ' ' + self.last_name
+        return self.last_name + ' ' + self.first_name
 
 
 class ClassRoom(BaseModel):

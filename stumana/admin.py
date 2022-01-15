@@ -21,8 +21,8 @@ class AuthenticatedModelView(ModelView):
     edit_modal = True
     column_display_all_relations = True
     column_labels = {
-        'first_name': 'Họ',
-        'last_name': 'Tên',
+        'first_name': 'Tên',
+        'last_name': 'Họ',
         'bday': 'Ngày sinh',
         'sex': 'Giới tính',
         'address': 'Địa chỉ',
@@ -52,7 +52,7 @@ class AuthenticatedModelView(ModelView):
 
 
 class PersonView(AuthenticatedModelView):
-    column_searchable_list = ['first_name', 'last_name']
+    column_searchable_list = ['last_name', 'first_name']
 
 
 class TeacherView(PersonView):
